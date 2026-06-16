@@ -4,10 +4,11 @@ import { usePostcards } from '../store/PostcardStore';
 import { FILTERS, STAMPS, TEMPLATES } from '../data/templates';
 import { FRIENDS } from '../data/seed';
 import { fileToDataUrl } from '../utils/image';
+import { readExifLocation } from '../utils/exif';
 import { playWhoosh } from '../utils/sound';
 import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
-import type { GeoLocation } from '../types';
+import type { Crop, GeoLocation, Orientation } from '../types';
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -24,6 +25,8 @@ export function CreatePage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [image, setImage] = useState<string>(PLACEHOLDER);
+  const [orientation, setOrientation] = useState<Orientation>('landscape');
+  const [crop, setCrop] = useState<Crop>({ zoom: 1, x: 50, y: 50 });
   const [templateId, setTemplateId] = useState(TEMPLATES[0].id);
   const [stampId, setStampId] = useState(STAMPS[0].id);
   const [filterId, setFilterId] = useState(FILTERS[0].id);
@@ -43,6 +46,10 @@ export function CreatePage() {
     if (!file) return;
     try {
       setImage(await fileToDataUrl(file));
+      setCrop({ zoom: 1, x: 50, y: 50 });
+      // Pull the capture location straight from the photo's EXIF data, if present.
+      const exif = await readExifLocation(file);
+      if (exif) setLocation(exif);
     } catch (err) {
       alert('Fehler beim Laden des Fotos: ' + (err as Error).message);
     }
@@ -60,6 +67,7 @@ export function CreatePage() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           label: `${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`,
+          source: 'manual',
         });
         setLocating(false);
       },
@@ -79,13 +87,15 @@ export function CreatePage() {
     setBusy(true);
     setFlying(true);
     playWhoosh();
-    sendPostcard({ image, templateId, stampId, filter: filterCss, message, to, from: userName, location });
+    sendPostcard({ image, orientation, crop, templateId, stampId, filter: filterCss, message, to, from: userName, location });
     setTimeout(() => navigate('/mailbox?sent=1'), 1100);
   }
 
   const previewCard = {
     id: 'preview',
     image,
+    orientation,
+    crop,
     templateId,
     stampId,
     filter: filterCss,
@@ -129,8 +139,44 @@ export function CreatePage() {
               />
             </div>
             <button className="btn link" onClick={captureLocation} disabled={locating}>
-              {locating ? '📍 Suche Standort…' : location ? `📍 ${location.label}` : '📍 Aufnahmeort hinzufügen'}
+              {locating
+                ? '📍 Suche Standort…'
+                : location
+                  ? `📍 ${location.label}${location.source === 'exif' ? ' (aus Foto)' : ''}`
+                  : '📍 Aufnahmeort hinzufügen'}
             </button>
+
+            <div className="orient-row">
+              <span className="mini-label">Ausrichtung</span>
+              <div className="seg">
+                <button
+                  className={`seg-btn ${orientation === 'landscape' ? 'on' : ''}`}
+                  onClick={() => setOrientation('landscape')}
+                >
+                  ▭ Quer
+                </button>
+                <button
+                  className={`seg-btn ${orientation === 'portrait' ? 'on' : ''}`}
+                  onClick={() => setOrientation('portrait')}
+                >
+                  ▯ Hoch
+                </button>
+              </div>
+            </div>
+
+            {hasPhoto && (
+              <label className="zoom-row">
+                <span className="mini-label">Zoom · zum Zuschneiden ziehen 🔍</span>
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.01}
+                  value={crop.zoom}
+                  onChange={(e) => setCrop((c) => ({ ...c, zoom: Number(e.target.value) }))}
+                />
+              </label>
+            )}
           </div>
 
           <div className="field">
@@ -214,6 +260,8 @@ export function CreatePage() {
           <div className="preview-card-wrap">
             <PostcardCard
               card={previewCard}
+              editable={hasPhoto}
+              onCropChange={(c) => setCrop(c)}
               onCardClick={hasPhoto ? undefined : () => fileRef.current?.click()}
             />
             {!hasPhoto && <span className="dropzone-cta">📷 Tippen, um ein Foto zu wählen</span>}

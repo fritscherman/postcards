@@ -26,6 +26,8 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
   const [emoji, setEmoji] = useState(EMOJIS[0]);
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [stickers, setStickers] = useState<Sticker[]>([]);
+  // Live pixel size of the stage so stickers can be sized to match the baked output.
+  const [stageMin, setStageMin] = useState(0);
 
   // Keep the canvas pixel size in sync with its displayed size and redraw.
   const redraw = () => {
@@ -57,7 +59,13 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
 
   useLayoutEffect(redraw);
   useEffect(() => {
-    const ro = new ResizeObserver(redraw);
+    const measure = () => {
+      redraw();
+      const s = stageRef.current;
+      if (s) setStageMin(Math.min(s.clientWidth, s.clientHeight));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
     if (stageRef.current) ro.observe(stageRef.current);
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +199,7 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
             <span
               key={s.id}
               className="dec-sticker"
-              style={{ left: `${s.x * 100}%`, top: `${s.y * 100}%`, fontSize: `${s.scale * 100}%` }}
+              style={{ left: `${s.x * 100}%`, top: `${s.y * 100}%`, fontSize: `${Math.max(12, s.scale * stageMin)}px` }}
               onPointerDown={(e) => onStickerDown(e, s.id)}
               onDoubleClick={(e) => removeSticker(e, s.id)}
             >

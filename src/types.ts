@@ -2,6 +2,19 @@ export interface GeoLocation {
   lat: number;
   lng: number;
   label?: string;
+  /** where the location came from, for a subtle hint on the card back */
+  source?: 'exif' | 'manual';
+}
+
+export type Orientation = 'landscape' | 'portrait';
+
+/** How the photo is framed inside the postcard window. */
+export interface Crop {
+  /** zoom factor, >= 1 */
+  zoom: number;
+  /** object-position in percent, 0..100 */
+  x: number;
+  y: number;
 }
 
 export interface PinPosition {
@@ -22,6 +35,9 @@ export interface Postcard {
   stampId: string;
   /** CSS filter applied to the photo, e.g. "grayscale(1)"; defaults to none */
   filter?: string;
+  /** photo framing; defaults to landscape / centred when absent */
+  orientation?: Orientation;
+  crop?: Crop;
   message: string;
   to: string;
   from: string;
