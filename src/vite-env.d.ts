@@ -2,6 +2,11 @@
 /// <reference types="vite-plugin-pwa/react" />
 /// <reference types="vite-plugin-pwa/info" />
 
+interface ImportMetaEnv {
+  /** Base URL of the Postcards backend; empty enables local demo mode. */
+  readonly VITE_API_URL?: string;
+}
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;

@@ -8,6 +8,7 @@ import { readExifLocation } from '../utils/exif';
 import { playWhoosh } from '../utils/sound';
 import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
+import { isOnline, ApiError } from '../api/client';
 import type { Crop, GeoLocation, Orientation } from '../types';
 
 const PLACEHOLDER =
@@ -32,6 +33,7 @@ export function CreatePage() {
   const [filterId, setFilterId] = useState(FILTERS[0].id);
   const [message, setMessage] = useState('');
   const [to, setTo] = useState(FRIENDS[0]);
+  const [toEmail, setToEmail] = useState('');
   const [location, setLocation] = useState<GeoLocation | undefined>();
   const [locating, setLocating] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -79,16 +81,42 @@ export function CreatePage() {
     );
   }
 
-  function handleSend() {
+  async function handleSend() {
     if (!hasPhoto) {
       alert('Bitte wähle zuerst ein Foto aus. 📷');
+      return;
+    }
+    if (isOnline && !toEmail.trim()) {
+      alert('Bitte gib die E-Mail-Adresse des Empfängers an.');
       return;
     }
     setBusy(true);
     setFlying(true);
     playWhoosh();
-    sendPostcard({ image, orientation, crop, templateId, stampId, filter: filterCss, message, to, from: userName, location });
-    setTimeout(() => navigate('/mailbox?sent=1'), 1100);
+    try {
+      await sendPostcard({
+        image,
+        orientation,
+        crop,
+        templateId,
+        stampId,
+        filter: filterCss,
+        message,
+        to: isOnline ? toEmail.trim() : to,
+        toEmail: isOnline ? toEmail.trim() : undefined,
+        from: userName,
+        location,
+      });
+      setTimeout(() => navigate('/mailbox?sent=1'), 1100);
+    } catch (err) {
+      setFlying(false);
+      setBusy(false);
+      if (err instanceof ApiError && err.code === 'NO_RECIPIENT') {
+        alert('Diese Person ist noch nicht dabei. Lade sie oben über „💌 Einladen" ein.');
+      } else {
+        alert('Senden fehlgeschlagen: ' + (err as Error).message);
+      }
+    }
   }
 
   const previewCard = {
@@ -100,7 +128,7 @@ export function CreatePage() {
     stampId,
     filter: filterCss,
     message,
-    to,
+    to: isOnline ? toEmail || 'Empfänger:in' : to,
     from: userName,
     location,
     createdAt: Date.now(),
@@ -241,17 +269,26 @@ export function CreatePage() {
 
           <div className="field">
             <label>6 · Empfänger</label>
-            <select value={to} onChange={(e) => setTo(e.target.value)}>
-              {FRIENDS.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
+            {isOnline ? (
+              <input
+                type="email"
+                placeholder="freund@example.com"
+                value={toEmail}
+                onChange={(e) => setToEmail(e.target.value)}
+              />
+            ) : (
+              <select value={to} onChange={(e) => setTo(e.target.value)}>
+                {FRIENDS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <button className="btn primary big" onClick={handleSend} disabled={busy}>
-            {busy ? 'Wird versendet… ✈️' : `An ${to} senden ✉️`}
+            {busy ? 'Wird versendet… ✈️' : `An ${isOnline ? toEmail || 'Freund:in' : to} senden ✉️`}
           </button>
         </section>
 

@@ -41,6 +41,9 @@ export interface Postcard {
   message: string;
   to: string;
   from: string;
+  /** recipient / sender email — only used in online (backend) mode */
+  toEmail?: string;
+  fromEmail?: string;
   location?: GeoLocation;
   createdAt: number;
   box: Box;
