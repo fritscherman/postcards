@@ -1,8 +1,8 @@
-# ✉️ Postkarten
+# ✉️ Wanderpost
 
-Eine verspielte, hochwertige Web-App zum Erstellen und Versenden **virtueller Postkarten**.
-Wähle ein Foto, gestalte deine Karte mit Vorlagen, Text und Briefmarke und schick sie ab –
-deine Karten landen im Briefkasten, auf einer Weltkarte und an der Pinwand.
+Eine verspielte, hochwertige Web-App zum Erstellen und Versenden **virtueller Postkarten** –
+Grüße, die um die Welt wandern. Wähle ein Foto, gestalte deine Karte mit Vorlagen, Text und
+Briefmarke und schick sie ab – deine Karten landen im Briefkasten, auf einer Weltkarte und an der Pinwand.
 
 > Prototyp: alle Daten werden lokal im Browser (`localStorage`) gespeichert – kein Login, kein Server nötig.
 

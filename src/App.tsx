@@ -17,7 +17,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-bar">
-        <span className="logo">✉️ Postkarten</span>
+        <span className="logo">✉️ Wanderpost</span>
         <div className="app-bar-actions">
           <button className="who" onClick={() => { setDraft(userName); setEditing(true); }}>
             👤 {userName}

@@ -26,7 +26,7 @@ export function Welcome() {
     <div className="modal-backdrop">
       <div className="welcome">
         <span className="welcome-icon">{s.icon}</span>
-        <h2>{step === 0 ? 'Willkommen bei Postkarten!' : s.title}</h2>
+        <h2>{step === 0 ? 'Willkommen bei Wanderpost!' : s.title}</h2>
         <p>{step === 0 ? 'Sende deinen Freunden virtuelle Grüße aus aller Welt. So funktioniert’s:' : s.text}</p>
         {step === 0 && <p className="welcome-sub">{s.title}: {s.text}</p>}
 

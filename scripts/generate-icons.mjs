@@ -25,6 +25,13 @@ function icon(pad = 0) {
     <path d="M${-card + 34} ${-card * 0.66 + 44} h150 M${-card + 34} ${-card * 0.66 + 84} h150 M${-card + 34} ${-card * 0.66 + 124} h220"
       stroke="#0e7490" stroke-width="12" stroke-linecap="round" opacity=".85"/>
     <path d="M${-card + 34} ${card * 0.4} h${card * 2 - 68}" stroke="#f97362" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+    <!-- travel path arcing up to a little paper plane -->
+    <path d="M${card * 0.05} ${-card * 0.62} C ${card * 0.3} ${-card * 0.92}, ${card * 0.52} ${-card * 1.02}, ${card * 0.66} ${-card * 0.98}"
+      fill="none" stroke="#f6b73c" stroke-width="11" stroke-linecap="round" stroke-dasharray="1 26" opacity=".95"/>
+    <g transform="translate(${card * 0.66} ${-card * 1.06}) scale(${card / 52})">
+      <path d="M0 8 L13 1 L7 14 L5 9 Z" fill="#fff7e6"/>
+      <path d="M5 9 L13 1 L7 14 Z" fill="#f6b73c"/>
+    </g>
   </g>
 </svg>`;
 }

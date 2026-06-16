@@ -10,9 +10,9 @@ export default defineConfig({
             registerType: 'prompt',
             includeAssets: ['postcard.svg', 'apple-touch-icon.png'],
             manifest: {
-                name: 'Postkarten · virtuelle Grüße',
-                short_name: 'Postkarten',
-                description: 'Erstelle und versende virtuelle Postkarten an deine Freunde.',
+                name: 'Wanderpost · virtuelle Grüße aus aller Welt',
+                short_name: 'Wanderpost',
+                description: 'Erstelle und versende virtuelle Postkarten an deine Freunde — und sieh, woher sie kommen.',
                 lang: 'de',
                 theme_color: '#0e7490',
                 background_color: '#fdf6ec',
