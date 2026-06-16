@@ -4,7 +4,9 @@ import { usePostcards } from '../store/PostcardStore';
 import { STAMPS, TEMPLATES } from '../data/templates';
 import { FRIENDS } from '../data/seed';
 import { fileToDataUrl } from '../utils/image';
+import { playWhoosh } from '../utils/sound';
 import { PostcardCard } from '../components/PostcardCard';
+import { PhotoDecorator } from '../components/PhotoDecorator';
 import type { GeoLocation } from '../types';
 
 const PLACEHOLDER =
@@ -29,6 +31,8 @@ export function CreatePage() {
   const [location, setLocation] = useState<GeoLocation | undefined>();
   const [locating, setLocating] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [decorating, setDecorating] = useState(false);
+  const [flying, setFlying] = useState(false);
 
   const hasPhoto = image !== PLACEHOLDER;
 
@@ -71,8 +75,10 @@ export function CreatePage() {
       return;
     }
     setBusy(true);
+    setFlying(true);
+    playWhoosh();
     sendPostcard({ image, templateId, stampId, message, to, from: userName, location });
-    setTimeout(() => navigate('/mailbox?sent=1'), 400);
+    setTimeout(() => navigate('/mailbox?sent=1'), 1100);
   }
 
   const previewCard = {
@@ -105,6 +111,11 @@ export function CreatePage() {
               <button className="btn ghost" onClick={() => fileRef.current?.click()}>
                 {hasPhoto ? '🔄 Anderes Foto' : '📷 Foto wählen / aufnehmen'}
               </button>
+              {hasPhoto && (
+                <button className="btn ghost" onClick={() => setDecorating(true)}>
+                  🎨 Verzieren
+                </button>
+              )}
               <input
                 ref={fileRef}
                 type="file"
@@ -184,6 +195,26 @@ export function CreatePage() {
           <PostcardCard card={previewCard} />
         </section>
       </div>
+
+      {decorating && (
+        <PhotoDecorator
+          src={image}
+          onApply={(url) => {
+            setImage(url);
+            setDecorating(false);
+          }}
+          onClose={() => setDecorating(false)}
+        />
+      )}
+
+      {flying && (
+        <div className="fly-overlay">
+          <div className="fly-card">
+            <PostcardCard card={previewCard} flippable={false} />
+          </div>
+          <p className="fly-text">Unterwegs zu {to}… ✈️</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
-import type { Box } from '../types';
+import { PostcardDetail } from '../components/PostcardDetail';
+import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
   const { cardsIn, markRead, removePostcard } = usePostcards();
   const [params, setParams] = useSearchParams();
   const [box, setBox] = useState<Box>('inbox');
   const [toast, setToast] = useState(params.get('sent') === '1');
+  const [detail, setDetail] = useState<Postcard | null>(null);
 
   useEffect(() => {
     if (params.get('sent') === '1') {
@@ -59,14 +61,21 @@ export function MailboxPage() {
               </div>
               <div className="card-meta">
                 <span>{box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}</span>
-                <button className="btn link danger" onClick={() => removePostcard(card.id)}>
-                  Löschen
-                </button>
+                <span className="card-meta-actions">
+                  <button className="btn link" onClick={() => setDetail(card)}>
+                    🔍 Details
+                  </button>
+                  <button className="btn link danger" onClick={() => removePostcard(card.id)}>
+                    Löschen
+                  </button>
+                </span>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {detail && <PostcardDetail card={detail} onClose={() => setDetail(null)} />}
     </div>
   );
 }
