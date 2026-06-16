@@ -304,6 +304,41 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   100% { transform: translate(40vw, -75vh) scale(.18) rotate(22deg); opacity: 0; }
 }
 
+/* ---------- Filter chips ---------- */
+.filter-chip { display: flex; align-items: center; gap: 8px; font: inherit; font-weight: 600;
+  cursor: pointer; padding: 6px 14px 6px 6px; border-radius: 999px; border: 1.5px solid var(--line);
+  background: #fff; color: var(--ink); box-shadow: var(--shadow-sm); transition: transform .15s ease; }
+.filter-chip:hover { transform: translateY(-2px); }
+.filter-chip.sel { box-shadow: 0 0 0 3px rgba(14,116,144,.25), var(--shadow-sm); transform: translateY(-2px); }
+.filter-swatch { width: 26px; height: 26px; border-radius: 50%; flex: none;
+  background: conic-gradient(from 0deg, #f97362, #f6b73c, #16a34a, #0e7490, #7c3aed, #f97362); }
+
+/* ---------- Welcome tour ---------- */
+.welcome { background: var(--paper); border-radius: var(--radius); padding: 32px 28px; width: min(400px, 100%);
+  text-align: center; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; align-items: center;
+  gap: 12px; animation: slidein .3s ease; }
+.welcome-icon { font-size: 3.4rem; animation: pop .4s ease; }
+.welcome h2 { color: var(--teal-dark); font-size: 1.6rem; }
+.welcome p { color: var(--muted); line-height: 1.5; }
+.welcome-sub { color: var(--ink); font-weight: 600; }
+.welcome-dots { display: flex; gap: 8px; margin: 6px 0; }
+.welcome-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: all .2s ease; }
+.welcome-dots .dot.on { background: var(--teal); width: 22px; border-radius: 99px; }
+.welcome-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 6px; }
+.welcome-actions .btn.primary { padding: 11px 24px; }
+
+/* ---------- Entrance animations ---------- */
+.page { animation: rise .35s ease both; }
+.card-cell { animation: rise .4s ease both; }
+.card-grid .card-cell:nth-child(2) { animation-delay: .05s; }
+.card-grid .card-cell:nth-child(3) { animation-delay: .1s; }
+.card-grid .card-cell:nth-child(4) { animation-delay: .15s; }
+.card-grid .card-cell:nth-child(n+5) { animation-delay: .2s; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .page, .card-cell, .fly-card, .welcome, .toast, .pwa-banner { animation: none !important; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   .create-grid { grid-template-columns: 1fr; }

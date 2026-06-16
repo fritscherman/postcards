@@ -21,7 +21,7 @@ export function PostcardDetail({ card, onClose }: Props) {
       <div className="detail" onClick={(e) => e.stopPropagation()}>
         <button className="detail-close" onClick={onClose}>✕</button>
         <div className="detail-photo">
-          <img src={card.image} alt="Postkarten-Motiv" />
+          <img src={card.image} alt="Postkarten-Motiv" style={{ filter: card.filter || 'none' }} />
           <span className="detail-stamp" style={{ background: stamp.bg }}>{stamp.emoji}</span>
         </div>
         <div className="detail-body">

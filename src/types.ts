@@ -20,6 +20,8 @@ export interface Postcard {
   image: string;
   templateId: string;
   stampId: string;
+  /** CSS filter applied to the photo, e.g. "grayscale(1)"; defaults to none */
+  filter?: string;
   message: string;
   to: string;
   from: string;
