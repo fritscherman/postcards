@@ -3,6 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import { usePostcards } from '../store/PostcardStore';
 import { stampById } from '../data/templates';
+import { PostcardDetail } from '../components/PostcardDetail';
 import type { Postcard } from '../types';
 
 /** Build a playful pin marker that shows the postcard's stamp emoji. */
@@ -19,6 +20,7 @@ function makeIcon(emoji: string) {
 export function WorldPage() {
   const { postcards } = usePostcards();
   const [active, setActive] = useState<Postcard | null>(null);
+  const [detail, setDetail] = useState<Postcard | null>(null);
 
   const located = useMemo(() => postcards.filter((c) => c.location), [postcards]);
 
@@ -47,6 +49,7 @@ export function WorldPage() {
                   <img src={card.image} alt="" />
                   <strong>{card.location!.label}</strong>
                   <span>von {card.from}</span>
+                  <button className="btn link" onClick={() => setDetail(card)}>🔍 Details</button>
                 </div>
               </Popup>
             </Marker>
@@ -63,6 +66,8 @@ export function WorldPage() {
           Zuletzt angetippt: <strong>{active.location?.label}</strong> · {active.message || '…'}
         </p>
       )}
+
+      {detail && <PostcardDetail card={detail} onClose={() => setDetail(null)} />}
     </div>
   );
 }

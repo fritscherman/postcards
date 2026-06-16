@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePostcards } from '../store/PostcardStore';
-import { STAMPS, TEMPLATES } from '../data/templates';
+import { FILTERS, STAMPS, TEMPLATES } from '../data/templates';
 import { FRIENDS } from '../data/seed';
 import { fileToDataUrl } from '../utils/image';
+import { playWhoosh } from '../utils/sound';
 import { PostcardCard } from '../components/PostcardCard';
+import { PhotoDecorator } from '../components/PhotoDecorator';
 import type { GeoLocation } from '../types';
 
 const PLACEHOLDER =
@@ -24,13 +26,17 @@ export function CreatePage() {
   const [image, setImage] = useState<string>(PLACEHOLDER);
   const [templateId, setTemplateId] = useState(TEMPLATES[0].id);
   const [stampId, setStampId] = useState(STAMPS[0].id);
+  const [filterId, setFilterId] = useState(FILTERS[0].id);
   const [message, setMessage] = useState('');
   const [to, setTo] = useState(FRIENDS[0]);
   const [location, setLocation] = useState<GeoLocation | undefined>();
   const [locating, setLocating] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [decorating, setDecorating] = useState(false);
+  const [flying, setFlying] = useState(false);
 
   const hasPhoto = image !== PLACEHOLDER;
+  const filterCss = FILTERS.find((f) => f.id === filterId)?.css ?? 'none';
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -71,8 +77,10 @@ export function CreatePage() {
       return;
     }
     setBusy(true);
-    sendPostcard({ image, templateId, stampId, message, to, from: userName, location });
-    setTimeout(() => navigate('/mailbox?sent=1'), 400);
+    setFlying(true);
+    playWhoosh();
+    sendPostcard({ image, templateId, stampId, filter: filterCss, message, to, from: userName, location });
+    setTimeout(() => navigate('/mailbox?sent=1'), 1100);
   }
 
   const previewCard = {
@@ -80,6 +88,7 @@ export function CreatePage() {
     image,
     templateId,
     stampId,
+    filter: filterCss,
     message,
     to,
     from: userName,
@@ -105,6 +114,11 @@ export function CreatePage() {
               <button className="btn ghost" onClick={() => fileRef.current?.click()}>
                 {hasPhoto ? '🔄 Anderes Foto' : '📷 Foto wählen / aufnehmen'}
               </button>
+              {hasPhoto && (
+                <button className="btn ghost" onClick={() => setDecorating(true)}>
+                  🎨 Verzieren
+                </button>
+              )}
               <input
                 ref={fileRef}
                 type="file"
@@ -136,7 +150,23 @@ export function CreatePage() {
           </div>
 
           <div className="field">
-            <label>3 · Text</label>
+            <label>3 · Filter</label>
+            <div className="chip-row">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  className={`filter-chip ${filterId === f.id ? 'sel' : ''}`}
+                  onClick={() => setFilterId(f.id)}
+                >
+                  <span className="filter-swatch" style={{ filter: f.css }} />
+                  {f.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="field">
+            <label>4 · Text</label>
             <textarea
               value={message}
               maxLength={280}
@@ -147,7 +177,7 @@ export function CreatePage() {
           </div>
 
           <div className="field">
-            <label>4 · Briefmarke 🏷️</label>
+            <label>5 · Briefmarke 🏷️</label>
             <div className="chip-row">
               {STAMPS.map((s) => (
                 <button
@@ -164,7 +194,7 @@ export function CreatePage() {
           </div>
 
           <div className="field">
-            <label>5 · Empfänger</label>
+            <label>6 · Empfänger</label>
             <select value={to} onChange={(e) => setTo(e.target.value)}>
               {FRIENDS.map((f) => (
                 <option key={f} value={f}>
@@ -184,6 +214,26 @@ export function CreatePage() {
           <PostcardCard card={previewCard} />
         </section>
       </div>
+
+      {decorating && (
+        <PhotoDecorator
+          src={image}
+          onApply={(url) => {
+            setImage(url);
+            setDecorating(false);
+          }}
+          onClose={() => setDecorating(false)}
+        />
+      )}
+
+      {flying && (
+        <div className="fly-overlay">
+          <div className="fly-card">
+            <PostcardCard card={previewCard} flippable={false} />
+          </div>
+          <p className="fly-text">Unterwegs zu {to}… ✈️</p>
+        </div>
+      )}
     </div>
   );
 }

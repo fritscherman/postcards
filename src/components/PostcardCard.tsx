@@ -30,7 +30,7 @@ export function PostcardCard({ card, flippable = true }: Props) {
         {/* Front: the photo */}
         <div className="postcard-face postcard-front" style={{ background: template.frame }}>
           <div className="photo-wrap">
-            <img src={card.image} alt="Postkarten-Motiv" draggable={false} />
+            <img src={card.image} alt="Postkarten-Motiv" draggable={false} style={{ filter: card.filter || 'none' }} />
             {card.location?.label && <span className="photo-location">📍 {card.location.label}</span>}
           </div>
         </div>
