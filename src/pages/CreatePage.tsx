@@ -119,11 +119,11 @@ export function CreatePage() {
                   🎨 Verzieren
                 </button>
               )}
+              {/* No `capture` attribute: lets the phone offer both gallery and camera. */}
               <input
                 ref={fileRef}
                 type="file"
                 accept="image/*"
-                capture="environment"
                 hidden
                 onChange={onPickFile}
               />
@@ -210,8 +210,20 @@ export function CreatePage() {
         </section>
 
         <section className="preview">
-          <span className="preview-hint">Vorschau · klick zum Umdrehen</span>
-          <PostcardCard card={previewCard} />
+          {hasPhoto ? (
+            <>
+              <span className="preview-hint">Vorschau · tippen zum Umdrehen</span>
+              <PostcardCard card={previewCard} />
+            </>
+          ) : (
+            <>
+              <span className="preview-hint">So wird deine Karte aussehen</span>
+              <button type="button" className="photo-dropzone" onClick={() => fileRef.current?.click()}>
+                <PostcardCard card={previewCard} flippable={false} />
+                <span className="dropzone-cta">📷 Tippen, um ein Foto zu wählen</span>
+              </button>
+            </>
+          )}
         </section>
       </div>
 

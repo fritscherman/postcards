@@ -14,7 +14,7 @@
   font-family: 'Quicksand', system-ui, sans-serif;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 html, body, #root { height: 100%; }
 
@@ -26,7 +26,13 @@ body {
     linear-gradient(160deg, #fdf6ec 0%, #f6efe3 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  /* App-like feel: no rubber-band scroll, no accidental text selection on chrome. */
+  overscroll-behavior-y: none;
 }
+
+/* Snappy taps on touch — removes the 300 ms delay and double-tap zoom on controls. */
+.btn, .chip, .tab, .nav-item, .seg-btn, .stamp-chip, .filter-chip, .emoji-btn,
+.swatch, .brush, .who, .photo-dropzone { touch-action: manipulation; user-select: none; }
 
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.1; }
 
@@ -37,6 +43,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
   position: sticky; top: 0; z-index: 30;
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px;
+  padding-top: calc(14px + env(safe-area-inset-top));
   backdrop-filter: blur(12px);
   background: rgba(255, 253, 248, 0.78);
   border-bottom: 1px solid var(--line);
@@ -60,7 +67,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
 
 /* ---------- Bottom nav ---------- */
 .navbar {
-  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
   z-index: 40; display: flex; gap: 4px; padding: 8px;
   background: rgba(255, 253, 248, 0.92); backdrop-filter: blur(14px);
   border: 1px solid var(--line); border-radius: 999px; box-shadow: var(--shadow-md);
@@ -109,7 +116,16 @@ textarea { min-height: 90px; }
 textarea:focus, select:focus, .modal input:focus { outline: none; border-color: var(--teal); }
 .counter { align-self: flex-end; color: var(--muted); font-size: .78rem; }
 
-.chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
+/* Horizontal, swipeable rows — feels native on touch, scrolls with snap. */
+.chip-row {
+  display: flex; gap: 10px;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  padding: 6px 0; /* room for the hover/selection lift so it isn't clipped */
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.chip-row::-webkit-scrollbar { display: none; }
+.chip-row > * { flex: 0 0 auto; scroll-snap-align: start; }
 .chip {
   font: inherit; font-weight: 600; cursor: pointer; padding: 9px 16px; border-radius: 999px;
   border: 1.5px solid transparent; box-shadow: var(--shadow-sm); transition: transform .15s ease;
@@ -125,6 +141,25 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 
 .preview { position: sticky; top: 90px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .preview-hint { font-family: 'Caveat', cursive; font-size: 1.4rem; color: var(--muted); }
+
+/* Empty-state preview doubles as the photo picker so a tap opens the chooser
+   (instead of flipping the card, which confused people). */
+.photo-dropzone { position: relative; width: 100%; max-width: 420px; padding: 0;
+  border: none; background: none; cursor: pointer; transition: transform .15s ease; }
+.photo-dropzone:hover { transform: translateY(-2px); }
+.dropzone-cta {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  background: rgba(14, 116, 144, .94); color: #fff; font-weight: 700; font-size: .95rem;
+  padding: 11px 20px; border-radius: 999px; box-shadow: var(--shadow-md); white-space: nowrap;
+  animation: nudge 2s ease-in-out infinite;
+}
+@keyframes nudge {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* Section dividers give the form a tidy, app-like rhythm. */
+.editor .field:not(:last-child) { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
 
 /* ---------- Postcard ---------- */
 .postcard { width: 100%; max-width: 420px; aspect-ratio: 3 / 2; perspective: 1400px; cursor: pointer; }
@@ -336,7 +371,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .card-grid .card-cell:nth-child(n+5) { animation-delay: .2s; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .page, .card-cell, .fly-card, .welcome, .toast, .pwa-banner { animation: none !important; }
+  .page, .card-cell, .fly-card, .welcome, .toast, .pwa-banner, .dropzone-cta { animation: none !important; }
 }
 
 /* ---------- Responsive ---------- */
