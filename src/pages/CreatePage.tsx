@@ -210,20 +210,14 @@ export function CreatePage() {
         </section>
 
         <section className="preview">
-          {hasPhoto ? (
-            <>
-              <span className="preview-hint">Vorschau · tippen zum Umdrehen</span>
-              <PostcardCard card={previewCard} />
-            </>
-          ) : (
-            <>
-              <span className="preview-hint">So wird deine Karte aussehen</span>
-              <button type="button" className="photo-dropzone" onClick={() => fileRef.current?.click()}>
-                <PostcardCard card={previewCard} flippable={false} />
-                <span className="dropzone-cta">📷 Tippen, um ein Foto zu wählen</span>
-              </button>
-            </>
-          )}
+          <span className="preview-hint">{hasPhoto ? 'Vorschau · ⟳ zum Umdrehen' : 'So wird deine Karte aussehen'}</span>
+          <div className="preview-card-wrap">
+            <PostcardCard
+              card={previewCard}
+              onCardClick={hasPhoto ? undefined : () => fileRef.current?.click()}
+            />
+            {!hasPhoto && <span className="dropzone-cta">📷 Tippen, um ein Foto zu wählen</span>}
+          </div>
         </section>
       </div>
 
