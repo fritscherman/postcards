@@ -222,6 +222,19 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .modal h3 { color: var(--teal-dark); font-size: 1.4rem; }
 .modal p { color: var(--muted); font-size: .92rem; }
 
+/* ---------- PWA banner ---------- */
+.pwa-banner {
+  position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%); z-index: 50;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center;
+  width: min(440px, calc(100% - 28px));
+  background: var(--paper); border: 1px solid var(--line); border-radius: 18px;
+  padding: 14px 18px; box-shadow: var(--shadow-lg); font-weight: 600;
+  animation: slidein .35s ease;
+}
+.pwa-banner > span { flex: 1; min-width: 160px; }
+.pwa-actions { display: flex; align-items: center; gap: 6px; }
+.pwa-actions .btn.primary { padding: 9px 16px; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   .create-grid { grid-template-columns: 1fr; }

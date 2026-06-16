@@ -5,6 +5,7 @@ import { CreatePage } from './pages/CreatePage';
 import { MailboxPage } from './pages/MailboxPage';
 import { WorldPage } from './pages/WorldPage';
 import { PinboardPage } from './pages/PinboardPage';
+import { PWAPrompt } from './components/PWAPrompt';
 import { usePostcards } from './store/PostcardStore';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
       </main>
 
       <NavBar />
+      <PWAPrompt />
 
       {editing && (
         <div className="modal-backdrop" onClick={() => setEditing(false)}>
