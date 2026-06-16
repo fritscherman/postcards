@@ -3,7 +3,12 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
+// When deployed to GitHub Pages the app lives under /<repo>/ — locally it stays at /.
+declare const process: { env: Record<string, string | undefined> };
+const base = process.env.GITHUB_PAGES ? '/postcards/' : '/';
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -18,8 +23,8 @@ export default defineConfig({
         background_color: '#fdf6ec',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         categories: ['social', 'photo', 'lifestyle'],
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
