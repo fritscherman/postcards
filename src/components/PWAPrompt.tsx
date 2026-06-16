@@ -53,7 +53,7 @@ export function PWAPrompt() {
   if (installEvent && !installed) {
     return (
       <div className="pwa-banner">
-        <span>📲 Postkarten als App installieren</span>
+        <span>📲 Wanderpost als App installieren</span>
         <div className="pwa-actions">
           <button className="btn primary" onClick={install}>
             Installieren
