@@ -4,11 +4,13 @@ import { stampById, templateById } from '../data/templates';
 
 interface Props {
   card: Postcard;
-  /** when true the card can be flipped by clicking */
+  /** when true the card shows a flip icon and can be turned over */
   flippable?: boolean;
+  /** overrides the body tap (the flip icon still turns the card) */
+  onCardClick?: () => void;
 }
 
-export function PostcardCard({ card, flippable = true }: Props) {
+export function PostcardCard({ card, flippable = true, onCardClick }: Props) {
   const [flipped, setFlipped] = useState(false);
   const template = templateById(card.templateId);
   const stamp = stampById(card.stampId);
@@ -19,12 +21,17 @@ export function PostcardCard({ card, flippable = true }: Props) {
     year: 'numeric',
   });
 
+  function handleBody() {
+    if (onCardClick) onCardClick();
+    else if (flippable) setFlipped((f) => !f);
+  }
+
   return (
     <div
       className={`postcard ${flipped ? 'flipped' : ''}`}
-      onClick={() => flippable && setFlipped((f) => !f)}
-      role={flippable ? 'button' : undefined}
-      title={flippable ? 'Klicken zum Umdrehen' : undefined}
+      onClick={handleBody}
+      role={onCardClick || flippable ? 'button' : undefined}
+      title={onCardClick ? undefined : flippable ? 'Klicken zum Umdrehen' : undefined}
     >
       <div className="postcard-inner">
         {/* Front: the photo */}
@@ -59,6 +66,21 @@ export function PostcardCard({ card, flippable = true }: Props) {
           </div>
         </div>
       </div>
+
+      {flippable && (
+        <button
+          type="button"
+          className="flip-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            setFlipped((f) => !f);
+          }}
+          title={flipped ? 'Zur Vorderseite' : 'Karte umdrehen'}
+          aria-label="Karte umdrehen"
+        >
+          ⟳
+        </button>
+      )}
     </div>
   );
 }

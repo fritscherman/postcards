@@ -102,10 +102,10 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
 
 /* ---------- Create page ---------- */
 .create-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-.editor { display: flex; flex-direction: column; gap: 20px;
+.editor { display: flex; flex-direction: column; gap: 20px; min-width: 0;
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 22px; box-shadow: var(--shadow-sm); }
-.field { display: flex; flex-direction: column; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .field > label { font-weight: 700; color: var(--teal-dark); font-size: .92rem; }
 .photo-actions { display: flex; gap: 10px; }
 textarea, select, .modal input {
@@ -118,7 +118,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 
 /* Horizontal, swipeable rows — feels native on touch, scrolls with snap. */
 .chip-row {
-  display: flex; gap: 10px;
+  display: flex; gap: 10px; min-width: 0;
   overflow-x: auto; overflow-y: hidden;
   scroll-snap-type: x proximity;
   padding: 6px 0; /* room for the hover/selection lift so it isn't clipped */
@@ -139,18 +139,17 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .stamp-chip:hover { transform: translateY(-3px) rotate(-3deg); }
 .stamp-chip.sel { box-shadow: 0 0 0 3px var(--gold), var(--shadow-sm); transform: translateY(-3px); }
 
-.preview { position: sticky; top: 90px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.preview { position: sticky; top: 90px; display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; }
 .preview-hint { font-family: 'Caveat', cursive; font-size: 1.4rem; color: var(--muted); }
 
 /* Empty-state preview doubles as the photo picker so a tap opens the chooser
-   (instead of flipping the card, which confused people). */
-.photo-dropzone { position: relative; width: 100%; max-width: 420px; padding: 0;
-  border: none; background: none; cursor: pointer; transition: transform .15s ease; }
-.photo-dropzone:hover { transform: translateY(-2px); }
+   (instead of flipping the card, which confused people). The flip icon stays. */
+.preview-card-wrap { position: relative; width: 100%; max-width: 420px; display: flex; justify-content: center; }
 .dropzone-cta {
   position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
   background: rgba(14, 116, 144, .94); color: #fff; font-weight: 700; font-size: .95rem;
   padding: 11px 20px; border-radius: 999px; box-shadow: var(--shadow-md); white-space: nowrap;
+  pointer-events: none; /* clicks fall through to the card → opens the picker */
   animation: nudge 2s ease-in-out infinite;
 }
 @keyframes nudge {
@@ -162,7 +161,17 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .editor .field:not(:last-child) { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
 
 /* ---------- Postcard ---------- */
-.postcard { width: 100%; max-width: 420px; aspect-ratio: 3 / 2; perspective: 1400px; cursor: pointer; }
+.postcard { position: relative; width: 100%; max-width: 420px; aspect-ratio: 3 / 2; perspective: 1400px; cursor: pointer; }
+/* Always-available flip control — small icon that stays put while the card turns. */
+.flip-btn {
+  position: absolute; right: 10px; bottom: 10px; z-index: 5;
+  width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255, 253, 248, .9); color: var(--teal-dark); font-size: 1.1rem; line-height: 1;
+  display: grid; place-items: center; box-shadow: var(--shadow-sm); backdrop-filter: blur(4px);
+  transition: transform .15s ease, background .15s ease;
+}
+.flip-btn:hover { transform: rotate(-30deg) scale(1.08); background: #fff; }
+.flip-btn:active { transform: scale(.95); }
 .postcard-inner { position: relative; width: 100%; height: 100%; transition: transform .7s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
 .postcard.flipped .postcard-inner { transform: rotateY(180deg); }
 .postcard-face {
