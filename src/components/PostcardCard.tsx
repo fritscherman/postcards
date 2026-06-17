@@ -61,19 +61,21 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
         pinchStart.current = { dist, zoom: crop.zoom };
         last.current = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       } else {
-        const zoom = clamp((pinchStart.current.zoom * dist) / pinchStart.current.dist, 1, 4);
+        const zoom = clamp((pinchStart.current.zoom * dist) / pinchStart.current.dist, 1, 3);
         onCropChange?.({ ...crop, zoom });
       }
       return;
     }
 
-    // One finger → pan. Gain z/(z-1) makes the photo track the finger 1:1
-    // instead of crawling at a fraction of the drag distance.
+    // One finger → pan. The photo is scaled around `transform-origin`, so a
+    // fixed pixel moves by (1 - z) on screen per unit of origin shift. Gain
+    // 1/(z-1) therefore makes the photo track the finger exactly 1:1 — the
+    // earlier z/(z-1) over-panned by a factor of z, which felt jumpy.
     if (!last.current || crop.zoom <= 1.001) {
       last.current = { x: e.clientX, y: e.clientY };
       return;
     }
-    const gain = crop.zoom / (crop.zoom - 1);
+    const gain = 1 / (crop.zoom - 1);
     const dx = ((e.clientX - last.current.x) / r.width) * 100 * gain;
     const dy = ((e.clientY - last.current.y) / r.height) * 100 * gain;
     last.current = { x: e.clientX, y: e.clientY };
