@@ -12,6 +12,7 @@ import { InviteFriends } from './components/InviteFriends';
 import { Logo } from './components/Logo';
 import { NotificationToggle } from './components/NotificationToggle';
 import { FriendsPage } from './pages/FriendsPage';
+import { Datenschutz, Impressum } from './pages/Legal';
 import { initials } from './utils/initials';
 import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
@@ -42,6 +43,8 @@ export default function App() {
     return (
       <Routes>
         <Route path="/invite/:token" element={<InviteAuth onGuest={enterGuest} />} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="*" element={<AuthPage onGuest={enterGuest} />} />
       </Routes>
     );
@@ -91,6 +94,8 @@ export default function App() {
           <Route path="/world" element={<WorldPage />} />
           <Route path="/pinboard" element={<PinboardPage />} />
           <Route path="/friends" element={<FriendsPage onInvite={() => setInviting(true)} />} />
+          <Route path="/impressum" element={<Impressum />} />
+          <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/invite/:token" element={<Navigate to="/create" replace />} />
           <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>

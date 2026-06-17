@@ -303,6 +303,18 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .pwa-actions { display: flex; align-items: center; gap: 6px; }
 .pwa-actions .btn.primary { padding: 9px 16px; }
 
+/* More prominent install card with the app icon + headline. */
+.pwa-banner.install-card {
+  width: min(480px, calc(100% - 28px));
+  border: 2px solid var(--teal-dark);
+  box-shadow: 0 14px 40px rgba(11, 85, 99, 0.28);
+  gap: 14px;
+}
+.install-card .install-icon { flex: 0 0 auto; display: inline-flex; }
+.install-card .install-text { flex: 1 1 200px; display: flex; flex-direction: column; gap: 3px; }
+.install-card .install-text strong { font-size: 1.05rem; color: var(--teal-dark); }
+.install-card .install-text small { font-weight: 500; color: var(--muted); line-height: 1.35; }
+
 /* ---------- Card meta actions ---------- */
 .card-meta-actions { display: flex; align-items: center; gap: 4px; }
 
@@ -406,7 +418,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 }
 .landing-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .landing-logo-row { display: flex; align-items: center; gap: 14px; }
-.landing-wordmark { font-family: 'Fraunces', serif; font-weight: 700; font-size: 2.8rem; color: var(--teal-dark); letter-spacing: -1px; }
+.landing-wordmark { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 2.8rem; color: var(--teal-dark); letter-spacing: 0.5px; text-transform: lowercase; }
 .landing-tagline { color: var(--muted); font-size: 1.1rem; max-width: 400px; }
 .landing-free-badge {
   display: inline-block; margin-top: 4px;
@@ -507,6 +519,27 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 @media (prefers-reduced-motion: reduce) {
   .page, .card-cell, .fly-card, .welcome, .toast, .pwa-banner, .dropzone-cta { animation: none !important; }
 }
+
+/* ---------- Legal pages (Impressum / Datenschutz) ---------- */
+.landing-footer, .legal-foot {
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+  margin-top: 28px; color: var(--muted); font-size: .92rem;
+}
+.landing-footer a, .legal-foot a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
+.landing-footer a:hover, .legal-foot a:hover { text-decoration: underline; }
+
+.legal-page { max-width: 760px; margin: 0 auto; }
+.legal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.legal-home { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.legal-wordmark { font-size: 1.5rem; }
+.legal-page h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--teal-dark); margin-bottom: 6px; }
+.legal-page h2 { font-size: 1.1rem; color: var(--teal-dark); margin: 22px 0 6px; }
+.legal-body { color: var(--ink); line-height: 1.6; }
+.legal-body p { margin: 6px 0; }
+.legal-body ul { margin: 6px 0; padding-left: 20px; }
+.legal-body li { margin: 6px 0; }
+.legal-body a { color: var(--teal-dark); font-weight: 600; }
+.legal-note { color: var(--muted); font-size: .88rem; margin-top: 22px; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
