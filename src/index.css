@@ -114,6 +114,8 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 22px; box-shadow: var(--shadow-sm); }
 .field { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.field-hint { color: var(--muted); font-size: .9rem; line-height: 1.45; margin: 0;
+  background: #faf6ee; border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px; }
 .field > label { font-weight: 700; color: var(--teal-dark); font-size: .92rem; }
 .photo-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .mini-label { font-size: .8rem; color: var(--muted); font-weight: 600; }

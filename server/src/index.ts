@@ -44,6 +44,16 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 const currentUser = (res: Response): TokenUser => res.locals.user;
 
+// Mark an invite as accepted by `userId`, forming a mutual friendship.
+// No-op for empty tokens, already-accepted invites, or self-invites.
+function acceptInvite(token: string, userId: string): void {
+  if (!token) return;
+  db.prepare(
+    `UPDATE invites SET accepted_by = ?
+     WHERE token = ? AND accepted_by IS NULL AND inviter_id != ?`,
+  ).run(userId, token, userId);
+}
+
 // --- Health check ---
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
@@ -63,10 +73,7 @@ app.post('/api/register', (req, res) => {
   db.prepare('INSERT INTO users (id, email, name, pw, created_at) VALUES (?,?,?,?,?)')
     .run(id, email, name, hashPassword(password), Date.now());
 
-  const inviteToken = String(req.body.inviteToken ?? '');
-  if (inviteToken) {
-    db.prepare('UPDATE invites SET accepted_by = ? WHERE token = ? AND accepted_by IS NULL').run(id, inviteToken);
-  }
+  acceptInvite(String(req.body.inviteToken ?? ''), id);
 
   const user: TokenUser = { id, email, name };
   res.status(201).json({ token: signToken(user, JWT_SECRET!), user });
@@ -80,6 +87,10 @@ app.post('/api/login', (req, res) => {
   if (!u || !verifyPassword(password, u.pw)) {
     return res.status(401).json({ error: 'E-Mail oder Passwort ist falsch.' });
   }
+
+  // An existing user who follows an invite link becomes the inviter's friend too.
+  acceptInvite(String(req.body.inviteToken ?? ''), u.id);
+
   const user: TokenUser = { id: u.id, email: u.email, name: u.name };
   res.json({ token: signToken(user, JWT_SECRET!), user });
 });
@@ -165,6 +176,23 @@ app.post('/api/invites', requireAuth, async (req, res) => {
   const link = `${APP_URL}/invite/${token}`;
   const emailed = email ? await sendInviteEmail(email, me.name, link) : false;
   res.status(201).json({ token, link, emailed });
+});
+
+// --- List friends ---
+// Friendship is mutual and derived from accepted invites: the other party of
+// any invite where I'm the inviter (and it was accepted) or the one who joined.
+app.get('/api/friends', requireAuth, (_req, res) => {
+  const me = currentUser(res);
+  const rows = db.prepare(
+    `SELECT DISTINCT u.id, u.name, u.email
+     FROM invites i
+     JOIN users u ON u.id = CASE WHEN i.inviter_id = ? THEN i.accepted_by ELSE i.inviter_id END
+     WHERE i.accepted_by IS NOT NULL
+       AND (i.inviter_id = ? OR i.accepted_by = ?)
+       AND u.id != ?
+     ORDER BY u.name COLLATE NOCASE`,
+  ).all(me.id, me.id, me.id, me.id) as { id: string; name: string; email: string }[];
+  res.json({ friends: rows });
 });
 
 // --- Unknown API routes → JSON 404 (don't fall through to the SPA) ---

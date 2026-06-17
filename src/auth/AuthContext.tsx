@@ -9,7 +9,7 @@ interface AuthValue {
   guest: boolean;
   /** false until the initial session check has finished */
   ready: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, inviteToken?: string) => Promise<void>;
   register: (email: string, name: string, password: string, inviteToken?: string) => Promise<void>;
   logout: () => void;
   /** Start using the app locally without signing up. */
@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(GUEST_KEY);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { token, user } = await apiLogin({ email, password });
+  const login = useCallback(async (email: string, password: string, inviteToken?: string) => {
+    const { token, user } = await apiLogin({ email, password, inviteToken });
     setToken(token);
     setUser(user);
     clearGuest();

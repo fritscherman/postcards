@@ -24,7 +24,7 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
     setError('');
     try {
       if (mode === 'register') await register(email, name, password, inviteToken);
-      else await login(email, password);
+      else await login(email, password, inviteToken);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -59,8 +59,12 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
 
       {/* Auth card */}
       <div className="auth-card landing-auth-card">
-        {inviteToken && mode === 'register' && (
-          <p className="auth-invite">Du wurdest eingeladen! Erstelle ein Konto, um Postkarten zu empfangen.</p>
+        {inviteToken && (
+          <p className="auth-invite">
+            {mode === 'register'
+              ? 'Du wurdest eingeladen! Erstelle ein Konto, um Postkarten zu empfangen.'
+              : 'Du wurdest eingeladen! Melde dich an — ihr werdet automatisch verbunden.'}
+          </p>
         )}
         <p className="auth-sub">{mode === 'login' ? 'Willkommen zurück.' : 'Erstelle dein Konto.'}</p>
 

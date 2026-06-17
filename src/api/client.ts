@@ -51,7 +51,7 @@ async function api<T>(path: string, method: 'GET' | 'POST' = 'GET', body?: unkno
 export const apiRegister = (b: { email: string; name: string; password: string; inviteToken?: string }) =>
   api<{ token: string; user: AuthUser }>('/api/register', 'POST', b);
 
-export const apiLogin = (b: { email: string; password: string }) =>
+export const apiLogin = (b: { email: string; password: string; inviteToken?: string }) =>
   api<{ token: string; user: AuthUser }>('/api/login', 'POST', b);
 
 export const apiMe = () => api<{ user: AuthUser }>('/api/me');
@@ -65,3 +65,5 @@ export const apiMarkRead = (id: string) => api<{ ok: boolean }>(`/api/postcards/
 
 export const apiCreateInvite = (b: { email?: string }) =>
   api<{ token: string; link: string; emailed: boolean }>('/api/invites', 'POST', b);
+
+export const apiListFriends = () => api<{ friends: AuthUser[] }>('/api/friends');

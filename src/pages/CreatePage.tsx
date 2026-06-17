@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePostcards } from '../store/PostcardStore';
 import { FILTERS, STAMPS, TEMPLATES } from '../data/templates';
@@ -8,7 +8,7 @@ import { readExifLocation } from '../utils/exif';
 import { playWhoosh } from '../utils/sound';
 import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
-import { isOnline, ApiError } from '../api/client';
+import { isOnline, ApiError, apiListFriends, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { GuestBanner } from '../components/GuestBanner';
 import type { Crop, GeoLocation, Orientation } from '../types';
@@ -29,6 +29,15 @@ export function CreatePage() {
   // Guests (and the demo build) send locally; only real accounts reach the server.
   const localMode = !isOnline || guest;
   const fileRef = useRef<HTMLInputElement>(null);
+  const [friends, setFriends] = useState<AuthUser[]>([]);
+
+  // Real accounts pick a recipient from their connected friends.
+  useEffect(() => {
+    if (localMode) return;
+    apiListFriends()
+      .then((r) => setFriends(r.friends))
+      .catch(() => setFriends([]));
+  }, [localMode]);
 
   const [image, setImage] = useState<string>(PLACEHOLDER);
   const [orientation, setOrientation] = useState<Orientation>('landscape');
@@ -47,6 +56,9 @@ export function CreatePage() {
 
   const hasPhoto = image !== PLACEHOLDER;
   const filterCss = FILTERS.find((f) => f.id === filterId)?.css ?? 'none';
+  const recipientLabel = localMode
+    ? to
+    : friends.find((f) => f.email === toEmail)?.name ?? 'Freund:in';
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -282,20 +294,33 @@ export function CreatePage() {
                   </option>
                 ))}
               </select>
+            ) : friends.length > 0 ? (
+              <select value={toEmail} onChange={(e) => setToEmail(e.target.value)}>
+                <option value="" disabled>
+                  Freund:in wählen…
+                </option>
+                {friends.map((f) => (
+                  <option key={f.id} value={f.email}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
             ) : (
-              <input
-                type="email"
-                placeholder="freund@example.com"
-                value={toEmail}
-                onChange={(e) => setToEmail(e.target.value)}
-              />
+              <p className="field-hint">
+                Du hast noch keine Freund:innen verbunden. Lade jemanden oben über „💌 Einladen" ein —
+                sobald er beitritt, erscheint er hier.
+              </p>
             )}
           </div>
 
           <GuestBanner message="Im Gast-Modus bleibt deine Karte nur auf diesem Gerät. Für echtes Versenden an Freund:innen erstelle ein kostenloses Konto." />
 
-          <button className="btn primary big" onClick={handleSend} disabled={busy}>
-            {busy ? 'Wird versendet… ✈️' : `An ${localMode ? to : toEmail || 'Freund:in'} senden ✉️`}
+          <button
+            className="btn primary big"
+            onClick={handleSend}
+            disabled={busy || (!localMode && !toEmail)}
+          >
+            {busy ? 'Wird versendet… ✈️' : `An ${recipientLabel} senden ✉️`}
           </button>
         </section>
 
@@ -329,7 +354,7 @@ export function CreatePage() {
           <div className="fly-card">
             <PostcardCard card={previewCard} flippable={false} />
           </div>
-          <p className="fly-text">Unterwegs zu {to}… ✈️</p>
+          <p className="fly-text">Unterwegs zu {recipientLabel}… ✈️</p>
         </div>
       )}
     </div>
