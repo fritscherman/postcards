@@ -10,6 +10,7 @@ import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
 import { isOnline, ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { GuestBanner } from '../components/GuestBanner';
 import type { Crop, GeoLocation, Orientation } from '../types';
 
 const PLACEHOLDER =
@@ -24,7 +25,7 @@ const PLACEHOLDER =
 export function CreatePage() {
   const navigate = useNavigate();
   const { sendPostcard, userName } = usePostcards();
-  const { guest, logout } = useAuth();
+  const { guest } = useAuth();
   // Guests (and the demo build) send locally; only real accounts reach the server.
   const localMode = !isOnline || guest;
   const fileRef = useRef<HTMLInputElement>(null);
@@ -291,17 +292,7 @@ export function CreatePage() {
             )}
           </div>
 
-          {guest && (
-            <div className="guest-note">
-              <span>
-                ✨ Im Gast-Modus bleibt deine Karte nur auf diesem Gerät. Für echtes Versenden an
-                Freund:innen erstelle ein kostenloses Konto.
-              </span>
-              <button type="button" className="btn primary small" onClick={logout}>
-                Konto erstellen
-              </button>
-            </div>
-          )}
+          <GuestBanner message="Im Gast-Modus bleibt deine Karte nur auf diesem Gerät. Für echtes Versenden an Freund:innen erstelle ein kostenloses Konto." />
 
           <button className="btn primary big" onClick={handleSend} disabled={busy}>
             {busy ? 'Wird versendet… ✈️' : `An ${localMode ? to : toEmail || 'Freund:in'} senden ✉️`}

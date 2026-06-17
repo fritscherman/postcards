@@ -442,6 +442,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
   background: #e9f8fa; border: 1px solid #c9eef2; border-radius: 14px;
   padding: 14px 16px; color: var(--teal-dark); font-size: .9rem; line-height: 1.45;
+  margin-bottom: 16px;
 }
 
 /* ---------- Entrance animations ---------- */

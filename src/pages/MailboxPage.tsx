@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 import { PostcardDetail } from '../components/PostcardDetail';
+import { GuestBanner } from '../components/GuestBanner';
 import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
@@ -32,6 +33,10 @@ export function MailboxPage() {
       </header>
 
       {toast && <div className="toast">✅ Postkarte versendet! Sie liegt jetzt im Postausgang.</div>}
+
+      {box === 'inbox' && (
+        <GuestBanner message="Um echte Postkarten von Freund:innen zu empfangen, brauchst du ein kostenloses Konto." />
+      )}
 
       <div className="tabs">
         <button className={`tab ${box === 'inbox' ? 'on' : ''}`} onClick={() => setBox('inbox')}>
