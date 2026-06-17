@@ -36,6 +36,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: 'index.html',
+        // Layer our push/notification handlers onto the generated service worker.
+        importScripts: ['push-sw.js'],
         runtimeCaching: [
           {
             // Google Fonts stylesheets

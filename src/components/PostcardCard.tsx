@@ -24,6 +24,10 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const last = useRef<{ x: number; y: number } | null>(null);
+  // Active pointers (id -> position) so we can tell a one-finger pan from a
+  // two-finger pinch.
+  const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchStart = useRef<{ dist: number; zoom: number } | null>(null);
 
   const date = new Date(card.createdAt).toLocaleDateString('de-DE', {
     day: '2-digit',
@@ -40,18 +44,47 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
     if (!editable) return;
     e.stopPropagation();
     wrapRef.current?.setPointerCapture(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     last.current = { x: e.clientX, y: e.clientY };
+    pinchStart.current = null;
   }
   function onWrapMove(e: React.PointerEvent) {
-    if (!editable || !last.current || !wrapRef.current) return;
+    if (!editable || !wrapRef.current || !pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const r = wrapRef.current.getBoundingClientRect();
-    const dx = ((e.clientX - last.current.x) / r.width) * 100 / crop.zoom;
-    const dy = ((e.clientY - last.current.y) / r.height) * 100 / crop.zoom;
+
+    // Two fingers → pinch to zoom (and follow the gesture's midpoint).
+    if (pointers.current.size >= 2) {
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (!pinchStart.current) {
+        pinchStart.current = { dist, zoom: crop.zoom };
+        last.current = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      } else {
+        const zoom = clamp((pinchStart.current.zoom * dist) / pinchStart.current.dist, 1, 4);
+        onCropChange?.({ ...crop, zoom });
+      }
+      return;
+    }
+
+    // One finger → pan. Gain z/(z-1) makes the photo track the finger 1:1
+    // instead of crawling at a fraction of the drag distance.
+    if (!last.current || crop.zoom <= 1.001) {
+      last.current = { x: e.clientX, y: e.clientY };
+      return;
+    }
+    const gain = crop.zoom / (crop.zoom - 1);
+    const dx = ((e.clientX - last.current.x) / r.width) * 100 * gain;
+    const dy = ((e.clientY - last.current.y) / r.height) * 100 * gain;
     last.current = { x: e.clientX, y: e.clientY };
     onCropChange?.({ ...crop, x: clamp(crop.x - dx, 0, 100), y: clamp(crop.y - dy, 0, 100) });
   }
-  function onWrapUp() {
-    last.current = null;
+  function onWrapUp(e: React.PointerEvent) {
+    pointers.current.delete(e.pointerId);
+    pinchStart.current = null;
+    last.current = pointers.current.size
+      ? [...pointers.current.values()][0]
+      : null;
   }
 
   const imgStyle = {
@@ -80,7 +113,7 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
             onClick={(e) => editable && e.stopPropagation()}
           >
             <img src={card.image} alt="Postkarten-Motiv" draggable={false} style={imgStyle} />
-            {editable && <span className="photo-grip">✥ ziehen zum Positionieren</span>}
+            {editable && <span className="photo-grip">✥ ziehen · mit zwei Fingern zoomen</span>}
           </div>
         </div>
 

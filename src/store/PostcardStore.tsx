@@ -91,6 +91,19 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     if (local) localStorage.setItem(STORAGE_KEY, JSON.stringify(postcards));
   }, [postcards, local]);
 
+  // Mirror the unread inbox count onto the app icon (Badging API), like native
+  // apps. Push keeps it fresh in the background; this keeps it fresh in-app.
+  useEffect(() => {
+    const nav = navigator as Navigator & {
+      setAppBadge?: (n?: number) => Promise<void>;
+      clearAppBadge?: () => Promise<void>;
+    };
+    if (!('setAppBadge' in nav)) return;
+    const unread = postcards.filter((c) => c.box === 'inbox' && !c.read).length;
+    const done = unread > 0 ? nav.setAppBadge?.(unread) : nav.clearAppBadge?.();
+    done?.catch(() => {});
+  }, [postcards]);
+
   const refresh = useCallback(async () => {
     if (local || !user) return;
     try {

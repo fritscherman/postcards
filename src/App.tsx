@@ -10,6 +10,7 @@ import { Welcome } from './components/Welcome';
 import { AuthPage } from './pages/AuthPage';
 import { InviteFriends } from './components/InviteFriends';
 import { Logo } from './components/Logo';
+import { NotificationToggle } from './components/NotificationToggle';
 import { FriendsPage } from './pages/FriendsPage';
 import { initials } from './utils/initials';
 import { usePostcards } from './store/PostcardStore';
@@ -49,8 +50,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-bar">
-        <span className="logo"><Logo size={28} /> Wanderpost</span>
+        <span className="logo"><Logo size={36} /> Wanderpost</span>
         <div className="app-bar-actions">
+          {isOnline && user && <NotificationToggle />}
           {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
               💌 Einladen

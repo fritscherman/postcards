@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path';
 import { db } from './db';
 import { hashPassword, signToken, verifyPassword, verifyToken, type TokenUser } from './auth';
 import { sendInviteEmail } from './email';
+import { notifyUser, publicKey, removeSubscription, saveSubscription } from './push';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -165,6 +166,37 @@ app.post('/api/postcards', requireAuth, (req, res) => {
   db.prepare('INSERT INTO postcards (id, sender_id, recipient_id, payload, read, created_at) VALUES (?,?,?,?,0,?)')
     .run(id, me.id, recipient.id, payload, Date.now());
   res.status(201).json({ id });
+
+  // Notify the recipient (fire-and-forget — never blocks or fails the response).
+  const unread = db
+    .prepare('SELECT COUNT(*) AS n FROM postcards WHERE recipient_id = ? AND read = 0')
+    .get(recipient.id) as { n: number } | undefined;
+  void notifyUser(recipient.id, {
+    title: '📬 Neue Postkarte',
+    body: `${me.name} hat dir eine Postkarte geschickt.`,
+    url: '/mailbox',
+    badgeCount: unread?.n ?? 1,
+  });
+});
+
+// --- Web Push: the public VAPID key (null when push isn't configured) ---
+app.get('/api/push/key', (_req, res) => res.json({ key: publicKey() }));
+
+// --- Web Push: register this browser for notifications ---
+app.post('/api/push/subscribe', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const sub = req.body.sub;
+  if (!sub || typeof sub.endpoint !== 'string') {
+    return res.status(400).json({ error: 'Ungültiges Abo.' });
+  }
+  saveSubscription(me.id, sub);
+  res.status(201).json({ ok: true });
+});
+
+// --- Web Push: stop notifications for this browser ---
+app.post('/api/push/unsubscribe', requireAuth, (req, res) => {
+  removeSubscription(String(req.body.endpoint ?? ''));
+  res.json({ ok: true });
 });
 
 // --- Mark a received postcard read ---
