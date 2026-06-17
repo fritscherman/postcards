@@ -9,6 +9,7 @@ import { playWhoosh } from '../utils/sound';
 import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
 import { isOnline, ApiError } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
 import type { Crop, GeoLocation, Orientation } from '../types';
 
 const PLACEHOLDER =
@@ -23,6 +24,9 @@ const PLACEHOLDER =
 export function CreatePage() {
   const navigate = useNavigate();
   const { sendPostcard, userName } = usePostcards();
+  const { guest, logout } = useAuth();
+  // Guests (and the demo build) send locally; only real accounts reach the server.
+  const localMode = !isOnline || guest;
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [image, setImage] = useState<string>(PLACEHOLDER);
@@ -86,7 +90,7 @@ export function CreatePage() {
       alert('Bitte wähle zuerst ein Foto aus. 📷');
       return;
     }
-    if (isOnline && !toEmail.trim()) {
+    if (!localMode && !toEmail.trim()) {
       alert('Bitte gib die E-Mail-Adresse des Empfängers an.');
       return;
     }
@@ -102,8 +106,8 @@ export function CreatePage() {
         stampId,
         filter: filterCss,
         message,
-        to: isOnline ? toEmail.trim() : to,
-        toEmail: isOnline ? toEmail.trim() : undefined,
+        to: localMode ? to : toEmail.trim(),
+        toEmail: localMode ? undefined : toEmail.trim(),
         from: userName,
         location,
       });
@@ -128,7 +132,7 @@ export function CreatePage() {
     stampId,
     filter: filterCss,
     message,
-    to: isOnline ? toEmail || 'Empfänger:in' : to,
+    to: localMode ? to : toEmail || 'Empfänger:in',
     from: userName,
     location,
     createdAt: Date.now(),
@@ -269,14 +273,7 @@ export function CreatePage() {
 
           <div className="field">
             <label>6 · Empfänger</label>
-            {isOnline ? (
-              <input
-                type="email"
-                placeholder="freund@example.com"
-                value={toEmail}
-                onChange={(e) => setToEmail(e.target.value)}
-              />
-            ) : (
+            {localMode ? (
               <select value={to} onChange={(e) => setTo(e.target.value)}>
                 {FRIENDS.map((f) => (
                   <option key={f} value={f}>
@@ -284,11 +281,30 @@ export function CreatePage() {
                   </option>
                 ))}
               </select>
+            ) : (
+              <input
+                type="email"
+                placeholder="freund@example.com"
+                value={toEmail}
+                onChange={(e) => setToEmail(e.target.value)}
+              />
             )}
           </div>
 
+          {guest && (
+            <div className="guest-note">
+              <span>
+                ✨ Im Gast-Modus bleibt deine Karte nur auf diesem Gerät. Für echtes Versenden an
+                Freund:innen erstelle ein kostenloses Konto.
+              </span>
+              <button type="button" className="btn primary small" onClick={logout}>
+                Konto erstellen
+              </button>
+            </div>
+          )}
+
           <button className="btn primary big" onClick={handleSend} disabled={busy}>
-            {busy ? 'Wird versendet… ✈️' : `An ${isOnline ? toEmail || 'Freund:in' : to} senden ✉️`}
+            {busy ? 'Wird versendet… ✈️' : `An ${localMode ? to : toEmail || 'Freund:in'} senden ✉️`}
           </button>
         </section>
 

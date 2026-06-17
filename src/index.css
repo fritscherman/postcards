@@ -438,6 +438,12 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .auth-guest { font-weight: 700; color: var(--teal-dark); }
 
+.guest-note {
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
+  background: #e9f8fa; border: 1px solid #c9eef2; border-radius: 14px;
+  padding: 14px 16px; color: var(--teal-dark); font-size: .9rem; line-height: 1.45;
+}
+
 /* ---------- Entrance animations ---------- */
 .page { animation: rise .35s ease both; }
 .card-cell { animation: rise .4s ease both; }
