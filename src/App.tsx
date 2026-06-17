@@ -9,6 +9,7 @@ import { PWAPrompt } from './components/PWAPrompt';
 import { Welcome } from './components/Welcome';
 import { AuthPage } from './pages/AuthPage';
 import { InviteFriends } from './components/InviteFriends';
+import { Logo } from './components/Logo';
 import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
 import { isOnline } from './api/client';
@@ -16,6 +17,14 @@ import { isOnline } from './api/client';
 function InviteAuth({ onGuest }: { onGuest: () => void }) {
   const { token } = useParams();
   return <AuthPage inviteToken={token} onGuest={onGuest} />;
+}
+
+/** First letters of the first two words, e.g. "Benjamin Fritsch" -> "BF". */
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  const letters = (parts[0][0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] ?? '' : '');
+  return letters.toUpperCase();
 }
 
 export default function App() {
@@ -46,7 +55,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-bar">
-        <span className="logo">✉️ Wanderpost</span>
+        <span className="logo"><Logo size={28} /> Wanderpost</span>
         <div className="app-bar-actions">
           {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
@@ -59,8 +68,8 @@ export default function App() {
             </button>
           )}
           <button
-            className="who"
-            title={isOnline && user ? 'Abmelden' : 'Namen ändern'}
+            className="who who-initials"
+            title={`${userName}${isOnline && user ? ' · Abmelden' : ' · Namen ändern'}`}
             onClick={() => {
               if (isOnline && user) {
                 if (confirm('Abmelden?')) logout();
@@ -70,7 +79,7 @@ export default function App() {
               }
             }}
           >
-            👤 {userName}
+            {initials(userName)}
           </button>
           {localMode && (
             <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">⟲</button>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { Logo } from '../components/Logo';
 
 const FEATURES = [
   { icon: '✏️', title: 'Postkarten schreiben', desc: 'Gestalte persönliche Karten mit Text und wähle den perfekten Absender-Ort.' },
@@ -36,12 +37,7 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
       {/* Hero */}
       <div className="landing-hero">
         <div className="landing-logo-row">
-          <svg className="landing-logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect x="4" y="10" width="40" height="28" rx="5" fill="#0e7490" />
-            <path d="M4 14l20 13 20-13" stroke="#fffdf8" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M28 24l16 12" stroke="#fffdf8" strokeWidth="1.8" strokeLinecap="round" opacity=".6" />
-            <path d="M20 24L4 36" stroke="#fffdf8" strokeWidth="1.8" strokeLinecap="round" opacity=".6" />
-          </svg>
+          <Logo size={64} title="Wanderpost" />
           <span className="landing-wordmark">Wanderpost</span>
         </div>
         <p className="landing-tagline">Postkarten neu entdeckt — digital, persönlich, weltweit.</p>
