@@ -9,7 +9,7 @@ import {
 } from 'react';
 import type { Box, PinPosition, Postcard } from '../types';
 import { SEED_POSTCARDS } from '../data/seed';
-import { apiListPostcards, apiMarkRead, apiSendPostcard, isOnline } from '../api/client';
+import { apiListPostcards, apiMarkRead, apiSendPostcard, apiSetLike, isOnline } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 
 const STORAGE_KEY = 'postcards.v1';
@@ -24,6 +24,8 @@ interface StoreValue {
   /** Sends a card. Online: delivers to the recipient's inbox; demo: simulates locally. */
   sendPostcard: (card: Draft) => Promise<void>;
   markRead: (id: string) => void;
+  /** Toggle the favourite heart on a received card. */
+  toggleLike: (id: string) => void;
   movePin: (id: string, pin: Partial<PinPosition>) => void;
   removePostcard: (id: string) => void;
   resetDemo: () => void;
@@ -69,24 +71,28 @@ function fromApi(c: any): Postcard {
     createdAt: c.createdAt,
     box: c.box,
     read: c.read,
+    liked: c.liked,
     pin: randomPin(),
   };
 }
 
 export function PostcardProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const [postcards, setPostcards] = useState<Postcard[]>(() => (isOnline ? [] : load()));
+  const { user, guest } = useAuth();
+  // Local mode = the demo build, OR a guest exploring an online build without an account.
+  // In both cases data lives in localStorage instead of the server.
+  const local = !isOnline || guest;
+  const [postcards, setPostcards] = useState<Postcard[]>(() => (local ? load() : []));
   const [localName, setLocalName] = useState<string>(
     () => localStorage.getItem(PROFILE_KEY) ?? 'Du',
   );
 
-  // Demo mode persists to localStorage; online mode is the server's job.
+  // Local mode persists to localStorage; online mode is the server's job.
   useEffect(() => {
-    if (!isOnline) localStorage.setItem(STORAGE_KEY, JSON.stringify(postcards));
-  }, [postcards]);
+    if (local) localStorage.setItem(STORAGE_KEY, JSON.stringify(postcards));
+  }, [postcards, local]);
 
   const refresh = useCallback(async () => {
-    if (!isOnline || !user) return;
+    if (local || !user) return;
     try {
       const { cards } = await apiListPostcards();
       setPostcards(cards.map(fromApi));
@@ -97,10 +103,10 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
 
   // Load (or clear) the server postcards when the signed-in user changes.
   useEffect(() => {
-    if (!isOnline) return;
+    if (local) return;
     if (user) refresh();
     else setPostcards([]);
-  }, [user, refresh]);
+  }, [user, refresh, local]);
 
   const setUserName = useCallback((name: string) => {
     const clean = name.trim() || 'Du';
@@ -110,7 +116,7 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
 
   const sendPostcard = useCallback<StoreValue['sendPostcard']>(
     async (card) => {
-      if (isOnline) {
+      if (!local) {
         await apiSendPostcard({
           toEmail: card.toEmail ?? '',
           payload: {
@@ -137,13 +143,25 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
       };
       setPostcards((prev) => [created, ...prev]);
     },
-    [refresh],
+    [refresh, local],
   );
 
   const markRead = useCallback((id: string) => {
     setPostcards((prev) => prev.map((c) => (c.id === id ? { ...c, read: true } : c)));
-    if (isOnline) apiMarkRead(id).catch(() => {});
-  }, []);
+    if (!local) apiMarkRead(id).catch(() => {});
+  }, [local]);
+
+  const toggleLike = useCallback((id: string) => {
+    let next = false;
+    setPostcards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        next = !c.liked;
+        return { ...c, liked: next };
+      }),
+    );
+    if (!local) apiSetLike(id, next).catch(() => {});
+  }, [local]);
 
   const movePin = useCallback((id: string, pin: Partial<PinPosition>) => {
     setPostcards((prev) =>
@@ -156,13 +174,13 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetDemo = useCallback(() => {
-    if (isOnline) {
+    if (!local) {
       refresh();
       return;
     }
     localStorage.removeItem(STORAGE_KEY);
     setPostcards(SEED_POSTCARDS);
-  }, [refresh]);
+  }, [refresh, local]);
 
   const cardsIn = useCallback(
     (box: Box) =>
@@ -172,7 +190,7 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     [postcards],
   );
 
-  const userName = isOnline ? user?.name ?? 'Du' : localName;
+  const userName = local ? localName : user?.name ?? 'Du';
 
   const value = useMemo<StoreValue>(
     () => ({
@@ -181,12 +199,13 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
       setUserName,
       sendPostcard,
       markRead,
+      toggleLike,
       movePin,
       removePostcard,
       resetDemo,
       cardsIn,
     }),
-    [postcards, userName, setUserName, sendPostcard, markRead, movePin, removePostcard, resetDemo, cardsIn],
+    [postcards, userName, setUserName, sendPostcard, markRead, toggleLike, movePin, removePostcard, resetDemo, cardsIn],
   );
 
   return <PostcardContext.Provider value={value}>{children}</PostcardContext.Provider>;

@@ -9,18 +9,22 @@ import { PWAPrompt } from './components/PWAPrompt';
 import { Welcome } from './components/Welcome';
 import { AuthPage } from './pages/AuthPage';
 import { InviteFriends } from './components/InviteFriends';
+import { Logo } from './components/Logo';
+import { FriendsPage } from './pages/FriendsPage';
+import { initials } from './utils/initials';
 import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
 import { isOnline } from './api/client';
 
-function InviteAuth() {
+function InviteAuth({ onGuest }: { onGuest: () => void }) {
   const { token } = useParams();
-  return <AuthPage inviteToken={token} />;
+  return <AuthPage inviteToken={token} onGuest={onGuest} />;
 }
 
 export default function App() {
   const { userName, setUserName, resetDemo } = usePostcards();
-  const { user, ready, logout } = useAuth();
+  const { user, guest, ready, logout, enterGuest } = useAuth();
+  const localMode = !isOnline || guest;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(userName);
   const [inviting, setInviting] = useState(false);
@@ -33,11 +37,11 @@ export default function App() {
       </div>
     );
   }
-  if (isOnline && !user) {
+  if (isOnline && !user && !guest) {
     return (
       <Routes>
-        <Route path="/invite/:token" element={<InviteAuth />} />
-        <Route path="*" element={<AuthPage />} />
+        <Route path="/invite/:token" element={<InviteAuth onGuest={enterGuest} />} />
+        <Route path="*" element={<AuthPage onGuest={enterGuest} />} />
       </Routes>
     );
   }
@@ -45,18 +49,23 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-bar">
-        <span className="logo">✉️ Wanderpost</span>
+        <span className="logo"><Logo size={28} /> Wanderpost</span>
         <div className="app-bar-actions">
-          {isOnline && (
+          {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
               💌 Einladen
             </button>
           )}
+          {guest && (
+            <button className="btn primary small" onClick={logout} title="Kostenloses Konto erstellen">
+              ✨ Konto erstellen
+            </button>
+          )}
           <button
-            className="who"
-            title={isOnline ? 'Abmelden' : 'Namen ändern'}
+            className="who who-initials"
+            title={`${userName}${isOnline && user ? ' · Abmelden' : ' · Namen ändern'}`}
             onClick={() => {
-              if (isOnline) {
+              if (isOnline && user) {
                 if (confirm('Abmelden?')) logout();
               } else {
                 setDraft(userName);
@@ -64,10 +73,10 @@ export default function App() {
               }
             }}
           >
-            👤 {userName}
+            {initials(userName)}
           </button>
-          {!isOnline && (
-            <button className="btn link" onClick={resetDemo} title="Demo-Daten zurücksetzen">⟲</button>
+          {localMode && (
+            <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">⟲</button>
           )}
         </div>
       </header>
@@ -79,6 +88,7 @@ export default function App() {
           <Route path="/mailbox" element={<MailboxPage />} />
           <Route path="/world" element={<WorldPage />} />
           <Route path="/pinboard" element={<PinboardPage />} />
+          <Route path="/friends" element={<FriendsPage onInvite={() => setInviting(true)} />} />
           <Route path="/invite/:token" element={<Navigate to="/create" replace />} />
           <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>

@@ -44,6 +44,26 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 const currentUser = (res: Response): TokenUser => res.locals.user;
 
+// Record a mutual friendship (stored once with the smaller id first).
+function addFriendship(a: string, b: string): void {
+  if (!a || !b || a === b) return;
+  const [lo, hi] = a < b ? [a, b] : [b, a];
+  db.prepare(
+    'INSERT OR IGNORE INTO friendships (user_a, user_b, created_at) VALUES (?,?,?)',
+  ).run(lo, hi, Date.now());
+}
+
+// Redeem an invite link: connect the inviter and `userId` as friends.
+// Reusable — many people can redeem the same token. No-op for empty/unknown
+// tokens or self-invites.
+function acceptInvite(token: string, userId: string): void {
+  if (!token) return;
+  const inv = db.prepare('SELECT inviter_id FROM invites WHERE token = ?').get(token) as
+    | { inviter_id: string }
+    | undefined;
+  if (inv) addFriendship(inv.inviter_id, userId);
+}
+
 // --- Health check ---
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
@@ -63,10 +83,7 @@ app.post('/api/register', (req, res) => {
   db.prepare('INSERT INTO users (id, email, name, pw, created_at) VALUES (?,?,?,?,?)')
     .run(id, email, name, hashPassword(password), Date.now());
 
-  const inviteToken = String(req.body.inviteToken ?? '');
-  if (inviteToken) {
-    db.prepare('UPDATE invites SET accepted_by = ? WHERE token = ? AND accepted_by IS NULL').run(id, inviteToken);
-  }
+  acceptInvite(String(req.body.inviteToken ?? ''), id);
 
   const user: TokenUser = { id, email, name };
   res.status(201).json({ token: signToken(user, JWT_SECRET!), user });
@@ -80,6 +97,10 @@ app.post('/api/login', (req, res) => {
   if (!u || !verifyPassword(password, u.pw)) {
     return res.status(401).json({ error: 'E-Mail oder Passwort ist falsch.' });
   }
+
+  // An existing user who follows an invite link becomes the inviter's friend too.
+  acceptInvite(String(req.body.inviteToken ?? ''), u.id);
+
   const user: TokenUser = { id: u.id, email: u.email, name: u.name };
   res.json({ token: signToken(user, JWT_SECRET!), user });
 });
@@ -110,6 +131,7 @@ app.get('/api/postcards', requireAuth, (_req, res) => {
     to: p.recipient_name,
     toEmail: p.recipient_email,
     read: !!p.read || p.sender_id === me.id,
+    liked: !!p.liked,
     createdAt: p.created_at,
     ...JSON.parse(p.payload),
   }));
@@ -152,19 +174,51 @@ app.post('/api/postcards/:id/read', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// --- Create an invite ---
+// --- Like / unlike a received postcard ---
+app.post('/api/postcards/:id/like', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const liked = req.body.liked ? 1 : 0;
+  db.prepare('UPDATE postcards SET liked = ? WHERE id = ? AND recipient_id = ?')
+    .run(liked, req.params.id, me.id);
+  res.json({ ok: true, liked: !!liked });
+});
+
+// --- Create (or reuse) an invite link ---
+// Each user has one durable, reusable link — many people can redeem it.
 app.post('/api/invites', requireAuth, async (req, res) => {
   const me = currentUser(res);
   const email = req.body.email ? normEmail(String(req.body.email)) : null;
   if (email && !emailRe.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
 
-  const token = randomUUID();
-  db.prepare('INSERT INTO invites (token, inviter_id, email, created_at) VALUES (?,?,?,?)')
-    .run(token, me.id, email, Date.now());
+  const existing = db.prepare(
+    'SELECT token FROM invites WHERE inviter_id = ? ORDER BY created_at LIMIT 1',
+  ).get(me.id) as { token: string } | undefined;
+
+  let token = existing?.token;
+  if (!token) {
+    token = randomUUID();
+    db.prepare('INSERT INTO invites (token, inviter_id, email, created_at) VALUES (?,?,?,?)')
+      .run(token, me.id, null, Date.now());
+  }
 
   const link = `${APP_URL}/invite/${token}`;
   const emailed = email ? await sendInviteEmail(email, me.name, link) : false;
   res.status(201).json({ token, link, emailed });
+});
+
+// --- List friends ---
+// Friendship is mutual and derived from accepted invites: the other party of
+// any invite where I'm the inviter (and it was accepted) or the one who joined.
+app.get('/api/friends', requireAuth, (_req, res) => {
+  const me = currentUser(res);
+  const rows = db.prepare(
+    `SELECT u.id, u.name, u.email
+     FROM friendships f
+     JOIN users u ON u.id = CASE WHEN f.user_a = ? THEN f.user_b ELSE f.user_a END
+     WHERE f.user_a = ? OR f.user_b = ?
+     ORDER BY u.name COLLATE NOCASE`,
+  ).all(me.id, me.id, me.id) as { id: string; name: string; email: string }[];
+  res.json({ friends: rows });
 });
 
 // --- Unknown API routes → JSON 404 (don't fall through to the SPA) ---

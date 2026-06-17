@@ -1,30 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiCreateInvite } from '../api/client';
 
+const SHARE_TEXT = 'Ich schicke dir Postkarten über Wanderpost! Tritt mit diesem Link bei:';
+
 export function InviteFriends({ onClose }: { onClose: () => void }) {
-  const [email, setEmail] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [link, setLink] = useState('');
   const [error, setError] = useState('');
-  const [result, setResult] = useState<{ link: string; emailed: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
 
-  async function create() {
-    setBusy(true);
-    setError('');
+  // Generate the invite link as soon as the dialog opens.
+  useEffect(() => {
+    let active = true;
+    apiCreateInvite({})
+      .then((r) => active && setLink(r.link))
+      .catch((err) => active && setError((err as Error).message));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const canShare = typeof navigator !== 'undefined' && !!navigator.share;
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT} ${link}`)}`;
+
+  async function share() {
+    if (!link) return;
     try {
-      const r = await apiCreateInvite({ email: email.trim() || undefined });
-      setResult({ link: r.link, emailed: r.emailed });
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setBusy(false);
+      await navigator.share({ title: 'Wanderpost', text: SHARE_TEXT, url: link });
+    } catch {
+      /* user cancelled or sharing unavailable */
     }
   }
 
   async function copy() {
-    if (!result) return;
+    if (!link) return;
     try {
-      await navigator.clipboard.writeText(result.link);
+      await navigator.clipboard.writeText(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -36,31 +46,28 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h3>Freunde einladen 💌</h3>
-        {!result ? (
-          <>
-            <p>Schick einen Einladungslink — optional direkt per E-Mail (wenn der Versand konfiguriert ist).</p>
-            <input
-              type="email"
-              placeholder="freund@example.com (optional)"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            {error && <p className="auth-error">{error}</p>}
-            <button className="btn primary" onClick={create} disabled={busy}>
-              {busy ? '…' : 'Einladung erstellen'}
-            </button>
-          </>
+        {error ? (
+          <p className="auth-error">{error}</p>
+        ) : !link ? (
+          <p>Link wird erstellt…</p>
         ) : (
           <>
-            <p>
-              {result.emailed
-                ? 'Einladung per E-Mail verschickt ✅ — du kannst den Link zusätzlich teilen:'
-                : 'Teile diesen Link (z. B. per WhatsApp):'}
-            </p>
-            <input readOnly value={result.link} onFocus={(e) => e.target.select()} />
-            <button className="btn primary" onClick={copy}>
-              {copied ? 'Kopiert ✓' : 'Link kopieren'}
-            </button>
+            <p>Teile diesen Link, damit Freund:innen beitreten und deine Postkarten empfangen können.</p>
+            <input readOnly value={link} onFocus={(e) => e.target.select()} />
+
+            <div className="invite-actions">
+              {canShare && (
+                <button className="btn primary" onClick={share}>
+                  📤 Teilen
+                </button>
+              )}
+              <a className="btn ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                💬 WhatsApp
+              </a>
+              <button className="btn ghost" onClick={copy}>
+                {copied ? 'Kopiert ✓' : '🔗 Link kopieren'}
+              </button>
+            </div>
           </>
         )}
         <button className="btn link" onClick={onClose}>Schließen</button>

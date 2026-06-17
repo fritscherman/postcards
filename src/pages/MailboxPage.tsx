@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 import { PostcardDetail } from '../components/PostcardDetail';
+import { GuestBanner } from '../components/GuestBanner';
 import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
@@ -23,6 +24,7 @@ export function MailboxPage() {
   }, [params, setParams]);
 
   const cards = cardsIn(box);
+  const likesReceived = cardsIn('outbox').filter((c) => c.liked).length;
 
   return (
     <div className="page mailbox-page">
@@ -33,6 +35,10 @@ export function MailboxPage() {
 
       {toast && <div className="toast">✅ Postkarte versendet! Sie liegt jetzt im Postausgang.</div>}
 
+      {box === 'inbox' && (
+        <GuestBanner message="Um echte Postkarten von Freund:innen zu empfangen, brauchst du ein kostenloses Konto." />
+      )}
+
       <div className="tabs">
         <button className={`tab ${box === 'inbox' ? 'on' : ''}`} onClick={() => setBox('inbox')}>
           📥 Eingang ({cardsIn('inbox').length})
@@ -41,6 +47,10 @@ export function MailboxPage() {
           📤 Ausgang ({cardsIn('outbox').length})
         </button>
       </div>
+
+      {box === 'outbox' && likesReceived > 0 && (
+        <p className="likes-total">❤️ {likesReceived} {likesReceived === 1 ? 'Like' : 'Likes'} erhalten</p>
+      )}
 
       {cards.length === 0 ? (
         <div className="empty">
@@ -60,7 +70,10 @@ export function MailboxPage() {
                 <PostcardCard card={card} />
               </div>
               <div className="card-meta">
-                <span>{box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}</span>
+                <span>
+                  {box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}
+                  {card.liked && <span className="liked-heart" title="Gefällt der Empfänger:in"> ❤️</span>}
+                </span>
                 <span className="card-meta-actions">
                   <button className="btn link" onClick={() => setDetail(card)}>
                     🔍 Details

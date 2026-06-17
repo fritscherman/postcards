@@ -1,5 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import type { Postcard } from '../types';
 import { stampById, templateById } from '../data/templates';
+import { usePostcards } from '../store/PostcardStore';
+import { isOnline } from '../api/client';
 
 interface Props {
   card: Postcard;
@@ -7,6 +10,16 @@ interface Props {
 }
 
 export function PostcardDetail({ card, onClose }: Props) {
+  const navigate = useNavigate();
+  const { toggleLike } = usePostcards();
+  const isInbox = card.box === 'inbox';
+
+  function reply() {
+    // Prefill the create page with the original sender as recipient.
+    const recipient = isOnline ? card.fromEmail ?? '' : card.from;
+    navigate(`/create?to=${encodeURIComponent(recipient)}`);
+    onClose();
+  }
   const template = templateById(card.templateId);
   const stamp = stampById(card.stampId);
   const date = new Date(card.createdAt).toLocaleDateString('de-DE', {
@@ -42,6 +55,21 @@ export function PostcardDetail({ card, onClose }: Props) {
             <div><dt>Datum</dt><dd>{date}</dd></div>
             <div><dt>Vorlage</dt><dd>{template.name}</dd></div>
           </dl>
+
+          {isInbox && (
+            <div className="detail-actions">
+              <button
+                className={`btn ghost like-btn ${card.liked ? 'liked' : ''}`}
+                onClick={() => toggleLike(card.id)}
+                aria-pressed={card.liked}
+              >
+                {card.liked ? '❤️ Gefällt dir' : '🤍 Gefällt mir'}
+              </button>
+              <button className="btn primary" onClick={reply}>
+                ↩️ Mit Postkarte antworten
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
