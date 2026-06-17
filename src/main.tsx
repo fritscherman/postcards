@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import App from './App';
 import { PostcardProvider } from './store/PostcardStore';
 import { AuthProvider } from './auth/AuthContext';
+import { InstallProvider } from './components/InstallContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -12,7 +13,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AuthProvider>
         <PostcardProvider>
-          <App />
+          <InstallProvider>
+            <App />
+          </InstallProvider>
         </PostcardProvider>
       </AuthProvider>
     </BrowserRouter>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { Logo } from './Logo';
+import { useInstall } from './InstallContext';
 
 // We no longer dismiss the install hint forever — instead we snooze it, so it
 // comes back on a later visit as long as the app still isn't installed.
@@ -14,54 +15,15 @@ function snooze(): void {
   localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_MS));
 }
 
-// True on iPhone/iPad Safari, where there's no beforeinstallprompt event —
-// the user must add to the home screen manually via the share sheet.
-function isIosSafari(): boolean {
-  const ua = navigator.userAgent;
-  const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const webkit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-  return iOS && webkit;
-}
-
-function isStandalone(): boolean {
-  return (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    (navigator as unknown as { standalone?: boolean }).standalone === true
-  );
-}
-
 export function PWAPrompt() {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW();
 
-  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(isStandalone());
-  const [isIos, setIsIos] = useState(false);
+  const { canPrompt, isIos, installed, promptInstall } = useInstall();
   // Re-evaluated on mount; lets us hide after a snooze without a full reload.
   const [snoozed, setSnoozed] = useState(isSnoozed());
-
-  useEffect(() => {
-    const onPrompt = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setInstalled(true);
-      setInstallEvent(null);
-      localStorage.removeItem(SNOOZE_KEY);
-    };
-    window.addEventListener('beforeinstallprompt', onPrompt);
-    window.addEventListener('appinstalled', onInstalled);
-
-    if (isIosSafari() && !isStandalone()) setIsIos(true);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onPrompt);
-      window.removeEventListener('appinstalled', onInstalled);
-    };
-  }, []);
 
   function dismiss() {
     snooze();
@@ -69,10 +31,7 @@ export function PWAPrompt() {
   }
 
   async function install() {
-    if (!installEvent) return;
-    await installEvent.prompt();
-    const { outcome } = await installEvent.userChoice;
-    setInstallEvent(null);
+    const outcome = await promptInstall();
     // If they declined, snooze so we ask again in a few days.
     if (outcome !== 'accepted') dismiss();
   }
@@ -98,7 +57,7 @@ export function PWAPrompt() {
   if (installed || snoozed) return null;
 
   // Android / desktop: we have a real install prompt to trigger.
-  if (installEvent) {
+  if (canPrompt) {
     return (
       <div className="pwa-banner install-card">
         <span className="install-icon"><Logo size={44} /></span>
