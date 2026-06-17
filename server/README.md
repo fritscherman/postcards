@@ -8,7 +8,7 @@ by Zitadel later.
 
 - Passwords: `scrypt` (node:crypto) — no native build needed.
 - Sessions: signed JWT (HS256) in the `Authorization: Bearer` header.
-- Storage: SQLite via `better-sqlite3` (ships prebuilt binaries for Windows/Linux).
+- Storage: SQLite via `node-sqlite3-wasm` (pure WASM — **no build tools / Visual Studio needed**).
 
 ## API
 
@@ -45,7 +45,7 @@ Every deploy (from the repo root):
 ```
 
 `deploy.ps1` pulls, builds the frontend (`VITE_API_URL=/`, same origin) and the
-backend, then `pm2 restart postcards` (or starts it the first time via
+backend, then `pm2 restart wanderpost` (or starts it the first time via
 `ecosystem.config.cjs`).
 
 To start automatically after a server reboot, run once:
