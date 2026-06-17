@@ -47,6 +47,16 @@ raw.exec(`
     created_at INTEGER NOT NULL,
     PRIMARY KEY (user_a, user_b)
   );
+
+  -- Web Push subscriptions. One row per browser/device endpoint; a user can
+  -- have several (phone, laptop, …). Keyed by the unique push endpoint URL.
+  CREATE TABLE IF NOT EXISTS push_subscriptions (
+    endpoint   TEXT PRIMARY KEY,
+    user_id    TEXT NOT NULL REFERENCES users(id),
+    sub        TEXT NOT NULL,        -- JSON PushSubscription (endpoint + keys)
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_push_user ON push_subscriptions(user_id);
 `);
 
 // Add the `liked` column to postcard tables created before it existed.

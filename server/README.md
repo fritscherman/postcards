@@ -21,6 +21,9 @@ by Zitadel later.
 | POST   | `/api/postcards`          | ✓    | Send `{toEmail,payload}`        |
 | POST   | `/api/postcards/:id/read` | ✓    | Mark received card read         |
 | POST   | `/api/invites`            | ✓    | Create invite `{email?}`        |
+| GET    | `/api/push/key`           | –    | Public VAPID key (or `null`)    |
+| POST   | `/api/push/subscribe`     | ✓    | Register this browser for push  |
+| POST   | `/api/push/unsubscribe`   | ✓    | Stop push on this browser       |
 | GET    | `/api/health`             | –    | Health check                    |
 
 ## Deploy on your Windows server (git pull + pm2)
@@ -66,6 +69,35 @@ npm run dev               # http://localhost:8787
 
 Run the frontend separately with `VITE_API_URL=http://localhost:8787 npm run dev`
 from the repo root, or build it (`npm run build`) and let the server serve it.
+
+## Push notifications (optional)
+
+When VAPID keys are configured, recipients get a notification ("📬 Neue
+Postkarte") even when the app is closed, and the unread count shows as a badge
+on the installed app icon. Without keys, push is simply off and everything else
+works unchanged.
+
+1. Generate a key pair once (in `server/`):
+
+   ```bash
+   npm run generate-vapid
+   ```
+
+2. Put the two printed values into `server/.env` and add a contact address:
+
+   ```ini
+   VAPID_PUBLIC_KEY=...
+   VAPID_PRIVATE_KEY=...
+   VAPID_SUBJECT=mailto:du@deinedomain.de
+   ```
+
+3. Restart the server. The frontend fetches the public key at runtime, so no
+   rebuild is needed to turn push on. Users enable it via the 🔕/🔔 bell in the
+   app bar (which only appears once the server has keys).
+
+Notes: push and badges require **HTTPS** (localhost is exempt). On **iPhone/iPad**
+the user must first add the app to the home screen (iOS 16.4+). Browser support
+for the icon badge varies (Chrome/Edge, Android, installed PWAs).
 
 ## Email invites (optional)
 

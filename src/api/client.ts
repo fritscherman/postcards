@@ -70,3 +70,12 @@ export const apiCreateInvite = (b: { email?: string }) =>
   api<{ token: string; link: string; emailed: boolean }>('/api/invites', 'POST', b);
 
 export const apiListFriends = () => api<{ friends: AuthUser[] }>('/api/friends');
+
+/** Public VAPID key for push, or null when the server hasn't configured push. */
+export const apiPushKey = () => api<{ key: string | null }>('/api/push/key');
+
+export const apiPushSubscribe = (sub: unknown) =>
+  api<{ ok: boolean }>('/api/push/subscribe', 'POST', { sub });
+
+export const apiPushUnsubscribe = (endpoint: string) =>
+  api<{ ok: boolean }>('/api/push/unsubscribe', 'POST', { endpoint });
