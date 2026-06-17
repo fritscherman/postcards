@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Check, Pencil, Smile, Undo2, X } from 'lucide-react';
 
 interface Point { x: number; y: number }
 interface Stroke { color: string; width: number; pts: Point[] }
@@ -188,7 +189,7 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
       <div className="decorator" onClick={(e) => e.stopPropagation()}>
         <div className="dec-head">
           <h3>Foto verzieren 🎨</h3>
-          <button className="btn link" onClick={onClose}>✕</button>
+          <button className="btn link icon-btn" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
         </div>
 
         <div
@@ -224,10 +225,10 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
         <div className="dec-tools">
           <div className="seg">
             <button className={`seg-btn ${mode === 'sticker' ? 'on' : ''}`} onClick={() => setMode('sticker')}>
-              😎 Sticker
+              <Smile size={16} /> Sticker
             </button>
             <button className={`seg-btn ${mode === 'draw' ? 'on' : ''}`} onClick={() => setMode('draw')}>
-              ✏️ Zeichnen
+              <Pencil size={16} /> Zeichnen
             </button>
           </div>
 
@@ -266,9 +267,9 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
           </p>
 
           <div className="dec-actions">
-            <button className="btn link" onClick={undo}>↩︎ Rückgängig</button>
+            <button className="btn link" onClick={undo}><Undo2 size={16} /> Rückgängig</button>
             <button className="btn link danger" onClick={clearAll}>Alles löschen</button>
-            <button className="btn primary" onClick={apply}>Fertig ✓</button>
+            <button className="btn primary" onClick={apply}><Check size={16} /> Fertig</button>
           </div>
         </div>
       </div>

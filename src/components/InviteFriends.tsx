@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Check, Link2, MessageCircle, Share2 } from 'lucide-react';
 import { apiCreateInvite } from '../api/client';
 
 const SHARE_TEXT = 'Ich schicke dir Postkarten über Wanderpost! Tritt mit diesem Link bei:';
@@ -58,14 +59,14 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
             <div className="invite-actions">
               {canShare && (
                 <button className="btn primary" onClick={share}>
-                  📤 Teilen
+                  <Share2 size={16} /> Teilen
                 </button>
               )}
               <a className="btn ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                💬 WhatsApp
+                <MessageCircle size={16} /> WhatsApp
               </a>
               <button className="btn ghost" onClick={copy}>
-                {copied ? 'Kopiert ✓' : '🔗 Link kopieren'}
+                {copied ? <><Check size={16} /> Kopiert</> : <><Link2 size={16} /> Link kopieren</>}
               </button>
             </div>
           </>

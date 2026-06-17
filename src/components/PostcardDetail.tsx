@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Pin, PinOff, Reply } from 'lucide-react';
+import { Heart, MapPin, Pin, PinOff, Reply, X } from 'lucide-react';
 import type { Postcard } from '../types';
 import { stampById, templateById } from '../data/templates';
 import { usePostcards } from '../store/PostcardStore';
@@ -41,7 +41,7 @@ export function PostcardDetail({ card, onClose }: Props) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="detail" onClick={(e) => e.stopPropagation()}>
-        <button className="detail-close" onClick={onClose}>✕</button>
+        <button className="detail-close" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
         <div className="detail-photo">
           <img src={card.image} alt="Postkarten-Motiv" style={imgStyle} />
           <span className="detail-stamp" style={{ background: stamp.bg }}>{stamp.emoji}</span>
