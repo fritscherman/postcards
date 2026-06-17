@@ -7,6 +7,7 @@ import { MailboxPage } from './pages/MailboxPage';
 import { WorldPage } from './pages/WorldPage';
 import { PinboardPage } from './pages/PinboardPage';
 import { PWAPrompt } from './components/PWAPrompt';
+import { InstallButton } from './components/InstallButton';
 import { Welcome } from './components/Welcome';
 import { AuthPage } from './pages/AuthPage';
 import { InviteFriends } from './components/InviteFriends';
@@ -56,6 +57,7 @@ export default function App() {
       <header className="app-bar">
         <span className="logo"><Logo size={36} /> Wanderpost</span>
         <div className="app-bar-actions">
+          <InstallButton />
           {isOnline && user && <NotificationToggle />}
           {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
