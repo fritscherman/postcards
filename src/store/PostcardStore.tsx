@@ -74,19 +74,22 @@ function fromApi(c: any): Postcard {
 }
 
 export function PostcardProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const [postcards, setPostcards] = useState<Postcard[]>(() => (isOnline ? [] : load()));
+  const { user, guest } = useAuth();
+  // Local mode = the demo build, OR a guest exploring an online build without an account.
+  // In both cases data lives in localStorage instead of the server.
+  const local = !isOnline || guest;
+  const [postcards, setPostcards] = useState<Postcard[]>(() => (local ? load() : []));
   const [localName, setLocalName] = useState<string>(
     () => localStorage.getItem(PROFILE_KEY) ?? 'Du',
   );
 
-  // Demo mode persists to localStorage; online mode is the server's job.
+  // Local mode persists to localStorage; online mode is the server's job.
   useEffect(() => {
-    if (!isOnline) localStorage.setItem(STORAGE_KEY, JSON.stringify(postcards));
-  }, [postcards]);
+    if (local) localStorage.setItem(STORAGE_KEY, JSON.stringify(postcards));
+  }, [postcards, local]);
 
   const refresh = useCallback(async () => {
-    if (!isOnline || !user) return;
+    if (local || !user) return;
     try {
       const { cards } = await apiListPostcards();
       setPostcards(cards.map(fromApi));
@@ -97,10 +100,10 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
 
   // Load (or clear) the server postcards when the signed-in user changes.
   useEffect(() => {
-    if (!isOnline) return;
+    if (local) return;
     if (user) refresh();
     else setPostcards([]);
-  }, [user, refresh]);
+  }, [user, refresh, local]);
 
   const setUserName = useCallback((name: string) => {
     const clean = name.trim() || 'Du';
@@ -110,7 +113,7 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
 
   const sendPostcard = useCallback<StoreValue['sendPostcard']>(
     async (card) => {
-      if (isOnline) {
+      if (!local) {
         await apiSendPostcard({
           toEmail: card.toEmail ?? '',
           payload: {
@@ -137,13 +140,13 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
       };
       setPostcards((prev) => [created, ...prev]);
     },
-    [refresh],
+    [refresh, local],
   );
 
   const markRead = useCallback((id: string) => {
     setPostcards((prev) => prev.map((c) => (c.id === id ? { ...c, read: true } : c)));
-    if (isOnline) apiMarkRead(id).catch(() => {});
-  }, []);
+    if (!local) apiMarkRead(id).catch(() => {});
+  }, [local]);
 
   const movePin = useCallback((id: string, pin: Partial<PinPosition>) => {
     setPostcards((prev) =>
@@ -156,13 +159,13 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetDemo = useCallback(() => {
-    if (isOnline) {
+    if (!local) {
       refresh();
       return;
     }
     localStorage.removeItem(STORAGE_KEY);
     setPostcards(SEED_POSTCARDS);
-  }, [refresh]);
+  }, [refresh, local]);
 
   const cardsIn = useCallback(
     (box: Box) =>
@@ -172,7 +175,7 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     [postcards],
   );
 
-  const userName = isOnline ? user?.name ?? 'Du' : localName;
+  const userName = local ? localName : user?.name ?? 'Du';
 
   const value = useMemo<StoreValue>(
     () => ({

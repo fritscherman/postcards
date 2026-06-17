@@ -96,6 +96,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
 .btn.primary:hover { filter: brightness(1.06); transform: translateY(-2px); }
 .btn.primary:disabled { opacity: .6; cursor: default; transform: none; }
 .btn.big { width: 100%; padding: 16px; font-size: 1.05rem; border-radius: 16px; }
+.btn.small { padding: 7px 14px; font-size: .85rem; border-radius: 999px; }
 .btn.ghost { background: #fff; border: 1.5px solid var(--line); color: var(--ink); box-shadow: var(--shadow-sm); }
 .btn.ghost:hover { border-color: var(--teal); }
 .btn.link { background: none; color: var(--teal-dark); padding: 6px 8px; text-decoration: none; }
@@ -399,6 +400,11 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .landing-logo-icon { width: 56px; height: 56px; filter: drop-shadow(0 4px 10px rgba(14,116,144,.35)); }
 .landing-wordmark { font-family: 'Fraunces', serif; font-weight: 700; font-size: 2.8rem; color: var(--teal-dark); letter-spacing: -1px; }
 .landing-tagline { color: var(--muted); font-size: 1.1rem; max-width: 400px; }
+.landing-free-badge {
+  display: inline-block; margin-top: 4px;
+  background: #e9f8fa; color: var(--teal-dark);
+  font-weight: 700; font-size: .8rem; padding: 6px 14px; border-radius: 999px;
+}
 .landing-features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -428,6 +434,9 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .auth-form input:focus { outline: none; border-color: var(--teal); }
 .auth-error { color: var(--coral); font-weight: 600; font-size: .9rem; margin: 0; }
 .auth-switch { margin-top: 4px; }
+.auth-divider { display: flex; align-items: center; gap: 10px; width: 100%; color: var(--muted); font-size: .8rem; margin: 2px 0; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.auth-guest { font-weight: 700; color: var(--teal-dark); }
 
 /* ---------- Entrance animations ---------- */
 .page { animation: rise .35s ease both; }

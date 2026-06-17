@@ -8,7 +8,7 @@ const FEATURES = [
   { icon: '📌', title: 'Pinnwand', desc: 'Hefte deine schönsten Karten an und zeige sie stolz deiner Welt.' },
 ];
 
-export function AuthPage({ inviteToken }: { inviteToken?: string }) {
+export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGuest?: () => void }) {
   const { login, register } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(inviteToken ? 'register' : 'login');
   const [email, setEmail] = useState('');
@@ -45,6 +45,7 @@ export function AuthPage({ inviteToken }: { inviteToken?: string }) {
           <span className="landing-wordmark">Wanderpost</span>
         </div>
         <p className="landing-tagline">Postkarten neu entdeckt — digital, persönlich, weltweit.</p>
+        <span className="landing-free-badge">100&nbsp;% kostenlos · keine Werbung</span>
       </div>
 
       {/* Features */}
@@ -102,6 +103,15 @@ export function AuthPage({ inviteToken }: { inviteToken?: string }) {
         >
           {mode === 'login' ? 'Noch kein Konto? Registrieren' : 'Schon dabei? Anmelden'}
         </button>
+
+        {onGuest && (
+          <>
+            <div className="auth-divider"><span>oder</span></div>
+            <button type="button" className="btn link auth-guest" onClick={onGuest}>
+              Erst mal ohne Konto ausprobieren →
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
