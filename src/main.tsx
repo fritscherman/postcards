@@ -4,14 +4,17 @@ import { BrowserRouter } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import App from './App';
 import { PostcardProvider } from './store/PostcardStore';
+import { AuthProvider } from './auth/AuthContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <PostcardProvider>
-        <App />
-      </PostcardProvider>
+      <AuthProvider>
+        <PostcardProvider>
+          <App />
+        </PostcardProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

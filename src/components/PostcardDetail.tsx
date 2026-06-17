@@ -15,13 +15,20 @@ export function PostcardDetail({ card, onClose }: Props) {
     month: 'long',
     year: 'numeric',
   });
+  const crop = card.crop ?? { zoom: 1, x: 50, y: 50 };
+  const imgStyle = {
+    filter: card.filter || 'none',
+    transform: `scale(${crop.zoom})`,
+    transformOrigin: `${crop.x}% ${crop.y}%`,
+    aspectRatio: card.orientation === 'portrait' ? '2 / 3' : '3 / 2',
+  };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="detail" onClick={(e) => e.stopPropagation()}>
         <button className="detail-close" onClick={onClose}>✕</button>
         <div className="detail-photo">
-          <img src={card.image} alt="Postkarten-Motiv" style={{ filter: card.filter || 'none' }} />
+          <img src={card.image} alt="Postkarten-Motiv" style={imgStyle} />
           <span className="detail-stamp" style={{ background: stamp.bg }}>{stamp.emoji}</span>
         </div>
         <div className="detail-body">
