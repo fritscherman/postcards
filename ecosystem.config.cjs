@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = {
   apps: [
     {
-      name: 'postcards',
+      name: 'wanderpost',
       cwd: path.join(__dirname, 'server'),
       script: 'dist/index.js',
       env: { NODE_ENV: 'production' },

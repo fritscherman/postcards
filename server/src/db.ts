@@ -1,16 +1,16 @@
-import Database from 'better-sqlite3';
+import { Database, type RunResult } from 'node-sqlite3-wasm';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-// SQLite file location — keep it on a persistent volume in production.
+// Pure-WASM SQLite — no native build tools (no Visual Studio) required anywhere.
 const DB_PATH = resolve(process.env.DB_PATH ?? './data/postcards.db');
 mkdirSync(dirname(DB_PATH), { recursive: true });
 
-export const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
+const raw = new Database(DB_PATH);
+raw.exec('PRAGMA journal_mode = WAL');
 
 // Schema is created on startup; safe to run every time.
-db.exec(`
+raw.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id         TEXT PRIMARY KEY,
     email      TEXT NOT NULL UNIQUE,
@@ -38,3 +38,22 @@ db.exec(`
     created_at  INTEGER NOT NULL
   );
 `);
+
+type Param = number | bigint | string | Uint8Array | null;
+
+interface Statement {
+  run: (...params: Param[]) => RunResult;
+  get: <T = any>(...params: Param[]) => T | undefined;
+  all: <T = any>(...params: Param[]) => T[];
+}
+
+// Adapter that keeps the better-sqlite3-style `prepare(sql).run/get/all(...args)`
+// API used across the routes, so nothing else had to change.
+export const db = {
+  exec: (sql: string): void => raw.exec(sql),
+  prepare: (sql: string): Statement => ({
+    run: (...params) => raw.run(sql, params),
+    get: <T = any>(...params: Param[]) => (raw.get(sql, params) ?? undefined) as T | undefined,
+    all: <T = any>(...params: Param[]) => raw.all(sql, params) as T[],
+  }),
+};
