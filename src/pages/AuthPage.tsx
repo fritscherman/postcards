@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
+const FEATURES = [
+  { icon: '✏️', title: 'Postkarten schreiben', desc: 'Gestalte persönliche Karten mit Text und wähle den perfekten Absender-Ort.' },
+  { icon: '📬', title: 'Briefkasten', desc: 'Empfange Karten von Freunden aus aller Welt direkt in deinem Postfach.' },
+  { icon: '🌍', title: 'Weltkarte', desc: 'Sieh auf einer interaktiven Karte, woher deine Postkarten gereist sind.' },
+  { icon: '📌', title: 'Pinnwand', desc: 'Hefte deine schönsten Karten an und zeige sie stolz deiner Welt.' },
+];
+
 export function AuthPage({ inviteToken }: { inviteToken?: string }) {
   const { login, register } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(inviteToken ? 'register' : 'login');
@@ -25,10 +32,36 @@ export function AuthPage({ inviteToken }: { inviteToken?: string }) {
   }
 
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        <span className="auth-logo">✉️</span>
-        <h1>Postkarten</h1>
+    <div className="landing-shell">
+      {/* Hero */}
+      <div className="landing-hero">
+        <div className="landing-logo-row">
+          <svg className="landing-logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="4" y="10" width="40" height="28" rx="5" fill="#0e7490" />
+            <path d="M4 14l20 13 20-13" stroke="#fffdf8" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M28 24l16 12" stroke="#fffdf8" strokeWidth="1.8" strokeLinecap="round" opacity=".6" />
+            <path d="M20 24L4 36" stroke="#fffdf8" strokeWidth="1.8" strokeLinecap="round" opacity=".6" />
+          </svg>
+          <span className="landing-wordmark">Wanderpost</span>
+        </div>
+        <p className="landing-tagline">Postkarten neu entdeckt — digital, persönlich, weltweit.</p>
+      </div>
+
+      {/* Features */}
+      <div className="landing-features">
+        {FEATURES.map((f) => (
+          <div key={f.title} className="landing-feature">
+            <span className="landing-feature-icon">{f.icon}</span>
+            <div>
+              <strong>{f.title}</strong>
+              <p>{f.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Auth card */}
+      <div className="auth-card landing-auth-card">
         {inviteToken && mode === 'register' && (
           <p className="auth-invite">Du wurdest eingeladen! Erstelle ein Konto, um Postkarten zu empfangen.</p>
         )}
@@ -63,7 +96,10 @@ export function AuthPage({ inviteToken }: { inviteToken?: string }) {
           </button>
         </form>
 
-        <button className="btn link auth-switch" onClick={() => { setError(''); setMode(mode === 'login' ? 'register' : 'login'); }}>
+        <button
+          className="btn link auth-switch"
+          onClick={() => { setError(''); setMode(mode === 'login' ? 'register' : 'login'); }}
+        >
           {mode === 'login' ? 'Noch kein Konto? Registrieren' : 'Schon dabei? Anmelden'}
         </button>
       </div>
