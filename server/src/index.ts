@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { db } from './db';
 import { hashPassword, signToken, verifyPassword, verifyToken, type TokenUser } from './auth';
 import { sendInviteEmail } from './email';
@@ -164,6 +166,20 @@ app.post('/api/invites', requireAuth, async (req, res) => {
   const emailed = email ? await sendInviteEmail(email, me.name, link) : false;
   res.status(201).json({ token, link, emailed });
 });
+
+// --- Unknown API routes → JSON 404 (don't fall through to the SPA) ---
+app.use('/api', (_req, res) => res.status(404).json({ error: 'Nicht gefunden.' }));
+
+// --- Serve the built frontend (single origin: Node serves the SPA + the API) ---
+const STATIC_DIR = resolve(process.env.STATIC_DIR ?? join(__dirname, '../../dist'));
+if (existsSync(STATIC_DIR)) {
+  app.use(express.static(STATIC_DIR));
+  // SPA fallback: any non-API GET returns index.html so client-side routes work.
+  app.get('*', (_req, res) => res.sendFile(join(STATIC_DIR, 'index.html')));
+  console.log(`Serving frontend from ${STATIC_DIR}`);
+} else {
+  console.warn(`Frontend not found at ${STATIC_DIR} — run "npm run build" in the repo root.`);
+}
 
 // --- Fallback error handler ---
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

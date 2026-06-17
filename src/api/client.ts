@@ -1,10 +1,13 @@
-// Thin client for the Postcards Worker API. When VITE_API_URL is empty the app
+// Thin client for the Postcards backend API. When VITE_API_URL is empty the app
 // runs in local demo mode and this client is unused.
+//   VITE_API_URL=/                  -> same origin (Node serves API + app), relative calls
+//   VITE_API_URL=https://api.host   -> separate backend host
+const raw = (import.meta.env.VITE_API_URL ?? '').trim();
 
-const BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+/** True when a backend is configured — switches the app from demo to online mode. */
+export const isOnline = raw.length > 0;
 
-/** True when a backend URL is configured — switches the app from demo to online mode. */
-export const isOnline = BASE.length > 0;
+const BASE = raw === '/' ? '' : raw.replace(/\/$/, '');
 
 const TOKEN_KEY = 'postcards.token.v1';
 

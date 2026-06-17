@@ -3,9 +3,10 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
-// When deployed to GitHub Pages the app lives under /<repo>/ — locally it stays at /.
+// Served from the root of its own (sub)domain by default. Set VITE_BASE if the
+// app lives under a sub-path, e.g. VITE_BASE=/postkarten/.
 declare const process: { env: Record<string, string | undefined> };
-const base = process.env.GITHUB_PAGES ? '/postcards/' : '/';
+const base = process.env.VITE_BASE || '/';
 
 export default defineConfig({
   base,
