@@ -36,6 +36,13 @@ body {
 
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.1; }
 
+/* Hide a control without display:none / visibility:hidden, so a programmatic
+   .click() still opens the native file picker (needed in standalone PWAs / iOS). */
+.visually-hidden-input {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
 /* ---------- App shell ---------- */
 .app { display: flex; flex-direction: column; min-height: 100%; }
 
@@ -86,7 +93,7 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
   text-decoration: none; color: var(--muted); font-weight: 600; font-size: .72rem;
   padding: 7px 8px; border-radius: 14px; transition: all .2s ease;
 }
-.nav-item .nav-icon { font-size: 1.25rem; position: relative; transition: transform .2s ease; }
+.nav-item .nav-icon { display: inline-flex; position: relative; transition: transform .2s ease; }
 .nav-item.active { color: var(--teal-dark); background: linear-gradient(135deg, #e9f8fa, #fff2e8); }
 .nav-item.active .nav-icon { transform: translateY(-2px) scale(1.12); }
 .badge {
@@ -97,8 +104,13 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
 
 /* ---------- Buttons ---------- */
 .btn { font: inherit; font-weight: 600; cursor: pointer; border: none; border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   padding: 11px 18px; transition: transform .15s ease, box-shadow .15s ease, filter .15s ease; }
 .btn:active { transform: scale(.97); }
+/* Lucide icons sit on the text baseline cleanly and never get squashed. */
+.btn svg, .tab svg, .seg-btn svg { flex: 0 0 auto; }
+.btn.icon-btn { padding: 6px; }
+.btn.pinned-on { color: var(--teal-dark); border-color: var(--teal); }
 .btn.primary { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: #fff; box-shadow: var(--shadow-md); }
 .btn.primary:hover { filter: brightness(1.06); transform: translateY(-2px); }
 .btn.primary:disabled { opacity: .6; cursor: default; transform: none; }
@@ -226,6 +238,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 /* ---------- Mailbox ---------- */
 .tabs { display: flex; gap: 10px; margin-bottom: 22px; }
 .tab { font: inherit; font-weight: 600; cursor: pointer; padding: 10px 18px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 7px;
   border: 1.5px solid var(--line); background: #fff; color: var(--muted); transition: all .15s ease; }
 .tab.on { background: var(--teal-dark); color: #fff; border-color: var(--teal-dark); box-shadow: var(--shadow-sm); }
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
@@ -280,6 +293,32 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   box-shadow: 0 4px 6px rgba(0,0,0,.4), inset 0 -2px 3px rgba(0,0,0,.3); }
 .board-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #fff;
   font-family: 'Fraunces', serif; font-size: 1.4rem; text-shadow: 0 2px 4px rgba(0,0,0,.3); }
+
+/* Friendly empty pinboard hint shown when nothing is pinned yet. */
+.board-empty-state {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  max-width: 420px; margin: 40px auto; padding: 32px 24px; color: var(--muted);
+  background: var(--paper); border: 1.5px dashed var(--line); border-radius: var(--radius);
+}
+.board-empty-state svg { color: var(--teal); }
+.board-empty-state h2 { color: var(--teal-dark); font-size: 1.25rem; }
+.board-empty-state p { line-height: 1.5; }
+.board-empty-state a { color: var(--teal-dark); font-weight: 700; }
+
+/* Remove-from-board button on a pinned card. */
+.unpin-btn {
+  position: absolute; top: -8px; right: -8px; z-index: 4;
+  width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--coral); box-shadow: var(--shadow-md);
+  opacity: 0; transition: opacity .15s ease, transform .15s ease;
+}
+.pinned:hover .unpin-btn { opacity: 1; }
+.unpin-btn:hover { transform: scale(1.1); }
+@media (hover: none) { .unpin-btn { opacity: 1; } }
+
+.liked-heart { color: var(--coral); vertical-align: middle; margin-left: 4px; }
+.dd-loc { display: inline-flex; align-items: center; gap: 4px; }
 .board-tip { text-align: center; margin-top: 14px; color: var(--muted); }
 
 /* ---------- Modal ---------- */
@@ -303,6 +342,18 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .pwa-actions { display: flex; align-items: center; gap: 6px; }
 .pwa-actions .btn.primary { padding: 9px 16px; }
 
+/* More prominent install card with the app icon + headline. */
+.pwa-banner.install-card {
+  width: min(480px, calc(100% - 28px));
+  border: 2px solid var(--teal-dark);
+  box-shadow: 0 14px 40px rgba(11, 85, 99, 0.28);
+  gap: 14px;
+}
+.install-card .install-icon { flex: 0 0 auto; display: inline-flex; }
+.install-card .install-text { flex: 1 1 200px; display: flex; flex-direction: column; gap: 3px; }
+.install-card .install-text strong { font-size: 1.05rem; color: var(--teal-dark); }
+.install-card .install-text small { font-weight: 500; color: var(--muted); line-height: 1.35; }
+
 /* ---------- Card meta actions ---------- */
 .card-meta-actions { display: flex; align-items: center; gap: 4px; }
 
@@ -321,6 +372,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .dec-tools { padding: 12px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
 .seg { display: flex; background: #f1ece2; border-radius: 12px; padding: 4px; gap: 4px; }
 .seg-btn { flex: 1; font: inherit; font-weight: 600; cursor: pointer; border: none; background: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 9px; border-radius: 9px; color: var(--muted); transition: all .15s ease; }
 .seg-btn.on { background: #fff; color: var(--teal-dark); box-shadow: var(--shadow-sm); }
 .emoji-palette { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -347,6 +399,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   width: min(460px, 100%); max-height: 92vh; box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
   animation: slidein .25s ease; }
 .detail-close { position: absolute; top: 12px; right: 12px; z-index: 5; width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
   border-radius: 50%; border: none; background: rgba(0,0,0,.45); color: #fff; font-size: 1rem; cursor: pointer; }
 .detail-photo { position: relative; }
 .detail-photo img { display: block; width: 100%; aspect-ratio: 3/2; object-fit: cover; }
@@ -406,7 +459,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 }
 .landing-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .landing-logo-row { display: flex; align-items: center; gap: 14px; }
-.landing-wordmark { font-family: 'Fraunces', serif; font-weight: 700; font-size: 2.8rem; color: var(--teal-dark); letter-spacing: -1px; }
+.landing-wordmark { font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 2.8rem; color: var(--teal-dark); letter-spacing: 0.5px; text-transform: lowercase; }
 .landing-tagline { color: var(--muted); font-size: 1.1rem; max-width: 400px; }
 .landing-free-badge {
   display: inline-block; margin-top: 4px;
@@ -507,6 +560,27 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 @media (prefers-reduced-motion: reduce) {
   .page, .card-cell, .fly-card, .welcome, .toast, .pwa-banner, .dropzone-cta { animation: none !important; }
 }
+
+/* ---------- Legal pages (Impressum / Datenschutz) ---------- */
+.landing-footer, .legal-foot {
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+  margin-top: 28px; color: var(--muted); font-size: .92rem;
+}
+.landing-footer a, .legal-foot a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
+.landing-footer a:hover, .legal-foot a:hover { text-decoration: underline; }
+
+.legal-page { max-width: 760px; margin: 0 auto; }
+.legal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.legal-home { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.legal-wordmark { font-size: 1.5rem; }
+.legal-page h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--teal-dark); margin-bottom: 6px; }
+.legal-page h2 { font-size: 1.1rem; color: var(--teal-dark); margin: 22px 0 6px; }
+.legal-body { color: var(--ink); line-height: 1.6; }
+.legal-body p { margin: 6px 0; }
+.legal-body ul { margin: 6px 0; padding-left: 20px; }
+.legal-body li { margin: 6px 0; }
+.legal-body a { color: var(--teal-dark); font-weight: 600; }
+.legal-note { color: var(--muted); font-size: .88rem; margin-top: 22px; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {

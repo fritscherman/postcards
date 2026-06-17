@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { UserPlus } from 'lucide-react';
 import { isOnline, apiListFriends, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { FRIENDS } from '../data/seed';
@@ -39,7 +40,7 @@ export function FriendsPage({ onInvite }: { onInvite: () => void }) {
 
       {isAccount && (
         <button className="btn primary" onClick={onInvite}>
-          💌 Freund:in einladen
+          <UserPlus size={17} /> Freund:in einladen
         </button>
       )}
 

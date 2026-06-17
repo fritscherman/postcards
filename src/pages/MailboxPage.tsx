@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Heart, Inbox, Pin, PinOff, Search, Send, Trash2 } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 import { PostcardDetail } from '../components/PostcardDetail';
@@ -7,7 +8,7 @@ import { GuestBanner } from '../components/GuestBanner';
 import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
-  const { cardsIn, markRead, removePostcard } = usePostcards();
+  const { cardsIn, markRead, removePostcard, togglePin, isPinned } = usePostcards();
   const [params, setParams] = useSearchParams();
   const [box, setBox] = useState<Box>('inbox');
   const [toast, setToast] = useState(params.get('sent') === '1');
@@ -41,10 +42,10 @@ export function MailboxPage() {
 
       <div className="tabs">
         <button className={`tab ${box === 'inbox' ? 'on' : ''}`} onClick={() => setBox('inbox')}>
-          📥 Eingang ({cardsIn('inbox').length})
+          <Inbox size={17} /> Eingang ({cardsIn('inbox').length})
         </button>
         <button className={`tab ${box === 'outbox' ? 'on' : ''}`} onClick={() => setBox('outbox')}>
-          📤 Ausgang ({cardsIn('outbox').length})
+          <Send size={16} /> Ausgang ({cardsIn('outbox').length})
         </button>
       </div>
 
@@ -72,14 +73,24 @@ export function MailboxPage() {
               <div className="card-meta">
                 <span>
                   {box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}
-                  {card.liked && <span className="liked-heart" title="Gefällt der Empfänger:in"> ❤️</span>}
+                  {card.liked && (
+                    <Heart size={14} className="liked-heart" fill="currentColor" aria-label="Gefällt der Empfänger:in" />
+                  )}
                 </span>
                 <span className="card-meta-actions">
-                  <button className="btn link" onClick={() => setDetail(card)}>
-                    🔍 Details
+                  <button
+                    className={`btn link icon-btn ${isPinned(card.id) ? 'pinned-on' : ''}`}
+                    onClick={() => togglePin(card.id)}
+                    title={isPinned(card.id) ? 'Von der Pinwand nehmen' : 'An die Pinwand'}
+                    aria-pressed={isPinned(card.id)}
+                  >
+                    {isPinned(card.id) ? <PinOff size={16} /> : <Pin size={16} />}
                   </button>
-                  <button className="btn link danger" onClick={() => removePostcard(card.id)}>
-                    Löschen
+                  <button className="btn link icon-btn" onClick={() => setDetail(card)} title="Details">
+                    <Search size={16} />
+                  </button>
+                  <button className="btn link danger icon-btn" onClick={() => removePostcard(card.id)} title="Löschen">
+                    <Trash2 size={16} />
                   </button>
                 </span>
               </div>

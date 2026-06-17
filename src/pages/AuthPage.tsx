@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { Logo } from '../components/Logo';
 
@@ -113,6 +114,12 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
           </>
         )}
       </div>
+
+      <footer className="landing-footer">
+        <Link to="/impressum">Impressum</Link>
+        <span aria-hidden="true">·</span>
+        <Link to="/datenschutz">Datenschutz</Link>
+      </footer>
     </div>
   );
 }

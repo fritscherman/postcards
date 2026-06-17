@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Camera,
+  MapPin,
+  RectangleHorizontal,
+  RectangleVertical,
+  RefreshCw,
+  Send,
+  Wand2,
+} from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
 import { FILTERS, STAMPS, TEMPLATES } from '../data/templates';
 import { FRIENDS } from '../data/seed';
@@ -191,28 +200,32 @@ export function CreatePage() {
             <label>1 · Foto</label>
             <div className="photo-actions">
               <button className="btn ghost" onClick={() => fileRef.current?.click()}>
-                {hasPhoto ? '🔄 Anderes Foto' : '📷 Foto wählen / aufnehmen'}
+                {hasPhoto ? <RefreshCw size={16} /> : <Camera size={16} />}
+                {hasPhoto ? 'Anderes Foto' : 'Foto wählen / aufnehmen'}
               </button>
               {hasPhoto && (
                 <button className="btn ghost" onClick={() => setDecorating(true)}>
-                  🎨 Verzieren
+                  <Wand2 size={16} /> Verzieren
                 </button>
               )}
-              {/* No `capture` attribute: lets the phone offer both gallery and camera. */}
+              {/* No `capture` attribute: lets the phone offer both gallery and camera.
+                  Visually hidden (not display:none) so a programmatic .click() still
+                  opens the picker inside an installed/standalone PWA on iOS. */}
               <input
                 ref={fileRef}
                 type="file"
                 accept="image/*"
-                hidden
+                className="visually-hidden-input"
                 onChange={onPickFile}
               />
             </div>
             <button className="btn link" onClick={captureLocation} disabled={locating}>
+              <MapPin size={15} />
               {locating
-                ? '📍 Suche Standort…'
+                ? ' Suche Standort…'
                 : location
-                  ? `📍 ${location.label}${location.source === 'exif' ? ' (aus Foto)' : ''}`
-                  : '📍 Aufnahmeort hinzufügen'}
+                  ? ` ${location.label}${location.source === 'exif' ? ' (aus Foto)' : ''}`
+                  : ' Aufnahmeort hinzufügen'}
             </button>
 
             <div className="orient-row">
@@ -222,13 +235,13 @@ export function CreatePage() {
                   className={`seg-btn ${orientation === 'landscape' ? 'on' : ''}`}
                   onClick={() => setOrientation('landscape')}
                 >
-                  ▭ Quer
+                  <RectangleHorizontal size={16} /> Quer
                 </button>
                 <button
                   className={`seg-btn ${orientation === 'portrait' ? 'on' : ''}`}
                   onClick={() => setOrientation('portrait')}
                 >
-                  ▯ Hoch
+                  <RectangleVertical size={16} /> Hoch
                 </button>
               </div>
             </div>
@@ -341,11 +354,12 @@ export function CreatePage() {
             onClick={handleSend}
             disabled={busy || selected.length === 0}
           >
+            <Send size={17} />
             {busy
-              ? 'Wird versendet… ✈️'
+              ? ' Wird versendet…'
               : selected.length > 1
-                ? `An ${selected.length} Freund:innen senden ✉️`
-                : `An ${recipientLabel} senden ✉️`}
+                ? ` An ${selected.length} Freund:innen senden`
+                : ` An ${recipientLabel} senden`}
           </button>
         </section>
 

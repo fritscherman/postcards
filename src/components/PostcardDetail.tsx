@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Heart, MapPin, Pin, PinOff, Reply, X } from 'lucide-react';
 import type { Postcard } from '../types';
 import { stampById, templateById } from '../data/templates';
 import { usePostcards } from '../store/PostcardStore';
@@ -11,7 +12,8 @@ interface Props {
 
 export function PostcardDetail({ card, onClose }: Props) {
   const navigate = useNavigate();
-  const { toggleLike } = usePostcards();
+  const { toggleLike, togglePin, isPinned } = usePostcards();
+  const pinned = isPinned(card.id);
   const isInbox = card.box === 'inbox';
 
   function reply() {
@@ -39,7 +41,7 @@ export function PostcardDetail({ card, onClose }: Props) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="detail" onClick={(e) => e.stopPropagation()}>
-        <button className="detail-close" onClick={onClose}>✕</button>
+        <button className="detail-close" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
         <div className="detail-photo">
           <img src={card.image} alt="Postkarten-Motiv" style={imgStyle} />
           <span className="detail-stamp" style={{ background: stamp.bg }}>{stamp.emoji}</span>
@@ -51,25 +53,38 @@ export function PostcardDetail({ card, onClose }: Props) {
           <dl className="detail-meta">
             <div><dt>Von</dt><dd>{card.from}</dd></div>
             <div><dt>An</dt><dd>{card.to}</dd></div>
-            {card.location?.label && <div><dt>Ort</dt><dd>📍 {card.location.label}</dd></div>}
+            {card.location?.label && (
+              <div><dt>Ort</dt><dd className="dd-loc"><MapPin size={14} /> {card.location.label}</dd></div>
+            )}
             <div><dt>Datum</dt><dd>{date}</dd></div>
             <div><dt>Vorlage</dt><dd>{template.name}</dd></div>
           </dl>
 
-          {isInbox && (
-            <div className="detail-actions">
+          <div className="detail-actions">
+            <button
+              className={`btn ghost ${pinned ? 'pinned-on' : ''}`}
+              onClick={() => togglePin(card.id)}
+              aria-pressed={pinned}
+            >
+              {pinned ? <PinOff size={16} /> : <Pin size={16} />}
+              {pinned ? 'Angepinnt' : 'Anpinnen'}
+            </button>
+            {isInbox && (
               <button
                 className={`btn ghost like-btn ${card.liked ? 'liked' : ''}`}
                 onClick={() => toggleLike(card.id)}
                 aria-pressed={card.liked}
               >
-                {card.liked ? '❤️ Gefällt dir' : '🤍 Gefällt mir'}
+                <Heart size={16} fill={card.liked ? 'currentColor' : 'none'} />
+                {card.liked ? 'Gefällt dir' : 'Gefällt mir'}
               </button>
+            )}
+            {isInbox && (
               <button className="btn primary" onClick={reply}>
-                ↩️ Mit Postkarte antworten
+                <Reply size={16} /> Mit Postkarte antworten
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

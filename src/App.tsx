@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { RotateCcw, Sparkles, UserPlus } from 'lucide-react';
 import { NavBar } from './components/NavBar';
 import { CreatePage } from './pages/CreatePage';
 import { MailboxPage } from './pages/MailboxPage';
@@ -12,6 +13,7 @@ import { InviteFriends } from './components/InviteFriends';
 import { Logo } from './components/Logo';
 import { NotificationToggle } from './components/NotificationToggle';
 import { FriendsPage } from './pages/FriendsPage';
+import { Datenschutz, Impressum } from './pages/Legal';
 import { initials } from './utils/initials';
 import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
@@ -42,6 +44,8 @@ export default function App() {
     return (
       <Routes>
         <Route path="/invite/:token" element={<InviteAuth onGuest={enterGuest} />} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="*" element={<AuthPage onGuest={enterGuest} />} />
       </Routes>
     );
@@ -55,12 +59,12 @@ export default function App() {
           {isOnline && user && <NotificationToggle />}
           {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
-              💌 Einladen
+              <UserPlus size={16} /> Einladen
             </button>
           )}
           {guest && (
             <button className="btn primary small" onClick={logout} title="Kostenloses Konto erstellen">
-              ✨ Konto erstellen
+              <Sparkles size={16} /> Konto erstellen
             </button>
           )}
           <button
@@ -78,7 +82,9 @@ export default function App() {
             {initials(userName)}
           </button>
           {localMode && (
-            <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">⟲</button>
+            <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">
+              <RotateCcw size={16} />
+            </button>
           )}
         </div>
       </header>
@@ -91,6 +97,8 @@ export default function App() {
           <Route path="/world" element={<WorldPage />} />
           <Route path="/pinboard" element={<PinboardPage />} />
           <Route path="/friends" element={<FriendsPage onInvite={() => setInviting(true)} />} />
+          <Route path="/impressum" element={<Impressum />} />
+          <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/invite/:token" element={<Navigate to="/create" replace />} />
           <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>

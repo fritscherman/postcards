@@ -50,6 +50,8 @@ export interface Postcard {
   read: boolean;
   /** recipient marked this received card as a favourite */
   liked?: boolean;
+  /** the user pinned this card to their pinboard */
+  pinned?: boolean;
   pin: PinPosition;
 }
 
