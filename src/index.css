@@ -442,6 +442,9 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .auth-guest { font-weight: 700; color: var(--teal-dark); }
 
+.invite-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.invite-actions .btn { flex: 1; min-width: 120px; text-align: center; text-decoration: none; }
+
 .guest-note {
   display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
   background: #e9f8fa; border: 1px solid #c9eef2; border-radius: 14px;
