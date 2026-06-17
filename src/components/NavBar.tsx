@@ -6,6 +6,7 @@ const LINKS = [
   { to: '/mailbox', label: 'Briefkasten', icon: '📬' },
   { to: '/world', label: 'Weltansicht', icon: '🌍' },
   { to: '/pinboard', label: 'Pinwand', icon: '📌' },
+  { to: '/friends', label: 'Freunde', icon: '🧑‍🤝‍🧑' },
 ];
 
 export function NavBar() {

@@ -10,6 +10,8 @@ import { Welcome } from './components/Welcome';
 import { AuthPage } from './pages/AuthPage';
 import { InviteFriends } from './components/InviteFriends';
 import { Logo } from './components/Logo';
+import { FriendsPage } from './pages/FriendsPage';
+import { initials } from './utils/initials';
 import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
 import { isOnline } from './api/client';
@@ -17,14 +19,6 @@ import { isOnline } from './api/client';
 function InviteAuth({ onGuest }: { onGuest: () => void }) {
   const { token } = useParams();
   return <AuthPage inviteToken={token} onGuest={onGuest} />;
-}
-
-/** First letters of the first two words, e.g. "Benjamin Fritsch" -> "BF". */
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  const letters = (parts[0][0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] ?? '' : '');
-  return letters.toUpperCase();
 }
 
 export default function App() {
@@ -94,6 +88,7 @@ export default function App() {
           <Route path="/mailbox" element={<MailboxPage />} />
           <Route path="/world" element={<WorldPage />} />
           <Route path="/pinboard" element={<PinboardPage />} />
+          <Route path="/friends" element={<FriendsPage onInvite={() => setInviting(true)} />} />
           <Route path="/invite/:token" element={<Navigate to="/create" replace />} />
           <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>
