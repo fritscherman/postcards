@@ -19,6 +19,8 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef<Stroke | null>(null);
   const dragId = useRef<string | null>(null);
+  // Where a tap started, so a scroll/swipe doesn't get mistaken for a sticker drop.
+  const tapStart = useRef<{ x: number; y: number } | null>(null);
 
   const [mode, setMode] = useState<'draw' | 'sticker'>('sticker');
   const [color, setColor] = useState(COLORS[2]);
@@ -99,8 +101,19 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
   }
 
   // --- Stickers ---
-  function onStageClick(e: React.PointerEvent) {
+  // Remember where the press started; only a near-stationary tap drops a sticker,
+  // so scrolling/swiping across the photo no longer spawns hearts.
+  function onStageDown(e: React.PointerEvent) {
     if (mode !== 'sticker' || dragId.current) return;
+    tapStart.current = { x: e.clientX, y: e.clientY };
+  }
+  function onStageUp(e: React.PointerEvent) {
+    endDrag();
+    const start = tapStart.current;
+    tapStart.current = null;
+    if (mode !== 'sticker' || dragId.current || !start) return;
+    const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+    if (moved > 10) return; // it was a scroll/swipe, not a tap
     const p = rel(e);
     setStickers((prev) => [...prev, { id: crypto.randomUUID(), emoji, x: p.x, y: p.y, scale: 0.16 }]);
   }
@@ -181,9 +194,9 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
         <div
           className="dec-stage"
           ref={stageRef}
-          onPointerDown={onStageClick}
+          onPointerDown={onStageDown}
           onPointerMove={onStickerMove}
-          onPointerUp={endDrag}
+          onPointerUp={onStageUp}
           onPointerLeave={endDrag}
         >
           <img src={src} alt="" draggable={false} />

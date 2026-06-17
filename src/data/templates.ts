@@ -85,6 +85,7 @@ export const STAMPS: Stamp[] = [
   { id: 'heart', name: 'Herz', emoji: '❤️', bg: '#fee2e2' },
   { id: 'globe', name: 'Welt', emoji: '🌍', bg: '#dbeafe' },
   { id: 'mountain', name: 'Berge', emoji: '🏔️', bg: '#e0f2fe' },
+  { id: 'forest', name: 'Wald', emoji: '🌲', bg: '#dcfce7' },
   { id: 'palm', name: 'Strand', emoji: '🏖️', bg: '#fef9c3' },
   { id: 'city', name: 'Stadt', emoji: '🏙️', bg: '#ede9fe' },
   { id: 'star', name: 'Stern', emoji: '⭐', bg: '#fef3c7' },

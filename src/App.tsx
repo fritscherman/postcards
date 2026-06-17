@@ -49,7 +49,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-bar">
-        <span className="logo"><Logo size={28} /> Wanderpost</span>
+        <span className="logo"><Logo size={36} /> Wanderpost</span>
         <div className="app-bar-actions">
           {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
