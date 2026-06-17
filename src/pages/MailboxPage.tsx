@@ -8,7 +8,7 @@ import { GuestBanner } from '../components/GuestBanner';
 import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
-  const { cardsIn, markRead, removePostcard, togglePin, isPinned } = usePostcards();
+  const { cardsIn, markRead, removePostcard, togglePin, isPinned, toggleLike } = usePostcards();
   const [params, setParams] = useSearchParams();
   const [box, setBox] = useState<Box>('inbox');
   const [toast, setToast] = useState(params.get('sent') === '1');
@@ -70,10 +70,23 @@ export function MailboxPage() {
               <div onMouseEnter={() => !card.read && markRead(card.id)}>
                 <PostcardCard card={card} />
               </div>
+              {box === 'inbox' && (
+                <div className="card-like-bar">
+                  <button
+                    className={`like-heart-btn sm ${card.liked ? 'liked' : ''}`}
+                    onClick={() => toggleLike(card.id)}
+                    aria-pressed={card.liked}
+                    aria-label={card.liked ? 'Gefällt dir' : 'Gefällt mir'}
+                    title={card.liked ? 'Gefällt dir' : 'Gefällt mir'}
+                  >
+                    <Heart size={22} fill={card.liked ? 'currentColor' : 'none'} />
+                  </button>
+                </div>
+              )}
               <div className="card-meta">
                 <span>
                   {box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}
-                  {card.liked && (
+                  {box === 'outbox' && card.liked && (
                     <Heart size={14} className="liked-heart" fill="currentColor" aria-label="Gefällt der Empfänger:in" />
                   )}
                 </span>

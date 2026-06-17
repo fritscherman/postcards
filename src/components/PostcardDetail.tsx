@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
-import { Heart, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Postcard } from '../types';
-import { usePostcards } from '../store/PostcardStore';
 
 interface Props {
   card: Postcard;
@@ -11,9 +10,6 @@ interface Props {
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
 export function PostcardDetail({ card, onClose }: Props) {
-  const { toggleLike } = usePostcards();
-  const isInbox = card.box === 'inbox';
-
   // Free zoom/pan state — the saved crop is ignored here so the full photo is
   // visible and the viewer can zoom in wherever they like.
   const [zoom, setZoom] = useState(1);
@@ -111,20 +107,6 @@ export function PostcardDetail({ card, onClose }: Props) {
         >
           <img src={card.image} alt="Postkarten-Motiv" draggable={false} style={imgStyle} />
         </div>
-
-        {isInbox && (
-          <div className="detail-like-bar">
-            <button
-              className={`like-heart-btn ${card.liked ? 'liked' : ''}`}
-              onClick={() => toggleLike(card.id)}
-              aria-pressed={card.liked}
-              aria-label={card.liked ? 'Gefällt dir' : 'Gefällt mir'}
-              title={card.liked ? 'Gefällt dir' : 'Gefällt mir'}
-            >
-              <Heart size={30} fill={card.liked ? 'currentColor' : 'none'} />
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
