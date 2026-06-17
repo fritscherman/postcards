@@ -44,14 +44,24 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 const currentUser = (res: Response): TokenUser => res.locals.user;
 
-// Mark an invite as accepted by `userId`, forming a mutual friendship.
-// No-op for empty tokens, already-accepted invites, or self-invites.
+// Record a mutual friendship (stored once with the smaller id first).
+function addFriendship(a: string, b: string): void {
+  if (!a || !b || a === b) return;
+  const [lo, hi] = a < b ? [a, b] : [b, a];
+  db.prepare(
+    'INSERT OR IGNORE INTO friendships (user_a, user_b, created_at) VALUES (?,?,?)',
+  ).run(lo, hi, Date.now());
+}
+
+// Redeem an invite link: connect the inviter and `userId` as friends.
+// Reusable — many people can redeem the same token. No-op for empty/unknown
+// tokens or self-invites.
 function acceptInvite(token: string, userId: string): void {
   if (!token) return;
-  db.prepare(
-    `UPDATE invites SET accepted_by = ?
-     WHERE token = ? AND accepted_by IS NULL AND inviter_id != ?`,
-  ).run(userId, token, userId);
+  const inv = db.prepare('SELECT inviter_id FROM invites WHERE token = ?').get(token) as
+    | { inviter_id: string }
+    | undefined;
+  if (inv) addFriendship(inv.inviter_id, userId);
 }
 
 // --- Health check ---
@@ -163,15 +173,23 @@ app.post('/api/postcards/:id/read', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-// --- Create an invite ---
+// --- Create (or reuse) an invite link ---
+// Each user has one durable, reusable link — many people can redeem it.
 app.post('/api/invites', requireAuth, async (req, res) => {
   const me = currentUser(res);
   const email = req.body.email ? normEmail(String(req.body.email)) : null;
   if (email && !emailRe.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
 
-  const token = randomUUID();
-  db.prepare('INSERT INTO invites (token, inviter_id, email, created_at) VALUES (?,?,?,?)')
-    .run(token, me.id, email, Date.now());
+  const existing = db.prepare(
+    'SELECT token FROM invites WHERE inviter_id = ? ORDER BY created_at LIMIT 1',
+  ).get(me.id) as { token: string } | undefined;
+
+  let token = existing?.token;
+  if (!token) {
+    token = randomUUID();
+    db.prepare('INSERT INTO invites (token, inviter_id, email, created_at) VALUES (?,?,?,?)')
+      .run(token, me.id, null, Date.now());
+  }
 
   const link = `${APP_URL}/invite/${token}`;
   const emailed = email ? await sendInviteEmail(email, me.name, link) : false;
@@ -184,14 +202,12 @@ app.post('/api/invites', requireAuth, async (req, res) => {
 app.get('/api/friends', requireAuth, (_req, res) => {
   const me = currentUser(res);
   const rows = db.prepare(
-    `SELECT DISTINCT u.id, u.name, u.email
-     FROM invites i
-     JOIN users u ON u.id = CASE WHEN i.inviter_id = ? THEN i.accepted_by ELSE i.inviter_id END
-     WHERE i.accepted_by IS NOT NULL
-       AND (i.inviter_id = ? OR i.accepted_by = ?)
-       AND u.id != ?
+    `SELECT u.id, u.name, u.email
+     FROM friendships f
+     JOIN users u ON u.id = CASE WHEN f.user_a = ? THEN f.user_b ELSE f.user_a END
+     WHERE f.user_a = ? OR f.user_b = ?
      ORDER BY u.name COLLATE NOCASE`,
-  ).all(me.id, me.id, me.id, me.id) as { id: string; name: string; email: string }[];
+  ).all(me.id, me.id, me.id) as { id: string; name: string; email: string }[];
   res.json({ friends: rows });
 });
 

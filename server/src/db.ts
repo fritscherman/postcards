@@ -37,6 +37,24 @@ raw.exec(`
     accepted_by TEXT REFERENCES users(id),
     created_at  INTEGER NOT NULL
   );
+
+  -- Mutual friendships. Stored once per pair with user_a < user_b so the
+  -- relationship is symmetric and de-duplicated.
+  CREATE TABLE IF NOT EXISTS friendships (
+    user_a     TEXT NOT NULL REFERENCES users(id),
+    user_b     TEXT NOT NULL REFERENCES users(id),
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (user_a, user_b)
+  );
+`);
+
+// Backfill friendships from any invites that were accepted under the old
+// one-shot model, so existing connections survive the move to reusable links.
+raw.exec(`
+  INSERT OR IGNORE INTO friendships (user_a, user_b, created_at)
+  SELECT MIN(inviter_id, accepted_by), MAX(inviter_id, accepted_by), created_at
+  FROM invites
+  WHERE accepted_by IS NOT NULL AND inviter_id != accepted_by
 `);
 
 type Param = number | bigint | string | Uint8Array | null;
