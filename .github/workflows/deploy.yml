@@ -31,7 +31,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         # Set the repo variable VITE_API_URL (Settings → Secrets and variables →
-        # Actions → Variables) to your deployed Worker URL to enable online mode.
+        # Actions → Variables) to your deployed backend URL to enable online mode.
         # Left empty, the app builds in local demo mode.
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
