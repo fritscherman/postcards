@@ -27,16 +27,16 @@ by Zitadel later.
 
 One-time setup:
 
-1. Install **Node.js LTS** (20 or 22) and **pm2**: `npm i -g pm2`
-2. Clone the repo and create the backend env file:
-   ```powershell
-   cd <repo>\server
-   copy .env.example .env
-   # edit .env: set a long JWT_SECRET and APP_URL=https://postkarten.deinedomain.de
-   ```
+1. Install **Node.js LTS** (20 or 22).
+2. From the repo root run **`.\setup.ps1`** — it installs pm2 and creates
+   `server\.env` with a random `JWT_SECRET`. Then edit `server\.env` and set
+   `APP_URL=https://postkarten.deinedomain.de`.
+   (Manual alternative: `npm i -g pm2`, then `copy server\.env.example server\.env`.)
 3. Point your subdomain at the Node port (default `8787`) via your existing
-   reverse proxy / TLS (IIS ARR, nginx, Caddy …). The app expects to be served
-   at the domain root.
+   reverse proxy / TLS. For **IIS** use the ready-made **`iis/web.config`**
+   (needs the URL Rewrite + Application Request Routing modules with proxy
+   enabled — see the comments inside the file). nginx/Caddy work too. The app
+   is served at the domain root.
 
 Every deploy (from the repo root):
 
