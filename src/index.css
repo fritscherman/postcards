@@ -399,6 +399,7 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   width: min(460px, 100%); max-height: 92vh; box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
   animation: slidein .25s ease; }
 .detail-close { position: absolute; top: 12px; right: 12px; z-index: 5; width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
   border-radius: 50%; border: none; background: rgba(0,0,0,.45); color: #fff; font-size: 1rem; cursor: pointer; }
 .detail-photo { position: relative; }
 .detail-photo img { display: block; width: 100%; aspect-ratio: 3/2; object-fit: cover; }

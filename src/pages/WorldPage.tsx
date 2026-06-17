@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Search } from 'lucide-react';
 import L from 'leaflet';
 import { usePostcards } from '../store/PostcardStore';
 import { stampById } from '../data/templates';
@@ -49,7 +50,7 @@ export function WorldPage() {
                   <img src={card.image} alt="" />
                   <strong>{card.location!.label}</strong>
                   <span>von {card.from}</span>
-                  <button className="btn link" onClick={() => setDetail(card)}>🔍 Details</button>
+                  <button className="btn link" onClick={() => setDetail(card)}><Search size={15} /> Details</button>
                 </div>
               </Popup>
             </Marker>
