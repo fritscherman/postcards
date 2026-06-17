@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { RotateCcw, Sparkles, UserPlus } from 'lucide-react';
 import { NavBar } from './components/NavBar';
 import { CreatePage } from './pages/CreatePage';
 import { MailboxPage } from './pages/MailboxPage';
@@ -58,12 +59,12 @@ export default function App() {
           {isOnline && user && <NotificationToggle />}
           {isOnline && user && (
             <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
-              💌 Einladen
+              <UserPlus size={16} /> Einladen
             </button>
           )}
           {guest && (
             <button className="btn primary small" onClick={logout} title="Kostenloses Konto erstellen">
-              ✨ Konto erstellen
+              <Sparkles size={16} /> Konto erstellen
             </button>
           )}
           <button
@@ -81,7 +82,9 @@ export default function App() {
             {initials(userName)}
           </button>
           {localMode && (
-            <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">⟲</button>
+            <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">
+              <RotateCcw size={16} />
+            </button>
           )}
         </div>
       </header>

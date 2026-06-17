@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Bell, BellOff } from 'lucide-react';
 import { disablePush, enablePush, pushState, type PushState } from '../push';
 
 /**
@@ -51,7 +52,7 @@ export function NotificationToggle() {
       aria-label={title}
       aria-pressed={on}
     >
-      {on ? '🔔' : '🔕'}
+      {on ? <Bell size={18} /> : <BellOff size={18} />}
     </button>
   );
 }
