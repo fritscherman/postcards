@@ -15,6 +15,28 @@ interface Props {
 
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
+const MAX_ZOOM = 3;
+const DOUBLE_TAP_ZOOM = 2.2;
+
+// Re-frame the photo so that the source point currently shown under the focal
+// point (fx, fy — fractions of the frame) stays put while the zoom changes.
+// This is what makes pinch / wheel / double-tap zoom feel like "real" map and
+// photo apps: you zoom *into the spot you're touching*, not the centre.
+function focalZoom(crop: Crop, fx: number, fy: number, nextZoom: number): Crop {
+  const z1 = clamp(nextZoom, 1, MAX_ZOOM);
+  if (z1 <= 1.001) return { zoom: 1, x: 50, y: 50 };
+  const z0 = crop.zoom;
+  const ox = crop.x / 100;
+  const oy = crop.y / 100;
+  // Source fraction sitting under the focal point at the current zoom…
+  const px = ox + (fx - ox) / z0;
+  const py = oy + (fy - oy) / z0;
+  // …and the transform-origin that keeps it there at the new zoom.
+  const nx = (px * z1 - fx) / (z1 - 1);
+  const ny = (py * z1 - fy) / (z1 - 1);
+  return { zoom: z1, x: clamp(nx * 100, 0, 100), y: clamp(ny * 100, 0, 100) };
+}
+
 export function PostcardCard({ card, flippable = true, onCardClick, editable = false, onCropChange }: Props) {
   const [flipped, setFlipped] = useState(false);
   const template = templateById(card.templateId);
@@ -53,17 +75,28 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const r = wrapRef.current.getBoundingClientRect();
 
-    // Two fingers → pinch to zoom (and follow the gesture's midpoint).
+    // Two fingers → pinch to zoom around the point between the fingers, and let
+    // a two-finger drag slide the photo at the same time (just like Photos).
     if (pointers.current.size >= 2) {
       const [a, b] = [...pointers.current.values()];
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       if (!pinchStart.current) {
         pinchStart.current = { dist, zoom: crop.zoom };
-        last.current = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-      } else {
-        const zoom = clamp((pinchStart.current.zoom * dist) / pinchStart.current.dist, 1, 3);
-        onCropChange?.({ ...crop, zoom });
+        last.current = mid;
+        return;
       }
+      const nextZoom = (pinchStart.current.zoom * dist) / pinchStart.current.dist;
+      let next = focalZoom(crop, (mid.x - r.left) / r.width, (mid.y - r.top) / r.height, nextZoom);
+      // Follow the fingers' midpoint 1:1 (see the one-finger pan note below).
+      if (last.current && next.zoom > 1.001) {
+        const gain = 1 / (next.zoom - 1);
+        const dx = ((mid.x - last.current.x) / r.width) * 100 * gain;
+        const dy = ((mid.y - last.current.y) / r.height) * 100 * gain;
+        next = { ...next, x: clamp(next.x - dx, 0, 100), y: clamp(next.y - dy, 0, 100) };
+      }
+      last.current = mid;
+      onCropChange?.(next);
       return;
     }
 
@@ -89,6 +122,34 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
       : null;
   }
 
+  // Desktop: wheel / trackpad zooms toward the cursor.
+  function onWrapWheel(e: React.WheelEvent) {
+    if (!editable || !wrapRef.current) return;
+    const r = wrapRef.current.getBoundingClientRect();
+    const fx = (e.clientX - r.left) / r.width;
+    const fy = (e.clientY - r.top) / r.height;
+    onCropChange?.(focalZoom(crop, fx, fy, crop.zoom - e.deltaY * 0.0015 * crop.zoom));
+  }
+
+  // Double-tap / double-click toggles between fit and a zoom on that spot.
+  function onWrapDoubleClick(e: React.MouseEvent) {
+    if (!editable || !wrapRef.current) return;
+    e.stopPropagation();
+    if (crop.zoom > 1.001) {
+      onCropChange?.({ zoom: 1, x: 50, y: 50 });
+      return;
+    }
+    const r = wrapRef.current.getBoundingClientRect();
+    const fx = (e.clientX - r.left) / r.width;
+    const fy = (e.clientY - r.top) / r.height;
+    onCropChange?.(focalZoom(crop, fx, fy, DOUBLE_TAP_ZOOM));
+  }
+
+  function resetZoom(e: React.PointerEvent | React.MouseEvent) {
+    e.stopPropagation();
+    onCropChange?.({ zoom: 1, x: 50, y: 50 });
+  }
+
   const imgStyle = {
     filter: card.filter || 'none',
     transform: `scale(${crop.zoom})`,
@@ -106,16 +167,34 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
         {/* Front: the photo */}
         <div className="postcard-face postcard-front" style={{ background: template.frame }}>
           <div
-            className={`photo-wrap ${editable ? 'editable' : ''}`}
+            className={`photo-wrap ${editable ? 'editable' : ''} ${editable && crop.zoom > 1.001 ? 'zoomed' : ''}`}
             ref={wrapRef}
             onPointerDown={onWrapDown}
             onPointerMove={onWrapMove}
             onPointerUp={onWrapUp}
             onPointerCancel={onWrapUp}
+            onWheel={onWrapWheel}
+            onDoubleClick={onWrapDoubleClick}
             onClick={(e) => editable && e.stopPropagation()}
           >
             <img src={card.image} alt="Postkarten-Motiv" draggable={false} style={imgStyle} />
-            {editable && <span className="photo-grip">✥ ziehen · mit zwei Fingern zoomen</span>}
+            {editable && crop.zoom > 1.001 && (
+              <button
+                type="button"
+                className="zoom-reset"
+                onPointerDown={resetZoom}
+                onClick={resetZoom}
+                title="Zoom zurücksetzen"
+                aria-label="Zoom zurücksetzen"
+              >
+                ↺
+              </button>
+            )}
+            {editable && (
+              <span className="photo-grip">
+                {crop.zoom > 1.001 ? 'Ziehen zum Verschieben · Doppeltippen für Reset' : 'Doppeltippen oder 2 Finger zum Zoomen'}
+              </span>
+            )}
           </div>
         </div>
 

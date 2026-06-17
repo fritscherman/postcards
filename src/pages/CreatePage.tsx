@@ -247,17 +247,10 @@ export function CreatePage() {
             </div>
 
             {hasPhoto && (
-              <label className="zoom-row">
-                <span className="mini-label">Zoom · zum Zuschneiden ziehen 🔍</span>
-                <input
-                  type="range"
-                  min={1}
-                  max={3}
-                  step={0.01}
-                  value={crop.zoom}
-                  onChange={(e) => setCrop((c) => ({ ...c, zoom: Number(e.target.value) }))}
-                />
-              </label>
+              <p className="field-hint">
+                🔍 Zum Zuschneiden direkt in der Vorschau zoomen – mit zwei Fingern, dem Mausrad
+                oder per Doppeltipp. Danach ziehen, um den Ausschnitt zu verschieben.
+              </p>
             )}
           </div>
 
