@@ -14,6 +14,17 @@ import { useAuth } from '../auth/AuthContext';
 
 const STORAGE_KEY = 'postcards.v1';
 const PROFILE_KEY = 'postcards.profile.v1';
+// Which cards the user pinned to the board. Kept per-device so it works in both
+// demo and online mode without a server change.
+const PINNED_KEY = 'postcards.pinned.v1';
+
+function loadPinned(): Set<string> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(PINNED_KEY) ?? '[]') as string[]);
+  } catch {
+    return new Set();
+  }
+}
 
 type Draft = Omit<Postcard, 'id' | 'createdAt' | 'box' | 'read' | 'pin'>;
 
@@ -27,6 +38,11 @@ interface StoreValue {
   /** Toggle the favourite heart on a received card. */
   toggleLike: (id: string) => void;
   movePin: (id: string, pin: Partial<PinPosition>) => void;
+  /** Pin or unpin a card from the pinboard. */
+  togglePin: (id: string) => void;
+  isPinned: (id: string) => boolean;
+  /** Cards the user pinned to the board. */
+  pinnedCards: Postcard[];
   removePostcard: (id: string) => void;
   resetDemo: () => void;
   cardsIn: (box: Box) => Postcard[];
@@ -85,6 +101,12 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
   const [localName, setLocalName] = useState<string>(
     () => localStorage.getItem(PROFILE_KEY) ?? 'Du',
   );
+  const [pinned, setPinned] = useState<Set<string>>(loadPinned);
+
+  // Persist the pinned set whenever it changes.
+  useEffect(() => {
+    localStorage.setItem(PINNED_KEY, JSON.stringify([...pinned]));
+  }, [pinned]);
 
   // Local mode persists to localStorage; online mode is the server's job.
   useEffect(() => {
@@ -182,8 +204,30 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const togglePin = useCallback((id: string) => {
+    setPinned((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const isPinned = useCallback((id: string) => pinned.has(id), [pinned]);
+
+  const pinnedCards = useMemo(
+    () => postcards.filter((c) => pinned.has(c.id)),
+    [postcards, pinned],
+  );
+
   const removePostcard = useCallback((id: string) => {
     setPostcards((prev) => prev.filter((c) => c.id !== id));
+    setPinned((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   }, []);
 
   const resetDemo = useCallback(() => {
@@ -214,11 +258,14 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
       markRead,
       toggleLike,
       movePin,
+      togglePin,
+      isPinned,
+      pinnedCards,
       removePostcard,
       resetDemo,
       cardsIn,
     }),
-    [postcards, userName, setUserName, sendPostcard, markRead, toggleLike, movePin, removePostcard, resetDemo, cardsIn],
+    [postcards, userName, setUserName, sendPostcard, markRead, toggleLike, movePin, togglePin, isPinned, pinnedCards, removePostcard, resetDemo, cardsIn],
   );
 
   return <PostcardContext.Provider value={value}>{children}</PostcardContext.Provider>;

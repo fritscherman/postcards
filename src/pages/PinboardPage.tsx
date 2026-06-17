@@ -1,9 +1,11 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Pin, PinOff } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 
 export function PinboardPage() {
-  const { postcards, movePin } = usePostcards();
+  const { pinnedCards, movePin, togglePin } = usePostcards();
   const boardRef = useRef<HTMLDivElement>(null);
   const dragId = useRef<string | null>(null);
 
@@ -28,36 +30,58 @@ export function PinboardPage() {
     <div className="page pinboard-page">
       <header className="page-head">
         <h1>Pinwand</h1>
-        <p>Häng deine Lieblingskarten auf und zieh sie zurecht. 📌</p>
+        <p>Häng deine Lieblingskarten auf und zieh sie zurecht.</p>
       </header>
 
-      <div
-        className="corkboard"
-        ref={boardRef}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerUp}
-      >
-        {postcards.length === 0 && <div className="board-empty">Noch nichts angepinnt 🪧</div>}
-        {postcards.map((card) => (
+      {pinnedCards.length === 0 ? (
+        <div className="board-empty-state">
+          <Pin size={40} strokeWidth={1.5} />
+          <h2>Deine Pinwand ist noch leer</h2>
+          <p>
+            Öffne im <Link to="/mailbox">Briefkasten</Link> eine Karte und tippe auf
+            „Anpinnen“ — sie erscheint dann hier zum Aufhängen und Verschieben.
+          </p>
+        </div>
+      ) : (
+        <>
           <div
-            key={card.id}
-            className="pinned"
-            style={{
-              left: `${card.pin.x * 100}%`,
-              top: `${card.pin.y * 100}%`,
-              transform: `translate(-50%, -10%) rotate(${card.pin.rotation}deg)`,
-            }}
-            onPointerDown={(e) => onPointerDown(e, card.id)}
+            className="corkboard"
+            ref={boardRef}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={onPointerUp}
           >
-            <span className="thumbtack" />
-            <div className="pinned-inner">
-              <PostcardCard card={card} flippable={false} />
-            </div>
+            {pinnedCards.map((card) => (
+              <div
+                key={card.id}
+                className="pinned"
+                style={{
+                  left: `${card.pin.x * 100}%`,
+                  top: `${card.pin.y * 100}%`,
+                  transform: `translate(-50%, -10%) rotate(${card.pin.rotation}deg)`,
+                }}
+                onPointerDown={(e) => onPointerDown(e, card.id)}
+              >
+                <span className="thumbtack" />
+                <button
+                  type="button"
+                  className="unpin-btn"
+                  title="Von der Pinwand nehmen"
+                  aria-label="Von der Pinwand nehmen"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => togglePin(card.id)}
+                >
+                  <PinOff size={16} />
+                </button>
+                <div className="pinned-inner">
+                  <PostcardCard card={card} flippable={false} />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <p className="board-tip">Tipp: Karten lassen sich frei verschieben — ziehe sie einfach übers Brett.</p>
+          <p className="board-tip">Tipp: Karten lassen sich frei verschieben — ziehe sie einfach übers Brett.</p>
+        </>
+      )}
     </div>
   );
 }
