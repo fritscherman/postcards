@@ -25,6 +25,7 @@ raw.exec(`
     recipient_id TEXT NOT NULL REFERENCES users(id),
     payload      TEXT NOT NULL,        -- JSON: image, message, templateId, stampId, filter, orientation, crop, location
     read         INTEGER NOT NULL DEFAULT 0,
+    liked        INTEGER NOT NULL DEFAULT 0,
     created_at   INTEGER NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_pc_recipient ON postcards(recipient_id, created_at);
@@ -47,6 +48,13 @@ raw.exec(`
     PRIMARY KEY (user_a, user_b)
   );
 `);
+
+// Add the `liked` column to postcard tables created before it existed.
+try {
+  raw.exec('ALTER TABLE postcards ADD COLUMN liked INTEGER NOT NULL DEFAULT 0');
+} catch {
+  /* column already exists */
+}
 
 // Backfill friendships from any invites that were accepted under the old
 // one-shot model, so existing connections survive the move to reusable links.

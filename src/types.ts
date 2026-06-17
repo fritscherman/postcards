@@ -48,6 +48,8 @@ export interface Postcard {
   createdAt: number;
   box: Box;
   read: boolean;
+  /** recipient marked this received card as a favourite */
+  liked?: boolean;
   pin: PinPosition;
 }
 

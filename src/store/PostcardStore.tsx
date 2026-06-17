@@ -9,7 +9,7 @@ import {
 } from 'react';
 import type { Box, PinPosition, Postcard } from '../types';
 import { SEED_POSTCARDS } from '../data/seed';
-import { apiListPostcards, apiMarkRead, apiSendPostcard, isOnline } from '../api/client';
+import { apiListPostcards, apiMarkRead, apiSendPostcard, apiSetLike, isOnline } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 
 const STORAGE_KEY = 'postcards.v1';
@@ -24,6 +24,8 @@ interface StoreValue {
   /** Sends a card. Online: delivers to the recipient's inbox; demo: simulates locally. */
   sendPostcard: (card: Draft) => Promise<void>;
   markRead: (id: string) => void;
+  /** Toggle the favourite heart on a received card. */
+  toggleLike: (id: string) => void;
   movePin: (id: string, pin: Partial<PinPosition>) => void;
   removePostcard: (id: string) => void;
   resetDemo: () => void;
@@ -69,6 +71,7 @@ function fromApi(c: any): Postcard {
     createdAt: c.createdAt,
     box: c.box,
     read: c.read,
+    liked: c.liked,
     pin: randomPin(),
   };
 }
@@ -148,6 +151,18 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     if (!local) apiMarkRead(id).catch(() => {});
   }, [local]);
 
+  const toggleLike = useCallback((id: string) => {
+    let next = false;
+    setPostcards((prev) =>
+      prev.map((c) => {
+        if (c.id !== id) return c;
+        next = !c.liked;
+        return { ...c, liked: next };
+      }),
+    );
+    if (!local) apiSetLike(id, next).catch(() => {});
+  }, [local]);
+
   const movePin = useCallback((id: string, pin: Partial<PinPosition>) => {
     setPostcards((prev) =>
       prev.map((c) => (c.id === id ? { ...c, pin: { ...c.pin, ...pin } } : c)),
@@ -184,12 +199,13 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
       setUserName,
       sendPostcard,
       markRead,
+      toggleLike,
       movePin,
       removePostcard,
       resetDemo,
       cardsIn,
     }),
-    [postcards, userName, setUserName, sendPostcard, markRead, movePin, removePostcard, resetDemo, cardsIn],
+    [postcards, userName, setUserName, sendPostcard, markRead, toggleLike, movePin, removePostcard, resetDemo, cardsIn],
   );
 
   return <PostcardContext.Provider value={value}>{children}</PostcardContext.Provider>;

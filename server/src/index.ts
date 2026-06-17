@@ -131,6 +131,7 @@ app.get('/api/postcards', requireAuth, (_req, res) => {
     to: p.recipient_name,
     toEmail: p.recipient_email,
     read: !!p.read || p.sender_id === me.id,
+    liked: !!p.liked,
     createdAt: p.created_at,
     ...JSON.parse(p.payload),
   }));
@@ -171,6 +172,15 @@ app.post('/api/postcards/:id/read', requireAuth, (req, res) => {
   const me = currentUser(res);
   db.prepare('UPDATE postcards SET read = 1 WHERE id = ? AND recipient_id = ?').run(req.params.id, me.id);
   res.json({ ok: true });
+});
+
+// --- Like / unlike a received postcard ---
+app.post('/api/postcards/:id/like', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const liked = req.body.liked ? 1 : 0;
+  db.prepare('UPDATE postcards SET liked = ? WHERE id = ? AND recipient_id = ?')
+    .run(liked, req.params.id, me.id);
+  res.json({ ok: true, liked: !!liked });
 });
 
 // --- Create (or reuse) an invite link ---

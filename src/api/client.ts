@@ -63,6 +63,9 @@ export const apiSendPostcard = (b: { toEmail: string; payload: unknown }) =>
 
 export const apiMarkRead = (id: string) => api<{ ok: boolean }>(`/api/postcards/${id}/read`, 'POST');
 
+export const apiSetLike = (id: string, liked: boolean) =>
+  api<{ ok: boolean; liked: boolean }>(`/api/postcards/${id}/like`, 'POST', { liked });
+
 export const apiCreateInvite = (b: { email?: string }) =>
   api<{ token: string; link: string; emailed: boolean }>('/api/invites', 'POST', b);
 

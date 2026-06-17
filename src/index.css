@@ -444,6 +444,30 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .auth-guest { font-weight: 700; color: var(--teal-dark); }
 
+/* Recipient multi-select on the create page */
+.recipient-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.recipient-chip {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 5px 14px 5px 5px; font: inherit; font-weight: 600; color: var(--ink);
+  transition: border-color .15s ease, background .15s ease, transform .12s ease;
+}
+.recipient-chip:active { transform: scale(.97); }
+.recipient-chip.sel { border-color: var(--teal); background: #e9f8fa; color: var(--teal-dark); }
+.recipient-avatar {
+  width: 30px; height: 30px; flex-shrink: 0; display: grid; place-items: center;
+  border-radius: 999px; background: #e9f8fa; color: var(--teal-dark);
+  font-size: .8rem; font-weight: 700;
+}
+.recipient-chip.sel .recipient-avatar { background: var(--teal); color: #fff; }
+
+.likes-total { color: var(--coral); font-weight: 700; margin: -6px 0 14px; }
+
+/* Postcard detail actions */
+.detail-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.detail-actions .btn { flex: 1; min-width: 140px; }
+.like-btn.liked { border-color: var(--coral); background: #fff0ee; color: var(--coral); }
+
 .friends-page .btn.primary { align-self: flex-start; margin-bottom: 18px; }
 .friend-list { list-style: none; display: flex; flex-direction: column; gap: 10px; padding: 0; margin: 0; }
 .friend-row {

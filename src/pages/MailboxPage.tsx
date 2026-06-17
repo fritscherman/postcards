@@ -24,6 +24,7 @@ export function MailboxPage() {
   }, [params, setParams]);
 
   const cards = cardsIn(box);
+  const likesReceived = cardsIn('outbox').filter((c) => c.liked).length;
 
   return (
     <div className="page mailbox-page">
@@ -47,6 +48,10 @@ export function MailboxPage() {
         </button>
       </div>
 
+      {box === 'outbox' && likesReceived > 0 && (
+        <p className="likes-total">❤️ {likesReceived} {likesReceived === 1 ? 'Like' : 'Likes'} erhalten</p>
+      )}
+
       {cards.length === 0 ? (
         <div className="empty">
           <span className="empty-emoji">{box === 'inbox' ? '📭' : '✈️'}</span>
@@ -65,7 +70,10 @@ export function MailboxPage() {
                 <PostcardCard card={card} />
               </div>
               <div className="card-meta">
-                <span>{box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}</span>
+                <span>
+                  {box === 'inbox' ? `von ${card.from}` : `an ${card.to}`}
+                  {card.liked && <span className="liked-heart" title="Gefällt der Empfänger:in"> ❤️</span>}
+                </span>
                 <span className="card-meta-actions">
                   <button className="btn link" onClick={() => setDetail(card)}>
                     🔍 Details
