@@ -8,14 +8,24 @@ export function PinboardPage() {
   const { pinnedCards, movePin, togglePin } = usePostcards();
   const boardRef = useRef<HTMLDivElement>(null);
   const dragId = useRef<string | null>(null);
+  // Remember where a drag started and whether it actually moved, so a genuine
+  // tap can flip the card while a drag does not.
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const dragged = useRef(false);
 
   function onPointerDown(e: React.PointerEvent, id: string) {
     dragId.current = id;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    dragged.current = false;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }
 
   function onPointerMove(e: React.PointerEvent) {
     if (!dragId.current || !boardRef.current) return;
+    if (dragStart.current) {
+      const moved = Math.hypot(e.clientX - dragStart.current.x, e.clientY - dragStart.current.y);
+      if (moved > 6) dragged.current = true;
+    }
     const rect = boardRef.current.getBoundingClientRect();
     const x = Math.min(0.92, Math.max(0.02, (e.clientX - rect.left) / rect.width));
     const y = Math.min(0.9, Math.max(0.02, (e.clientY - rect.top) / rect.height));
@@ -24,6 +34,15 @@ export function PinboardPage() {
 
   function onPointerUp() {
     dragId.current = null;
+    dragStart.current = null;
+  }
+
+  // After a real drag, swallow the trailing click so the card doesn't flip.
+  function onClickCapture(e: React.MouseEvent) {
+    if (dragged.current) {
+      e.stopPropagation();
+      dragged.current = false;
+    }
   }
 
   return (
@@ -61,6 +80,7 @@ export function PinboardPage() {
                   transform: `translate(-50%, -10%) rotate(${card.pin.rotation}deg)`,
                 }}
                 onPointerDown={(e) => onPointerDown(e, card.id)}
+                onClickCapture={onClickCapture}
               >
                 <span className="thumbtack" />
                 <button
@@ -74,12 +94,12 @@ export function PinboardPage() {
                   <PinOff size={16} />
                 </button>
                 <div className="pinned-inner">
-                  <PostcardCard card={card} flippable={false} />
+                  <PostcardCard card={card} />
                 </div>
               </div>
             ))}
           </div>
-          <p className="board-tip">Tipp: Karten lassen sich frei verschieben — ziehe sie einfach übers Brett.</p>
+          <p className="board-tip">Tipp: Karten lassen sich frei verschieben — ziehe sie einfach übers Brett. Tippe auf eine Karte oder das ⟳-Symbol, um die Rückseite zu sehen.</p>
         </>
       )}
     </div>
