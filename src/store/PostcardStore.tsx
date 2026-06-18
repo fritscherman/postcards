@@ -143,6 +143,41 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     else setPostcards([]);
   }, [user, refresh, local]);
 
+  // Polling fallback for when Web Push is unavailable, blocked, or delayed by the
+  // browser. Keeps the inbox fresh without a manual reload. We poll every 30s while
+  // the tab is visible, and refetch immediately whenever the user returns to it.
+  useEffect(() => {
+    if (local || !user) return;
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const start = () => {
+      if (timer) return;
+      timer = setInterval(refresh, 30_000);
+    };
+    const stop = () => {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        refresh();
+        start();
+      } else {
+        stop();
+      }
+    };
+
+    if (document.visibilityState === 'visible') start();
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', refresh);
+
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [user, refresh, local]);
+
   const setUserName = useCallback((name: string) => {
     const clean = name.trim() || 'Du';
     setLocalName(clean);
