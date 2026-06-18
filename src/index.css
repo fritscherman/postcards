@@ -135,8 +135,6 @@ h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-hei
 .mini-label { font-size: .8rem; color: var(--muted); font-weight: 600; }
 .orient-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .orient-row .seg { flex: 0 0 auto; }
-.zoom-row { display: flex; flex-direction: column; gap: 6px; }
-.zoom-row input[type='range'] { width: 100%; accent-color: var(--teal); }
 textarea, select, .modal input {
   font: inherit; border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px;
   background: #fff; color: var(--ink); resize: vertical; transition: border-color .15s ease;
@@ -211,8 +209,14 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .postcard-front { display: flex; }
 .photo-wrap { position: relative; flex: 1; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
 .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-wrap.editable { cursor: grab; touch-action: none; }
-.photo-wrap.editable:active { cursor: grabbing; }
+.photo-wrap.editable { cursor: zoom-in; touch-action: none; }
+.photo-wrap.editable.zoomed { cursor: grab; }
+.photo-wrap.editable.zoomed:active { cursor: grabbing; }
+.zoom-reset { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px;
+  display: grid; place-items: center; border: none; border-radius: 999px; cursor: pointer;
+  background: rgba(0,0,0,.5); color: #fff; font-size: 1.05rem; line-height: 1;
+  backdrop-filter: blur(3px); box-shadow: var(--shadow-sm); }
+.zoom-reset:hover { background: rgba(0,0,0,.68); }
 .photo-grip { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
   background: rgba(0,0,0,.5); color: #fff; font-size: .68rem; font-weight: 600; padding: 3px 10px;
   border-radius: 999px; pointer-events: none; backdrop-filter: blur(3px); white-space: nowrap; }

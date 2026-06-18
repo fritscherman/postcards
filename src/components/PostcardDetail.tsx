@@ -28,6 +28,21 @@ export function PostcardDetail({ card, onClose }: Props) {
     return { x: clamp(p.x, -maxX, maxX), y: clamp(p.y, -maxY, maxY) };
   }
 
+  // Zoom toward a focal point (client coords) so the content under the fingers /
+  // cursor stays put, instead of always zooming around the middle.
+  function zoomTo(nextZoom: number, clientX: number, clientY: number) {
+    const r = stageRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const z1 = clamp(nextZoom, 1, 4);
+    // Focal point relative to the stage centre (the scale's transform-origin).
+    const fx = clientX - (r.left + r.width / 2);
+    const fy = clientY - (r.top + r.height / 2);
+    setZoom((z0) => {
+      setPan((p) => clampPan({ x: fx - (z1 * (fx - p.x)) / z0, y: fy - (z1 * (fy - p.y)) / z0 }, z1));
+      return z1;
+    });
+  }
+
   function onDown(e: React.PointerEvent) {
     stageRef.current?.setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -39,16 +54,15 @@ export function PostcardDetail({ card, onClose }: Props) {
     if (!pointers.current.has(e.pointerId)) return;
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-    // Two fingers → pinch to zoom.
+    // Two fingers → pinch to zoom around the point between the fingers.
     if (pointers.current.size >= 2) {
       const [a, b] = [...pointers.current.values()];
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       if (!pinchStart.current) {
         pinchStart.current = { dist, zoom };
       } else {
-        const z = clamp((pinchStart.current.zoom * dist) / pinchStart.current.dist, 1, 4);
-        setZoom(z);
-        setPan((p) => clampPan(p, z));
+        zoomTo((pinchStart.current.zoom * dist) / pinchStart.current.dist, mid.x, mid.y);
       }
       return;
     }
@@ -71,17 +85,15 @@ export function PostcardDetail({ card, onClose }: Props) {
   }
 
   function onWheel(e: React.WheelEvent) {
-    const z = clamp(zoom - e.deltaY * 0.002, 1, 4);
-    setZoom(z);
-    setPan((p) => clampPan(p, z));
+    zoomTo(zoom - e.deltaY * 0.002 * zoom, e.clientX, e.clientY);
   }
 
-  function toggleZoom() {
+  function toggleZoom(e: React.MouseEvent) {
     if (zoom > 1.001) {
       setZoom(1);
       setPan({ x: 0, y: 0 });
     } else {
-      setZoom(2.5);
+      zoomTo(2.5, e.clientX, e.clientY);
     }
   }
 
