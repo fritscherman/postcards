@@ -56,6 +56,10 @@ export const apiLogin = (b: { email: string; password: string; inviteToken?: str
 
 export const apiMe = () => api<{ user: AuthUser }>('/api/me');
 
+/** Change the signed-in user's display name; returns a fresh token + user. */
+export const apiUpdateName = (name: string) =>
+  api<{ token: string; user: AuthUser }>('/api/me', 'POST', { name });
+
 export const apiListPostcards = () => api<{ cards: any[] }>('/api/postcards');
 
 export const apiSendPostcard = (b: { toEmail: string; payload: unknown }) =>
@@ -70,6 +74,10 @@ export const apiCreateInvite = (b: { email?: string }) =>
   api<{ token: string; link: string; emailed: boolean }>('/api/invites', 'POST', b);
 
 export const apiListFriends = () => api<{ friends: AuthUser[] }>('/api/friends');
+
+/** Connect two of my friends with each other so they can exchange postcards. */
+export const apiIntroduceFriends = (aId: string, bId: string) =>
+  api<{ ok: boolean; created: boolean }>('/api/friends/introduce', 'POST', { aId, bId });
 
 /** Public VAPID key for push, or null when the server hasn't configured push. */
 export const apiPushKey = () => api<{ key: string | null }>('/api/push/key');
