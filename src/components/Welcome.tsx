@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 
 const SEEN_KEY = 'postcards.welcomed.v1';
 
@@ -11,20 +12,32 @@ const STEPS = [
 
 export function Welcome() {
   const [open, setOpen] = useState(() => !localStorage.getItem(SEEN_KEY));
-  const [step, setStep] = useState(0);
-
   if (!open) return null;
 
-  const last = step === STEPS.length - 1;
   function close() {
     localStorage.setItem(SEEN_KEY, '1');
     setOpen(false);
   }
 
+  return <WelcomeTour onClose={close} />;
+}
+
+function WelcomeTour({ onClose }: { onClose: () => void }) {
+  const ref = useDialog<HTMLDivElement>(onClose);
+  const [step, setStep] = useState(0);
+  const last = step === STEPS.length - 1;
   const s = STEPS[step];
+
   return (
     <div className="modal-backdrop">
-      <div className="welcome">
+      <div
+        className="welcome"
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Willkommen bei Wanderpost"
+        tabIndex={-1}
+      >
         <span className="welcome-icon">{s.icon}</span>
         <h2>{step === 0 ? 'Willkommen bei Wanderpost!' : s.title}</h2>
         <p>{step === 0 ? 'Sende deinen Freunden virtuelle Grüße aus aller Welt. So funktioniert’s:' : s.text}</p>
@@ -37,10 +50,10 @@ export function Welcome() {
         </div>
 
         <div className="welcome-actions">
-          <button className="btn link" onClick={close}>Überspringen</button>
+          <button className="btn link" onClick={onClose}>Überspringen</button>
           <button
             className="btn primary"
-            onClick={() => (last ? close() : setStep((x) => x + 1))}
+            onClick={() => (last ? onClose() : setStep((x) => x + 1))}
           >
             {last ? 'Los geht’s! 🎉' : 'Weiter'}
           </button>

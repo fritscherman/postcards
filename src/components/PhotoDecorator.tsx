@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Check, Pencil, Smile, Undo2, X } from 'lucide-react';
+import { useDialog } from '../hooks/useDialog';
 
 interface Point { x: number; y: number }
 interface Stroke { color: string; width: number; pts: Point[] }
@@ -16,6 +17,7 @@ const BRUSHES = [0.008, 0.016, 0.028];
 const EMOJIS = ['❤️', '⭐', '😎', '🌴', '✈️', '🎈', '🌸', '🍦', '👋', '🔥', '🌈', '📍'];
 
 export function PhotoDecorator({ src, onApply, onClose }: Props) {
+  const dialogRef = useDialog<HTMLDivElement>(onClose);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef<Stroke | null>(null);
@@ -186,7 +188,15 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="decorator" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="decorator"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Foto verzieren"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="dec-head">
           <h3>Foto verzieren 🎨</h3>
           <button className="btn link icon-btn" onClick={onClose} aria-label="Schließen"><X size={18} /></button>

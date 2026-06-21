@@ -5,11 +5,24 @@ import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 import { PostcardDetail } from '../components/PostcardDetail';
 import { GuestBanner } from '../components/GuestBanner';
+import { useFeedback } from '../components/Feedback';
 import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
-  const { cardsIn, markRead, removePostcard, togglePin, isPinned, toggleLike } = usePostcards();
+  const { cardsIn, markRead, removePostcard, restorePostcard, togglePin, isPinned, toggleLike } =
+    usePostcards();
+  const { notify } = useFeedback();
   const navigate = useNavigate();
+
+  // Delete immediately but offer a one-tap undo, so a mis-tap never loses a card.
+  function handleDelete(card: Postcard) {
+    const wasPinned = isPinned(card.id);
+    removePostcard(card.id);
+    notify('Postkarte gelöscht.', {
+      type: 'info',
+      action: { label: 'Rückgängig', onClick: () => restorePostcard(card, wasPinned) },
+    });
+  }
   const [params, setParams] = useSearchParams();
   const [box, setBox] = useState<Box>('inbox');
   const [toast, setToast] = useState(params.get('sent') === '1');
@@ -110,7 +123,7 @@ export function MailboxPage() {
                   <button className="btn link icon-btn" onClick={() => setDetail(card)} title="Details">
                     <Search size={16} />
                   </button>
-                  <button className="btn link danger icon-btn" onClick={() => removePostcard(card.id)} title="Löschen">
+                  <button className="btn link danger icon-btn" onClick={() => handleDelete(card)} title="Löschen">
                     <Trash2 size={16} />
                   </button>
                 </span>

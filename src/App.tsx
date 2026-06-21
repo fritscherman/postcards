@@ -18,6 +18,8 @@ import { Datenschutz, Impressum } from './pages/Legal';
 import { initials } from './utils/initials';
 import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
+import { useFeedback } from './components/Feedback';
+import { useDialog } from './hooks/useDialog';
 import { isOnline } from './api/client';
 
 function InviteAuth({ onGuest }: { onGuest: () => void }) {
@@ -31,40 +33,7 @@ export default function App() {
   const localMode = !isOnline || guest;
   const isAccount = isOnline && !!user;
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(userName);
-  const [saving, setSaving] = useState(false);
-  const [nameError, setNameError] = useState('');
   const [inviting, setInviting] = useState(false);
-
-  const openProfile = () => {
-    setDraft(userName);
-    setNameError('');
-    setEditing(true);
-  };
-
-  // Save the edited name — to the server for accounts, to localStorage otherwise.
-  const saveName = async () => {
-    const next = draft.trim();
-    if (isAccount) {
-      if (next.length < 2) {
-        setNameError('Bitte gib einen Namen an.');
-        return;
-      }
-      setSaving(true);
-      setNameError('');
-      try {
-        await updateName(next);
-        setEditing(false);
-      } catch (err) {
-        setNameError((err as Error).message);
-      } finally {
-        setSaving(false);
-      }
-    } else {
-      setUserName(next);
-      setEditing(false);
-    }
-  };
 
   // Online mode requires a signed-in user before showing the app.
   if (isOnline && !ready) {
@@ -105,7 +74,7 @@ export default function App() {
           <button
             className="who who-initials"
             title={`${userName} · Profil`}
-            onClick={openProfile}
+            onClick={() => setEditing(true)}
           >
             {initials(userName)}
           </button>
@@ -139,34 +108,110 @@ export default function App() {
       {inviting && <InviteFriends onClose={() => setInviting(false)} />}
 
       {editing && (
-        <div className="modal-backdrop" onClick={() => setEditing(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{isAccount ? 'Dein Profil' : 'Wie heißt du?'}</h3>
-            <p>Dein Name erscheint als Absender auf den Karten.</p>
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && saveName()}
-              autoFocus
-            />
-            {isAccount && user?.email && <p className="field-hint">{user.email}</p>}
-            {nameError && <p className="auth-error">{nameError}</p>}
-            <button className="btn primary" onClick={saveName} disabled={saving}>
-              {saving ? 'Speichert…' : 'Speichern'}
-            </button>
-            {isAccount && (
-              <button
-                className="btn link"
-                onClick={() => {
-                  if (confirm('Abmelden?')) logout();
-                }}
-              >
-                Abmelden
-              </button>
-            )}
-          </div>
-        </div>
+        <ProfileModal
+          isAccount={isAccount}
+          email={user?.email}
+          initialName={userName}
+          onSaveAccount={updateName}
+          onSaveLocal={setUserName}
+          onLogout={logout}
+          onClose={() => setEditing(false)}
+        />
       )}
+    </div>
+  );
+}
+
+interface ProfileModalProps {
+  isAccount: boolean;
+  email?: string;
+  initialName: string;
+  onSaveAccount: (name: string) => Promise<void>;
+  onSaveLocal: (name: string) => void;
+  onLogout: () => void;
+  onClose: () => void;
+}
+
+function ProfileModal({
+  isAccount,
+  email,
+  initialName,
+  onSaveAccount,
+  onSaveLocal,
+  onLogout,
+  onClose,
+}: ProfileModalProps) {
+  const { confirm } = useFeedback();
+  const ref = useDialog<HTMLDivElement>(onClose);
+  const [draft, setDraft] = useState(initialName);
+  const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState('');
+
+  // Save the edited name — to the server for accounts, to localStorage otherwise.
+  const saveName = async () => {
+    const next = draft.trim();
+    if (isAccount) {
+      if (next.length < 2) {
+        setNameError('Bitte gib einen Namen an.');
+        return;
+      }
+      setSaving(true);
+      setNameError('');
+      try {
+        await onSaveAccount(next);
+        onClose();
+      } catch (err) {
+        setNameError((err as Error).message);
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      onSaveLocal(next);
+      onClose();
+    }
+  };
+
+  const handleLogout = async () => {
+    const ok = await confirm({
+      title: 'Abmelden?',
+      message: 'Du wirst aus deinem Konto abgemeldet.',
+      confirmLabel: 'Abmelden',
+      danger: true,
+    });
+    if (ok) onLogout();
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal"
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-label={isAccount ? 'Dein Profil' : 'Wie heißt du?'}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3>{isAccount ? 'Dein Profil' : 'Wie heißt du?'}</h3>
+        <p>Dein Name erscheint als Absender auf den Karten.</p>
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && saveName()}
+          aria-label="Dein Name"
+          autoFocus
+        />
+        {isAccount && email && <p className="field-hint">{email}</p>}
+        {nameError && <p className="auth-error">{nameError}</p>}
+        <button className="btn primary" onClick={saveName} disabled={saving}>
+          {saving ? 'Speichert…' : 'Speichern'}
+        </button>
+        {isAccount && (
+          <button className="btn link" onClick={handleLogout}>
+            Abmelden
+          </button>
+        )}
+      </div>
     </div>
   );
 }

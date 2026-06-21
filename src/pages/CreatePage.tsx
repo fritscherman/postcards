@@ -23,6 +23,7 @@ import { CUSTOM_STAMP_ID } from '../data/templates';
 import { isOnline, ApiError, apiListFriends, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { GuestBanner } from '../components/GuestBanner';
+import { useFeedback } from '../components/Feedback';
 import type { Crop, GeoLocation, Orientation, Stamp } from '../types';
 
 const PLACEHOLDER =
@@ -39,6 +40,7 @@ export function CreatePage() {
   const [params] = useSearchParams();
   const { sendPostcard, userName } = usePostcards();
   const { guest } = useAuth();
+  const { notify } = useFeedback();
   // Guests (and the demo build) send locally; only real accounts reach the server.
   const localMode = !isOnline || guest;
   const fileRef = useRef<HTMLInputElement>(null);
@@ -104,13 +106,13 @@ export function CreatePage() {
       const exif = await readExifLocation(file);
       if (exif) setLocation(exif);
     } catch (err) {
-      alert('Fehler beim Laden des Fotos: ' + (err as Error).message);
+      notify('Fehler beim Laden des Fotos: ' + (err as Error).message, { type: 'error' });
     }
   }
 
   function captureLocation() {
     if (!navigator.geolocation) {
-      alert('Standort wird von diesem Browser nicht unterstützt.');
+      notify('Standort wird von diesem Browser nicht unterstützt.', { type: 'error' });
       return;
     }
     setLocating(true);
@@ -125,7 +127,7 @@ export function CreatePage() {
         setLocating(false);
       },
       () => {
-        alert('Standort konnte nicht ermittelt werden.');
+        notify('Standort konnte nicht ermittelt werden.', { type: 'error' });
         setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 8000 },
@@ -134,11 +136,11 @@ export function CreatePage() {
 
   async function handleSend() {
     if (!hasPhoto) {
-      alert('Bitte wähle zuerst ein Foto aus. 📷');
+      notify('Bitte wähle zuerst ein Foto aus. 📷', { type: 'error' });
       return;
     }
     if (selected.length === 0) {
-      alert('Bitte wähle mindestens eine Empfänger:in aus.');
+      notify('Bitte wähle mindestens eine Empfänger:in aus.', { type: 'error' });
       return;
     }
     setBusy(true);
@@ -167,9 +169,11 @@ export function CreatePage() {
       setFlying(false);
       setBusy(false);
       if (err instanceof ApiError && err.code === 'NO_RECIPIENT') {
-        alert('Diese Person ist noch nicht dabei. Lade sie oben über „💌 Einladen" ein.');
+        notify('Diese Person ist noch nicht dabei. Lade sie oben über „💌 Einladen" ein.', {
+          type: 'error',
+        });
       } else {
-        alert('Senden fehlgeschlagen: ' + (err as Error).message);
+        notify('Senden fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
       }
     }
   }

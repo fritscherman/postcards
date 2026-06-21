@@ -36,6 +36,17 @@ body {
 
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.1; }
 
+/* Visible keyboard focus everywhere. Only shows for keyboard/AT users
+   (:focus-visible), so mouse/touch taps stay ring-free. */
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+.btn:focus-visible, .chip:focus-visible, .tab:focus-visible, .seg-btn:focus-visible,
+.stamp-chip:focus-visible, .filter-chip:focus-visible, .recipient-chip:focus-visible,
+.nav-item:focus-visible, .who:focus-visible { outline-offset: 3px; }
+textarea:focus-visible, select:focus-visible, input:focus-visible,
+.modal input:focus-visible, .auth-form input:focus-visible {
+  outline: 3px solid var(--teal); outline-offset: 1px; border-color: var(--teal);
+}
+
 /* Hide a control without display:none / visibility:hidden, so a programmatic
    .click() still opens the native file picker (needed in standalone PWAs / iOS). */
 .visually-hidden-input {
@@ -140,7 +151,9 @@ textarea, select, .modal input {
   background: #fff; color: var(--ink); resize: vertical; transition: border-color .15s ease;
 }
 textarea { min-height: 90px; }
-textarea:focus, select:focus, .modal input:focus { outline: none; border-color: var(--teal); }
+textarea:focus, select:focus, .modal input:focus { border-color: var(--teal); }
+textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
+.modal input:focus:not(:focus-visible) { outline: none; }
 .counter { align-self: flex-end; color: var(--muted); font-size: .78rem; }
 
 /* Horizontal, swipeable rows — feels native on touch, scrolls with snap. */
@@ -258,6 +271,43 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   padding: 14px 18px; border-radius: 14px; margin-bottom: 18px; font-weight: 600; box-shadow: var(--shadow-sm);
   animation: slidein .4s ease; }
 @keyframes slidein { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+/* Global toast notifications (replaces blocking alert()). Stacked above the nav. */
+.toast-stack {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 80;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 10px;
+  width: min(440px, calc(100% - 28px));
+  pointer-events: none;
+}
+.toast-stack .toast {
+  pointer-events: auto; margin: 0;
+  display: flex; align-items: center; gap: 10px;
+  animation: toast-in .28s ease;
+}
+.toast-icon { display: inline-flex; flex: 0 0 auto; }
+.toast-message { flex: 1; min-width: 0; }
+.toast-stack .toast.toast-error { background: linear-gradient(135deg, #fdecea, #fbddd8); color: #9b2c1e; border-color: #f3b8ad; }
+.toast-stack .toast.toast-info { background: linear-gradient(135deg, #e9f3fb, #dceaf6); color: var(--teal-dark); border-color: #bcdcea; }
+.toast-action {
+  flex: 0 0 auto; font: inherit; font-weight: 700; cursor: pointer;
+  border: none; background: rgba(0, 0, 0, .06); color: inherit;
+  padding: 6px 12px; border-radius: 999px;
+}
+.toast-action:hover { background: rgba(0, 0, 0, .12); }
+.toast-close {
+  flex: 0 0 auto; display: inline-flex; cursor: pointer; border: none;
+  background: none; color: inherit; opacity: .6; padding: 2px; border-radius: 999px;
+}
+.toast-close:hover { opacity: 1; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+
+/* Confirm / action dialog buttons */
+.modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+.modal-actions .btn { flex: 1; }
+.btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; box-shadow: var(--shadow-md); }
+.btn.danger:hover { filter: brightness(1.06); transform: translateY(-2px); }
+.btn.danger:disabled { opacity: .6; cursor: default; transform: none; }
 
 /* ---------- World map ---------- */
 .map-shell { position: relative; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md);
@@ -628,7 +678,8 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .auth-form { display: flex; flex-direction: column; gap: 12px; width: 100%; text-align: left; margin-top: 6px; }
 .auth-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; color: var(--teal-dark); font-size: .85rem; }
 .auth-form input { font: inherit; border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 14px; background: #fff; color: var(--ink); }
-.auth-form input:focus { outline: none; border-color: var(--teal); }
+.auth-form input:focus { border-color: var(--teal); }
+.auth-form input:focus:not(:focus-visible) { outline: none; }
 .auth-error { color: var(--coral); font-weight: 600; font-size: .9rem; margin: 0; }
 .auth-switch { margin-top: 4px; }
 .auth-divider { display: flex; align-items: center; gap: 10px; width: 100%; color: var(--muted); font-size: .8rem; margin: 2px 0; }
@@ -701,6 +752,14 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .page, .card-cell, .fly-card, .welcome, .toast, .pwa-banner, .dropzone-cta { animation: none !important; }
+  /* Honour the OS "reduce motion" setting app-wide: near-instant transitions and
+     animations (e.g. the 3D card flip, send fly-away, hover lifts). */
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ---------- Legal pages (Impressum / Datenschutz) ---------- */

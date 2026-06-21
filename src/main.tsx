@@ -6,18 +6,21 @@ import App from './App';
 import { PostcardProvider } from './store/PostcardStore';
 import { AuthProvider } from './auth/AuthContext';
 import { InstallProvider } from './components/InstallContext';
+import { FeedbackProvider } from './components/Feedback';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <AuthProvider>
-        <PostcardProvider>
-          <InstallProvider>
-            <App />
-          </InstallProvider>
-        </PostcardProvider>
-      </AuthProvider>
+      <FeedbackProvider>
+        <AuthProvider>
+          <PostcardProvider>
+            <InstallProvider>
+              <App />
+            </InstallProvider>
+          </PostcardProvider>
+        </AuthProvider>
+      </FeedbackProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );
