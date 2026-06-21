@@ -358,6 +358,78 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .install-card .install-text strong { font-size: 1.05rem; color: var(--teal-dark); }
 .install-card .install-text small { font-weight: 500; color: var(--muted); line-height: 1.35; }
 
+/* ---------- Install guide (step-by-step, older-friendly) ---------- */
+.modal.install-guide {
+  width: min(440px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  gap: 14px;
+  text-align: left;
+}
+.install-guide-close {
+  position: absolute; top: 14px; right: 14px;
+  display: inline-flex; padding: 6px; border: none; border-radius: 999px;
+  background: rgba(0,0,0,.05); color: var(--muted); cursor: pointer;
+}
+.install-guide-close:hover { background: rgba(0,0,0,.1); color: var(--ink); }
+.install-guide-head { display: flex; align-items: center; gap: 14px; padding-right: 28px; }
+.install-guide-head h3 { margin: 0; font-size: 1.3rem; }
+.install-guide-head p { margin: 2px 0 0; font-size: .9rem; }
+
+.install-benefits {
+  list-style: none; margin: 0; padding: 14px 16px;
+  background: rgba(14, 116, 144, .06); border-radius: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.install-benefits li {
+  position: relative; padding-left: 26px;
+  font-size: .92rem; font-weight: 600; color: var(--ink); line-height: 1.3;
+}
+.install-benefits li::before {
+  content: '✓'; position: absolute; left: 0; top: -1px;
+  color: var(--teal-dark); font-weight: 800;
+}
+
+.install-steps-head { font-size: .95rem; color: var(--ink); }
+.install-steps-head strong { color: var(--teal-dark); }
+.install-guide-intro { margin: 0; font-size: .92rem; color: var(--muted); line-height: 1.4; }
+
+.install-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 12px;
+  counter-reset: install-step;
+}
+.install-steps li { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 12px; }
+.install-step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  color: #fff; font-weight: 800; font-size: 1rem;
+}
+.install-step-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 12px;
+  background: #fff; border: 1.5px solid var(--line); color: var(--teal-dark);
+}
+.install-step-text { font-size: .95rem; line-height: 1.4; color: var(--ink); }
+.install-step-text strong { color: var(--teal-dark); }
+
+.install-guide-note {
+  margin: 0; padding: 10px 14px; border-radius: 12px;
+  background: rgba(246, 183, 60, .14);
+  font-size: .88rem; line-height: 1.4; color: var(--ink);
+}
+
+.install-device-switch { font-size: .88rem; }
+.install-device-switch summary {
+  cursor: pointer; color: var(--teal-dark); font-weight: 600; padding: 4px 0;
+}
+.install-device-choices { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
+.install-device-choices .btn.small { gap: 6px; }
+
+.install-guide-done { align-self: center; }
+
 /* ---------- Card meta actions ---------- */
 .card-meta-actions { display: flex; align-items: center; gap: 4px; }
 

@@ -1,12 +1,37 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
+// The kind of device/browser the visitor is on. We use this to show tailored,
+// step-by-step install instructions — there's no single "install" gesture that
+// works everywhere, so we have to spell out the right one for each platform.
+export type InstallPlatform =
+  | 'ios' // iPhone / iPad (Safari share sheet → "Zum Home-Bildschirm")
+  | 'android' // Android Chrome/Samsung (usually a real prompt, else the menu)
+  | 'desktop-chromium' // Chrome / Edge / Brave on a computer (address-bar icon)
+  | 'desktop-safari' // Safari 17+ on a Mac ("Zum Dock hinzufügen")
+  | 'desktop-firefox' // Firefox — no native install, we explain the workaround
+  | 'other'; // anything else — fall back to a generic hint
+
+function isIosDevice(): boolean {
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 // True on iPhone/iPad Safari, where there's no beforeinstallprompt event —
 // the user must add to the home screen manually via the share sheet.
 function isIosSafari(): boolean {
   const ua = navigator.userAgent;
-  const iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const webkit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-  return iOS && webkit;
+  return isIosDevice() && webkit;
+}
+
+function detectPlatform(): InstallPlatform {
+  const ua = navigator.userAgent;
+  if (isIosDevice()) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  if (/Firefox\//.test(ua)) return 'desktop-firefox';
+  if (/Edg\//.test(ua) || /OPR\//.test(ua) || /Chrome\//.test(ua) || /Chromium/.test(ua)) return 'desktop-chromium';
+  if (/Safari\//.test(ua) && /Macintosh/.test(ua)) return 'desktop-safari';
+  return 'other';
 }
 
 function isStandalone(): boolean {
@@ -21,6 +46,8 @@ type InstallState = {
   canPrompt: boolean;
   /** iOS Safari: no prompt event, the user adds to the home screen manually. */
   isIos: boolean;
+  /** Best guess at the device/browser, used to pick the right instructions. */
+  platform: InstallPlatform;
   /** App is already running as an installed standalone app. */
   installed: boolean;
   /** Trigger the native prompt. Returns the user's choice (or 'unavailable'). */
@@ -36,6 +63,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(isStandalone());
   const [isIos, setIsIos] = useState(false);
+  const [platform, setPlatform] = useState<InstallPlatform>('other');
 
   useEffect(() => {
     const onPrompt = (e: Event) => {
@@ -50,6 +78,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     window.addEventListener('appinstalled', onInstalled);
 
     if (isIosSafari() && !isStandalone()) setIsIos(true);
+    setPlatform(detectPlatform());
 
     return () => {
       window.removeEventListener('beforeinstallprompt', onPrompt);
@@ -66,7 +95,7 @@ export function InstallProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <InstallContext.Provider value={{ canPrompt: !!installEvent, isIos, installed, promptInstall }}>
+    <InstallContext.Provider value={{ canPrompt: !!installEvent, isIos, platform, installed, promptInstall }}>
       {children}
     </InstallContext.Provider>
   );
