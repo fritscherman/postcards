@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { apiLogin, apiMe, apiRegister, getToken, isOnline, setToken, type AuthUser } from '../api/client';
+import { apiLogin, apiMe, apiRegister, apiUpdateName, getToken, isOnline, setToken, type AuthUser } from '../api/client';
 
 const GUEST_KEY = 'postcards.guest.v1';
 
@@ -11,6 +11,8 @@ interface AuthValue {
   ready: boolean;
   login: (email: string, password: string, inviteToken?: string) => Promise<void>;
   register: (email: string, name: string, password: string, inviteToken?: string) => Promise<void>;
+  /** Change the signed-in user's display name (online mode only). */
+  updateName: (name: string) => Promise<void>;
   logout: () => void;
   /** Start using the app locally without signing up. */
   enterGuest: () => void;
@@ -57,6 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [clearGuest],
   );
 
+  const updateName = useCallback(async (name: string) => {
+    const { token, user } = await apiUpdateName(name);
+    setToken(token);
+    setUser(user);
+  }, []);
+
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
@@ -69,8 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthValue>(
-    () => ({ user, guest, ready, login, register, logout, enterGuest }),
-    [user, guest, ready, login, register, logout, enterGuest],
+    () => ({ user, guest, ready, login, register, updateName, logout, enterGuest }),
+    [user, guest, ready, login, register, updateName, logout, enterGuest],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

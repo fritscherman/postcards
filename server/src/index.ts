@@ -46,12 +46,21 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 const currentUser = (res: Response): TokenUser => res.locals.user;
 
 // Record a mutual friendship (stored once with the smaller id first).
-function addFriendship(a: string, b: string): void {
-  if (!a || !b || a === b) return;
+// Returns true when a new connection was created (false if it already existed).
+function addFriendship(a: string, b: string): boolean {
+  if (!a || !b || a === b) return false;
   const [lo, hi] = a < b ? [a, b] : [b, a];
-  db.prepare(
+  const r = db.prepare(
     'INSERT OR IGNORE INTO friendships (user_a, user_b, created_at) VALUES (?,?,?)',
   ).run(lo, hi, Date.now());
+  return r.changes > 0;
+}
+
+// True when the two users are already connected as friends.
+function areFriends(a: string, b: string): boolean {
+  if (!a || !b || a === b) return false;
+  const [lo, hi] = a < b ? [a, b] : [b, a];
+  return !!db.prepare('SELECT 1 FROM friendships WHERE user_a = ? AND user_b = ?').get(lo, hi);
 }
 
 // Redeem an invite link: connect the inviter and `userId` as friends.
@@ -109,6 +118,21 @@ app.post('/api/login', (req, res) => {
 // --- Current user ---
 app.get('/api/me', requireAuth, (_req, res) => {
   res.json({ user: currentUser(res) });
+});
+
+// --- Update the current user's display name ---
+// The name is baked into the JWT (and shown as sender on cards), so we hand back
+// a fresh token alongside the updated user.
+app.post('/api/me', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const name = String(req.body.name ?? '').trim();
+  if (name.length < 2) return res.status(400).json({ error: 'Bitte gib einen Namen an.' });
+  if (name.length > 60) return res.status(400).json({ error: 'Der Name ist zu lang.' });
+
+  db.prepare('UPDATE users SET name = ? WHERE id = ?').run(name, me.id);
+
+  const user: TokenUser = { id: me.id, email: me.email, name };
+  res.json({ token: signToken(user, JWT_SECRET!), user });
 });
 
 // --- List postcards (inbox + outbox) ---
@@ -251,6 +275,41 @@ app.get('/api/friends', requireAuth, (_req, res) => {
      ORDER BY u.name COLLATE NOCASE`,
   ).all(me.id, me.id, me.id) as { id: string; name: string; email: string }[];
   res.json({ friends: rows });
+});
+
+// --- Introduce two of my friends to each other ---
+// Lets you connect two people you already know, so they become friends and can
+// exchange postcards directly. You may only introduce your own friends.
+app.post('/api/friends/introduce', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const aId = String(req.body.aId ?? '');
+  const bId = String(req.body.bId ?? '');
+  if (!aId || !bId || aId === bId) {
+    return res.status(400).json({ error: 'Wähle zwei verschiedene Freund:innen aus.' });
+  }
+  if (!areFriends(me.id, aId) || !areFriends(me.id, bId)) {
+    return res.status(403).json({ error: 'Du kannst nur eigene Freund:innen miteinander bekannt machen.' });
+  }
+
+  const created = addFriendship(aId, bId);
+  if (!created) return res.json({ ok: true, created: false });
+
+  // Tell both sides who introduced them (fire-and-forget).
+  const a = db.prepare('SELECT name FROM users WHERE id = ?').get(aId) as { name: string } | undefined;
+  const b = db.prepare('SELECT name FROM users WHERE id = ?').get(bId) as { name: string } | undefined;
+  if (a && b) {
+    void notifyUser(aId, {
+      title: '🤝 Neue Bekanntschaft',
+      body: `${me.name} hat dich mit ${b.name} bekannt gemacht.`,
+      url: '/friends',
+    });
+    void notifyUser(bId, {
+      title: '🤝 Neue Bekanntschaft',
+      body: `${me.name} hat dich mit ${a.name} bekannt gemacht.`,
+      url: '/friends',
+    });
+  }
+  res.json({ ok: true, created: true });
 });
 
 // --- Unknown API routes → JSON 404 (don't fall through to the SPA) ---

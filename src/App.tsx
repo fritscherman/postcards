@@ -27,11 +27,44 @@ function InviteAuth({ onGuest }: { onGuest: () => void }) {
 
 export default function App() {
   const { userName, setUserName, resetDemo } = usePostcards();
-  const { user, guest, ready, logout, enterGuest } = useAuth();
+  const { user, guest, ready, updateName, logout, enterGuest } = useAuth();
   const localMode = !isOnline || guest;
+  const isAccount = isOnline && !!user;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(userName);
+  const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState('');
   const [inviting, setInviting] = useState(false);
+
+  const openProfile = () => {
+    setDraft(userName);
+    setNameError('');
+    setEditing(true);
+  };
+
+  // Save the edited name — to the server for accounts, to localStorage otherwise.
+  const saveName = async () => {
+    const next = draft.trim();
+    if (isAccount) {
+      if (next.length < 2) {
+        setNameError('Bitte gib einen Namen an.');
+        return;
+      }
+      setSaving(true);
+      setNameError('');
+      try {
+        await updateName(next);
+        setEditing(false);
+      } catch (err) {
+        setNameError((err as Error).message);
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      setUserName(next);
+      setEditing(false);
+    }
+  };
 
   // Online mode requires a signed-in user before showing the app.
   if (isOnline && !ready) {
@@ -71,15 +104,8 @@ export default function App() {
           )}
           <button
             className="who who-initials"
-            title={`${userName}${isOnline && user ? ' · Abmelden' : ' · Namen ändern'}`}
-            onClick={() => {
-              if (isOnline && user) {
-                if (confirm('Abmelden?')) logout();
-              } else {
-                setDraft(userName);
-                setEditing(true);
-              }
-            }}
+            title={`${userName} · Profil`}
+            onClick={openProfile}
           >
             {initials(userName)}
           </button>
@@ -115,18 +141,29 @@ export default function App() {
       {editing && (
         <div className="modal-backdrop" onClick={() => setEditing(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Wie heißt du?</h3>
+            <h3>{isAccount ? 'Dein Profil' : 'Wie heißt du?'}</h3>
             <p>Dein Name erscheint als Absender auf den Karten.</p>
-            <input value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus />
-            <button
-              className="btn primary"
-              onClick={() => {
-                setUserName(draft);
-                setEditing(false);
-              }}
-            >
-              Speichern
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && saveName()}
+              autoFocus
+            />
+            {isAccount && user?.email && <p className="field-hint">{user.email}</p>}
+            {nameError && <p className="auth-error">{nameError}</p>}
+            <button className="btn primary" onClick={saveName} disabled={saving}>
+              {saving ? 'Speichert…' : 'Speichern'}
             </button>
+            {isAccount && (
+              <button
+                className="btn link"
+                onClick={() => {
+                  if (confirm('Abmelden?')) logout();
+                }}
+              >
+                Abmelden
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -560,9 +560,15 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   border-radius: 999px; background: #e9f8fa; color: var(--teal-dark);
   font-weight: 700; letter-spacing: .3px;
 }
-.friend-info { display: flex; flex-direction: column; min-width: 0; }
+.friend-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .friend-info strong { color: var(--ink); }
 .friend-email { color: var(--muted); font-size: .85rem; overflow: hidden; text-overflow: ellipsis; }
+.friend-action { flex-shrink: 0; white-space: nowrap; }
+
+/* Friend picker inside the "introduce" dialog */
+.pick-list { margin: 4px 0 6px; max-height: 46vh; overflow-y: auto; }
+.pick-row { cursor: pointer; padding: 10px 12px; }
+.pick-row input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--teal); }
 
 .invite-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 .invite-actions .btn { flex: 1; min-width: 120px; text-align: center; text-decoration: none; }
