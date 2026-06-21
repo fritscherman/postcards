@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Heart, Inbox, Pin, PinOff, Search, Send, Trash2 } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Heart, Inbox, Pin, PinOff, Reply, Search, Send, Trash2 } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 import { PostcardDetail } from '../components/PostcardDetail';
@@ -9,6 +9,7 @@ import type { Box, Postcard } from '../types';
 
 export function MailboxPage() {
   const { cardsIn, markRead, removePostcard, togglePin, isPinned, toggleLike } = usePostcards();
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [box, setBox] = useState<Box>('inbox');
   const [toast, setToast] = useState(params.get('sent') === '1');
@@ -80,6 +81,13 @@ export function MailboxPage() {
                     title={card.liked ? 'Gefällt dir' : 'Gefällt mir'}
                   >
                     <Heart size={22} fill={card.liked ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
+                    className="btn ghost sm reply-btn"
+                    onClick={() => navigate(`/create?to=${encodeURIComponent(card.fromEmail ?? card.from)}`)}
+                    title={`${card.from} eine Karte zurückschicken`}
+                  >
+                    <Reply size={16} /> Antworten
                   </button>
                 </div>
               )}
