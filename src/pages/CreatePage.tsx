@@ -279,7 +279,13 @@ export function CreatePage() {
                   className={`filter-chip ${filterId === f.id ? 'sel' : ''}`}
                   onClick={() => setFilterId(f.id)}
                 >
-                  <span className="filter-swatch" style={{ filter: f.css }} />
+                  {/* Preview each filter on a mini thumbnail of the actual photo,
+                      so you see how it really looks. Falls back to a colourful
+                      swatch until a photo is chosen. */}
+                  <span
+                    className={`filter-swatch ${hasPhoto ? 'photo' : ''}`}
+                    style={hasPhoto ? { backgroundImage: `url(${image})`, filter: f.css } : { filter: f.css }}
+                  />
                   {f.name}
                 </button>
               ))}
