@@ -576,10 +576,46 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start;
   box-shadow: var(--shadow-sm);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-.landing-feature-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+.landing-feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #cfe9ed; }
+.landing-feature-icon {
+  font-size: 1.5rem; flex-shrink: 0;
+  width: 46px; height: 46px; display: grid; place-items: center;
+  background: #e9f8fa; border-radius: 14px;
+}
 .landing-feature strong { display: block; color: var(--teal-dark); font-size: .95rem; margin-bottom: 4px; }
 .landing-feature p { color: var(--muted); font-size: .85rem; margin: 0; line-height: 1.45; }
+
+/* Desktop: split the landing into a brand/features column and a sign-in column
+   instead of one tall, sparse centered stack. */
+@media (min-width: 900px) {
+  .landing-shell {
+    max-width: 1100px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "hero     auth"
+      "features auth"
+      "footer   footer";
+    column-gap: 64px; row-gap: 36px;
+    align-content: center;
+    padding: 56px 40px;
+  }
+  .landing-hero { grid-area: hero; text-align: left; align-items: flex-start; }
+  .landing-tagline { max-width: none; font-size: 1.2rem; }
+  .landing-wordmark { font-size: 3.2rem; }
+  .landing-features {
+    grid-area: features; width: 100%; align-self: start;
+    grid-template-columns: 1fr 1fr;
+  }
+  .landing-auth-card {
+    grid-area: auth; align-self: center; justify-self: center;
+    width: min(420px, 100%);
+  }
+  .landing-footer { grid-area: footer; margin-top: 0; }
+}
 
 .auth-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow-lg); padding: 32px 28px; width: min(400px, 100%);
