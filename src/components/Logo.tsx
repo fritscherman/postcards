@@ -15,7 +15,14 @@ export function Logo({ size = 48, title }: { size?: number; title?: string }) {
       aria-hidden={title ? undefined : true}
     >
       {title && <title>{title}</title>}
-      <rect width="180" height="180" rx="40" fill="#FFFFFF" stroke="#E7E0D4" strokeWidth="1.5" />
+      {/* Teal-green backdrop, matching the installed app icon (instead of plain white). */}
+      <defs>
+        <linearGradient id="logo-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#13869f" />
+          <stop offset="1" stopColor="#0b5563" />
+        </linearGradient>
+      </defs>
+      <rect width="180" height="180" rx="40" fill="url(#logo-bg)" />
       <g transform="rotate(-7 90 90)">
         <rect x="34" y="52" width="112" height="76" rx="9" fill="#F7F2E8" stroke="#16243B" strokeWidth="3" />
         {/* faint globe on left */}

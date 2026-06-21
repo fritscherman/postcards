@@ -33,6 +33,9 @@ export interface Postcard {
   image: string;
   templateId: string;
   stampId: string;
+  /** a self-made stamp (emoji + colour); travels with the card so the
+   *  recipient sees it even though it isn't in the shared STAMPS list */
+  customStamp?: Stamp;
   /** CSS filter applied to the photo, e.g. "grayscale(1)"; defaults to none */
   filter?: string;
   /** photo framing; defaults to landscape / centred when absent */
