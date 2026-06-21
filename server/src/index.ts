@@ -234,9 +234,26 @@ app.post('/api/postcards/:id/read', requireAuth, (req, res) => {
 app.post('/api/postcards/:id/like', requireAuth, (req, res) => {
   const me = currentUser(res);
   const liked = req.body.liked ? 1 : 0;
+
+  // Read the previous state + sender so we only notify on a fresh like (0 -> 1).
+  const card = db
+    .prepare('SELECT sender_id, liked FROM postcards WHERE id = ? AND recipient_id = ?')
+    .get(req.params.id, me.id) as { sender_id: string; liked: number } | undefined;
+  if (!card) return res.status(404).json({ error: 'Karte nicht gefunden.' });
+
   db.prepare('UPDATE postcards SET liked = ? WHERE id = ? AND recipient_id = ?')
     .run(liked, req.params.id, me.id);
   res.json({ ok: true, liked: !!liked });
+
+  // Tell the sender their card got some love — only on the rising edge, and
+  // never for self-sent cards. Fire-and-forget: never blocks the response.
+  if (liked && !card.liked && card.sender_id !== me.id) {
+    void notifyUser(card.sender_id, {
+      title: '❤️ Postkarte gefällt',
+      body: `${me.name} gefällt deine Postkarte.`,
+      url: '/mailbox',
+    });
+  }
 });
 
 // --- Create (or reuse) an invite link ---
