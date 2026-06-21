@@ -4,7 +4,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 // step-by-step install instructions — there's no single "install" gesture that
 // works everywhere, so we have to spell out the right one for each platform.
 export type InstallPlatform =
-  | 'ios' // iPhone / iPad (Safari share sheet → "Zum Home-Bildschirm")
+  | 'ios' // iPhone / iPad Safari (share sheet is at the BOTTOM → "Zum Home-Bildschirm")
+  | 'ios-chrome' // iPhone / iPad Chrome/Edge/Firefox (share sits at the TOP / in the ⋮ menu)
   | 'android' // Android Chrome/Samsung (usually a real prompt, else the menu)
   | 'desktop-chromium' // Chrome / Edge / Brave on a computer (address-bar icon)
   | 'desktop-safari' // Safari 17+ on a Mac ("Zum Dock hinzufügen")
@@ -26,7 +27,11 @@ function isIosSafari(): boolean {
 
 function detectPlatform(): InstallPlatform {
   const ua = navigator.userAgent;
-  if (isIosDevice()) return 'ios';
+  if (isIosDevice()) {
+    // All iOS browsers use WebKit and "Add to Home Screen", but Chrome/Edge/
+    // Firefox put the share button at the top (or in the ⋮ menu), not bottom.
+    return /CriOS|FxiOS|EdgiOS/.test(ua) ? 'ios-chrome' : 'ios';
+  }
   if (/Android/.test(ua)) return 'android';
   if (/Firefox\//.test(ua)) return 'desktop-firefox';
   if (/Edg\//.test(ua) || /OPR\//.test(ua) || /Chrome\//.test(ua) || /Chromium/.test(ua)) return 'desktop-chromium';

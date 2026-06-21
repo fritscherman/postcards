@@ -22,13 +22,23 @@ type Step = { icon: ReactNode; text: ReactNode };
 
 const GUIDES: Record<InstallPlatform, { device: string; intro?: ReactNode; steps: Step[]; note?: ReactNode }> = {
   ios: {
-    device: 'iPhone / iPad',
+    device: 'iPhone / iPad · Safari',
     intro: <>Das geht im Browser <strong>Safari</strong>. Falls du eine andere App offen hast, öffne diese Seite kurz in Safari.</>,
     steps: [
-      { icon: <Share size={22} />, text: <>Tippe unten in der Leiste auf das <strong>Teilen-Symbol</strong> – das Quadrat mit dem Pfeil nach oben.</> },
+      { icon: <Share size={22} />, text: <>Tippe <strong>unten in der Leiste</strong> auf das <strong>Teilen-Symbol</strong> – das Quadrat mit dem Pfeil nach oben.</> },
       { icon: <SquarePlus size={22} />, text: <>Wische im Menü etwas nach unten und tippe auf <strong>„Zum Home-Bildschirm"</strong>.</> },
       { icon: <Check size={22} />, text: <>Tippe oben rechts auf <strong>„Hinzufügen"</strong>. Fertig – das Wanderpost-Symbol liegt jetzt auf deinem Startbildschirm.</> },
     ],
+  },
+  'ios-chrome': {
+    device: 'iPhone / iPad · Chrome',
+    intro: <>In Chrome auf dem iPhone sitzt das Teilen-Symbol <strong>oben</strong>, nicht unten.</>,
+    steps: [
+      { icon: <Share size={22} />, text: <>Tippe <strong>oben rechts</strong> auf das <strong>Teilen-Symbol</strong> (Quadrat mit Pfeil nach oben). Siehst du es nicht, öffne zuerst das Menü mit den drei Punkten <strong>⋯</strong>.</> },
+      { icon: <SquarePlus size={22} />, text: <>Wähle im Menü <strong>„Zum Home-Bildschirm"</strong>.</> },
+      { icon: <Check size={22} />, text: <>Tippe auf <strong>„Hinzufügen"</strong>. Fertig – das Wanderpost-Symbol liegt jetzt auf deinem Startbildschirm.</> },
+    ],
+    note: <>Tipp: In <strong>Safari</strong> geht es genauso – dort findest du das Teilen-Symbol unten in der Leiste.</>,
   },
   android: {
     device: 'Android-Handy',
@@ -76,7 +86,8 @@ const GUIDES: Record<InstallPlatform, { device: string; intro?: ReactNode; steps
 
 // Offered as manual override buttons, in case our detection is wrong.
 const DEVICE_CHOICES: { key: InstallPlatform; label: string; icon: ReactNode }[] = [
-  { key: 'ios', label: 'iPhone / iPad', icon: <Smartphone size={16} /> },
+  { key: 'ios', label: 'iPhone · Safari', icon: <Smartphone size={16} /> },
+  { key: 'ios-chrome', label: 'iPhone · Chrome', icon: <Smartphone size={16} /> },
   { key: 'android', label: 'Android', icon: <Smartphone size={16} /> },
   { key: 'desktop-chromium', label: 'Chrome / Edge', icon: <Monitor size={16} /> },
   { key: 'desktop-safari', label: 'Mac · Safari', icon: <Monitor size={16} /> },
