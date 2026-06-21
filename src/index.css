@@ -688,6 +688,40 @@ textarea:focus, select:focus, .modal input:focus { outline: none; border-color: 
 .legal-body a { color: var(--teal-dark); font-weight: 600; }
 .legal-note { color: var(--muted); font-size: .88rem; margin-top: 22px; }
 
+/* ---------- Invite QR code ---------- */
+.invite-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 14px 0; }
+.invite-qr img { border-radius: 14px; background: #fff; padding: 10px; box-shadow: var(--shadow-sm); }
+.invite-qr-hint { font-size: .82rem; color: var(--muted); }
+
+/* ---------- Custom stamp maker ---------- */
+.stamp-chip.add-stamp {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--teal-dark); font-size: 2rem; line-height: 1;
+  border: 2px dashed var(--teal);
+}
+.stamp-chip.add-stamp:hover { transform: translateY(-3px); }
+
+.stamp-maker .stamp-maker-preview { display: flex; justify-content: center; margin: 6px 0 14px; }
+.stamp.big { width: 84px; height: 98px; font-size: 2.6rem; align-self: center;
+  display: flex; align-items: center; justify-content: center; border-color: var(--teal); }
+
+.stamp-maker .mini-label { display: block; margin: 14px 0 6px; }
+.emoji-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.emoji-pick {
+  aspect-ratio: 1; font-size: 1.4rem; border-radius: 10px; cursor: pointer;
+  border: 2px solid transparent; background: #fff; box-shadow: var(--shadow-sm);
+  transition: transform .12s ease, border-color .12s ease;
+}
+.emoji-pick:hover { transform: translateY(-2px); }
+.emoji-pick.sel { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.emoji-input { margin-top: 8px; width: 100%; text-align: center; font-size: 1.2rem; }
+
+.color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+.color-pick { aspect-ratio: 1; border-radius: 8px; cursor: pointer; border: 2px solid rgba(0,0,0,.08);
+  transition: transform .12s ease; }
+.color-pick:hover { transform: translateY(-2px); }
+.color-pick.sel { box-shadow: 0 0 0 3px var(--teal); border-color: #fff; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   .create-grid { grid-template-columns: 1fr; }

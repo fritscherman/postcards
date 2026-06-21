@@ -91,10 +91,41 @@ export const STAMPS: Stamp[] = [
   { id: 'star', name: 'Stern', emoji: '⭐', bg: '#fef3c7' },
 ];
 
+/** Emojis offered in the "make your own stamp" picker. */
+export const STAMP_EMOJIS = [
+  '❤️', '🌍', '🏔️', '🌲', '🏖️', '🏙️', '⭐', '🌸', '🌺', '🌈',
+  '☀️', '🌙', '⛵', '✈️', '🚲', '🐝', '🦋', '🐬', '🍀', '🎈',
+  '☕', '🍕', '🎉', '🎄', '⚽', '🎸', '📷', '🗺️',
+];
+
+/** Background colours offered for a self-made stamp. */
+export const STAMP_COLORS = [
+  '#fee2e2', '#ffe4c7', '#fef3c7', '#dcfce7', '#cffafe',
+  '#dbeafe', '#ede9fe', '#fce7f3', '#f5f5f4', '#e2e8f0',
+];
+
+export const CUSTOM_STAMP_ID = 'custom';
+
+/** Build a valid Stamp from a chosen emoji + background colour. */
+export function makeCustomStamp(emoji: string, bg: string): Stamp {
+  return {
+    id: CUSTOM_STAMP_ID,
+    name: 'Eigene',
+    emoji: emoji || '✨',
+    bg: bg || STAMP_COLORS[0],
+  };
+}
+
 export function templateById(id: string): Template {
   return TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0];
 }
 
 export function stampById(id: string): Stamp {
   return STAMPS.find((s) => s.id === id) ?? STAMPS[0];
+}
+
+/** Resolve the stamp shown on a card — a self-made one wins over the id. */
+export function resolveStamp(stampId: string, custom?: Stamp): Stamp {
+  if (custom && stampId === CUSTOM_STAMP_ID) return custom;
+  return stampById(stampId);
 }

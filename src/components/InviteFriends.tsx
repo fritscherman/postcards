@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 import { Check, Link2, MessageCircle, Share2 } from 'lucide-react';
 import { apiCreateInvite } from '../api/client';
 
@@ -6,6 +7,7 @@ const SHARE_TEXT = 'Ich schicke dir Postkarten über Wanderpost! Tritt mit diese
 
 export function InviteFriends({ onClose }: { onClose: () => void }) {
   const [link, setLink] = useState('');
+  const [qr, setQr] = useState('');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -19,6 +21,19 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
       active = false;
     };
   }, []);
+
+  // Render a scannable QR code of the link — handy when showing your phone to
+  // someone in person.
+  useEffect(() => {
+    if (!link) return;
+    let active = true;
+    QRCode.toDataURL(link, { width: 220, margin: 1, color: { dark: '#0b5563', light: '#ffffff' } })
+      .then((url) => active && setQr(url))
+      .catch(() => active && setQr(''));
+    return () => {
+      active = false;
+    };
+  }, [link]);
 
   const canShare = typeof navigator !== 'undefined' && !!navigator.share;
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT} ${link}`)}`;
@@ -54,6 +69,12 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <p>Teile diesen Link, damit Freund:innen beitreten und deine Postkarten empfangen können.</p>
+            {qr && (
+              <div className="invite-qr">
+                <img src={qr} alt="QR-Code zum Beitreten" width={180} height={180} />
+                <span className="invite-qr-hint">Zum Beitreten einfach scannen 📷</span>
+              </div>
+            )}
             <input readOnly value={link} onFocus={(e) => e.target.select()} />
 
             <div className="invite-actions">

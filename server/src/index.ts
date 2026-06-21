@@ -180,6 +180,15 @@ app.post('/api/postcards', requireAuth, (req, res) => {
     message: String(p.message ?? ''),
     templateId: String(p.templateId ?? 'classic'),
     stampId: String(p.stampId ?? 'heart'),
+    customStamp:
+      p.customStamp && typeof p.customStamp === 'object'
+        ? {
+            id: 'custom',
+            name: String(p.customStamp.name ?? 'Eigene'),
+            emoji: String(p.customStamp.emoji ?? '✨'),
+            bg: String(p.customStamp.bg ?? '#fef3c7'),
+          }
+        : undefined,
     filter: p.filter ?? 'none',
     orientation: p.orientation === 'portrait' ? 'portrait' : 'landscape',
     crop: p.crop ?? { zoom: 1, x: 50, y: 50 },

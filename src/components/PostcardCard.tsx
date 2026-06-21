@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Crop, Postcard } from '../types';
-import { stampById, templateById } from '../data/templates';
+import { resolveStamp, templateById } from '../data/templates';
 
 interface Props {
   card: Postcard;
@@ -40,7 +40,7 @@ function focalZoom(crop: Crop, fx: number, fy: number, nextZoom: number): Crop {
 export function PostcardCard({ card, flippable = true, onCardClick, editable = false, onCropChange }: Props) {
   const [flipped, setFlipped] = useState(false);
   const template = templateById(card.templateId);
-  const stamp = stampById(card.stampId);
+  const stamp = resolveStamp(card.stampId, card.customStamp);
   const orientation = card.orientation ?? 'landscape';
   const crop = card.crop ?? { zoom: 1, x: 50, y: 50 };
 

@@ -18,10 +18,12 @@ import { playWhoosh } from '../utils/sound';
 import { initials } from '../utils/initials';
 import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
+import { StampMaker } from '../components/StampMaker';
+import { CUSTOM_STAMP_ID } from '../data/templates';
 import { isOnline, ApiError, apiListFriends, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { GuestBanner } from '../components/GuestBanner';
-import type { Crop, GeoLocation, Orientation } from '../types';
+import type { Crop, GeoLocation, Orientation, Stamp } from '../types';
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -55,6 +57,8 @@ export function CreatePage() {
   const [crop, setCrop] = useState<Crop>({ zoom: 1, x: 50, y: 50 });
   const [templateId, setTemplateId] = useState(TEMPLATES[0].id);
   const [stampId, setStampId] = useState(STAMPS[0].id);
+  const [customStamp, setCustomStamp] = useState<Stamp | undefined>();
+  const [makingStamp, setMakingStamp] = useState(false);
   const [filterId, setFilterId] = useState(FILTERS[0].id);
   const [message, setMessage] = useState('');
   // Recipients are identified by email (online) or friend name (demo); supports many at once.
@@ -149,6 +153,7 @@ export function CreatePage() {
           crop,
           templateId,
           stampId,
+          customStamp: stampId === CUSTOM_STAMP_ID ? customStamp : undefined,
           filter: filterCss,
           message,
           to: nameFor(key),
@@ -176,6 +181,7 @@ export function CreatePage() {
     crop,
     templateId,
     stampId,
+    customStamp: stampId === CUSTOM_STAMP_ID ? customStamp : undefined,
     filter: filterCss,
     message,
     to: recipientLabel,
@@ -317,6 +323,24 @@ export function CreatePage() {
                   {s.emoji}
                 </button>
               ))}
+              {customStamp && (
+                <button
+                  className={`stamp-chip ${stampId === CUSTOM_STAMP_ID ? 'sel' : ''}`}
+                  style={{ background: customStamp.bg }}
+                  onClick={() => setStampId(CUSTOM_STAMP_ID)}
+                  onDoubleClick={() => setMakingStamp(true)}
+                  title="Eigene Briefmarke (Doppeltipp zum Ändern)"
+                >
+                  {customStamp.emoji}
+                </button>
+              )}
+              <button
+                className="stamp-chip add-stamp"
+                onClick={() => setMakingStamp(true)}
+                title="Eigene Briefmarke gestalten"
+              >
+                +
+              </button>
             </div>
           </div>
 
@@ -384,6 +408,18 @@ export function CreatePage() {
             setDecorating(false);
           }}
           onClose={() => setDecorating(false)}
+        />
+      )}
+
+      {makingStamp && (
+        <StampMaker
+          initial={customStamp}
+          onApply={(s) => {
+            setCustomStamp(s);
+            setStampId(CUSTOM_STAMP_ID);
+            setMakingStamp(false);
+          }}
+          onClose={() => setMakingStamp(false)}
         />
       )}
 
