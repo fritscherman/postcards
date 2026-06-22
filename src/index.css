@@ -32,7 +32,7 @@ body {
 
 /* Snappy taps on touch — removes the 300 ms delay and double-tap zoom on controls. */
 .btn, .chip, .tab, .nav-item, .seg-btn, .stamp-chip, .filter-chip, .emoji-btn,
-.swatch, .brush, .who, .photo-dropzone { touch-action: manipulation; user-select: none; }
+.swatch, .brush, .who, .photo-dropzone, .toast-action, .toast-close { touch-action: manipulation; user-select: none; }
 
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.1; }
 
