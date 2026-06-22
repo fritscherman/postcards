@@ -199,7 +199,6 @@ function ProfileModal({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && saveName()}
           aria-label="Dein Name"
-          autoFocus
         />
         {isAccount && email && <p className="field-hint">{email}</p>}
         {nameError && <p className="auth-error">{nameError}</p>}
