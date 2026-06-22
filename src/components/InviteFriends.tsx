@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Check, Link2, MessageCircle, Share2 } from 'lucide-react';
 import { apiCreateInvite } from '../api/client';
+import { useDialog } from '../hooks/useDialog';
 
 const SHARE_TEXT = 'Ich schicke dir Postkarten über Wanderpost! Tritt mit diesem Link bei:';
 
 export function InviteFriends({ onClose }: { onClose: () => void }) {
+  const ref = useDialog<HTMLDivElement>(onClose);
   const [link, setLink] = useState('');
   const [qr, setQr] = useState('');
   const [error, setError] = useState('');
@@ -60,7 +62,15 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Freunde einladen"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>Freunde einladen 💌</h3>
         {error ? (
           <p className="auth-error">{error}</p>

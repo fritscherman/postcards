@@ -5,6 +5,7 @@ import {
   STAMP_EMOJIS,
   makeCustomStamp,
 } from '../data/templates';
+import { useDialog } from '../hooks/useDialog';
 
 interface Props {
   /** the stamp currently being edited, if the user is tweaking an existing one */
@@ -16,6 +17,7 @@ interface Props {
 /** Little designer for a self-made stamp: pick an emoji (or type your own)
  *  and a background colour, with a live preview of the finished stamp. */
 export function StampMaker({ initial, onApply, onClose }: Props) {
+  const ref = useDialog<HTMLDivElement>(onClose);
   const [emoji, setEmoji] = useState(initial?.emoji ?? STAMP_EMOJIS[0]);
   const [bg, setBg] = useState(initial?.bg ?? STAMP_COLORS[2]);
 
@@ -23,7 +25,15 @@ export function StampMaker({ initial, onApply, onClose }: Props) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal stamp-maker" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal stamp-maker"
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Eigene Briefmarke gestalten"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>Eigene Briefmarke 🏷️</h3>
 
         <div className="stamp-maker-preview">

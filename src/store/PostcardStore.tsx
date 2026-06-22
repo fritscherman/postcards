@@ -44,6 +44,8 @@ interface StoreValue {
   /** Cards the user pinned to the board. */
   pinnedCards: Postcard[];
   removePostcard: (id: string) => void;
+  /** Re-insert a previously removed card (used by the undo toast). */
+  restorePostcard: (card: Postcard, pinned: boolean) => void;
   resetDemo: () => void;
   cardsIn: (box: Box) => Postcard[];
 }
@@ -267,6 +269,11 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const restorePostcard = useCallback((card: Postcard, pinned: boolean) => {
+    setPostcards((prev) => (prev.some((c) => c.id === card.id) ? prev : [card, ...prev]));
+    if (pinned) setPinned((prev) => new Set(prev).add(card.id));
+  }, []);
+
   const resetDemo = useCallback(() => {
     if (!local) {
       refresh();
@@ -299,10 +306,11 @@ export function PostcardProvider({ children }: { children: ReactNode }) {
       isPinned,
       pinnedCards,
       removePostcard,
+      restorePostcard,
       resetDemo,
       cardsIn,
     }),
-    [postcards, userName, setUserName, sendPostcard, markRead, toggleLike, movePin, togglePin, isPinned, pinnedCards, removePostcard, resetDemo, cardsIn],
+    [postcards, userName, setUserName, sendPostcard, markRead, toggleLike, movePin, togglePin, isPinned, pinnedCards, removePostcard, restorePostcard, resetDemo, cardsIn],
   );
 
   return <PostcardContext.Provider value={value}>{children}</PostcardContext.Provider>;

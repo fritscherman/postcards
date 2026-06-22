@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Logo } from './Logo';
 import { useInstall, type InstallPlatform } from './InstallContext';
+import { useDialog } from '../hooks/useDialog';
 
 // A friendly, picture-by-picture install guide aimed at less tech-savvy
 // visitors. There is no single "install" gesture that works in every browser,
@@ -95,6 +96,7 @@ const DEVICE_CHOICES: { key: InstallPlatform; label: string; icon: ReactNode }[]
 ];
 
 export function InstallGuide({ onClose }: { onClose: () => void }) {
+  const ref = useDialog<HTMLDivElement>(onClose);
   const { canPrompt, platform, promptInstall } = useInstall();
   // Let people pick another device if our guess looks wrong on their screen.
   const [chosen, setChosen] = useState<InstallPlatform | null>(null);
@@ -112,7 +114,15 @@ export function InstallGuide({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal install-guide" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal install-guide"
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Wanderpost installieren"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="install-guide-close" onClick={onClose} aria-label="Schließen">
           <X size={20} />
         </button>

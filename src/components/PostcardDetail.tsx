@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { useDialog } from '../hooks/useDialog';
 import type { Postcard } from '../types';
 
 interface Props {
@@ -15,6 +16,7 @@ export function PostcardDetail({ card, onClose }: Props) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
 
+  const dialogRef = useDialog<HTMLDivElement>(onClose);
   const stageRef = useRef<HTMLDivElement>(null);
   const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const last = useRef<{ x: number; y: number } | null>(null);
@@ -105,7 +107,15 @@ export function PostcardDetail({ card, onClose }: Props) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="detail detail-viewer" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="detail detail-viewer"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Postkarte ansehen"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="detail-close" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
         <div
           className="detail-photo zoomable"
