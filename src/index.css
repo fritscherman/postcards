@@ -535,13 +535,26 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
   display: grid; place-items: center; font-size: 1.7rem; transform: rotate(5deg); box-shadow: var(--shadow-md);
   border: 2px solid #fff; }
 
-/* Image-only viewer opened from the magnifier: full photo, free zoom + pan. */
-.detail-viewer { background: #111; width: min(640px, 100%); }
-.detail-photo.zoomable { overflow: hidden; background: #111; touch-action: none;
-  display: grid; place-items: center; max-height: 78vh; }
-.detail-photo.zoomable img { width: 100%; height: auto; max-height: 78vh; aspect-ratio: auto;
-  object-fit: contain; transform-origin: center center; user-select: none; touch-action: none;
-  transition: transform .05s linear; }
+/* Image-only viewer opened from the magnifier: full photo, free zoom + pan.
+   Gestures are owned by react-zoom-pan-pinch (the .zoomable wrapper). */
+.detail-viewer { background: #111; width: min(640px, 100%); position: relative; }
+.detail-photo.zoomable { width: 100% !important; height: auto !important;
+  aspect-ratio: 3 / 2; max-height: 80vh; background: #111; cursor: grab; }
+.detail-photo.zoomable:active { cursor: grabbing; }
+.detail-photo.zoomable .zoom-content { width: 100%; height: 100%; }
+.detail-photo.zoomable img { display: block; width: 100%; height: 100%;
+  object-fit: contain; user-select: none; -webkit-user-drag: none; }
+
+/* Floating zoom controls, lightbox-style. */
+.zoom-controls { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  z-index: 6; display: inline-flex; gap: 6px; padding: 6px;
+  background: rgba(0,0,0,.5); border-radius: 999px; backdrop-filter: blur(6px); }
+.zoom-controls button { width: 40px; height: 40px; display: inline-flex;
+  align-items: center; justify-content: center; border: none; border-radius: 50%;
+  background: rgba(255,255,255,.14); color: #fff; cursor: pointer;
+  transition: background .12s ease, transform .12s ease; }
+.zoom-controls button:hover { background: rgba(255,255,255,.28); }
+.zoom-controls button:active { transform: scale(.92); }
 .like-heart-btn { display: inline-flex; align-items: center; justify-content: center;
   width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
   background: rgba(255,255,255,.12); color: #fff; transition: transform .12s ease, color .12s ease, background .12s ease; }
