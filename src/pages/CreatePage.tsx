@@ -19,12 +19,14 @@ import { initials } from '../utils/initials';
 import { PostcardCard } from '../components/PostcardCard';
 import { PhotoDecorator } from '../components/PhotoDecorator';
 import { StampMaker } from '../components/StampMaker';
+import { CustomStampChip } from '../components/CustomStampChip';
 import { CUSTOM_STAMP_ID } from '../data/templates';
 import { isOnline, ApiError, apiListFriends, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { GuestBanner } from '../components/GuestBanner';
 import { useFeedback } from '../components/Feedback';
-import type { Crop, GeoLocation, Orientation, Stamp } from '../types';
+import { useCustomStamps } from '../hooks/useCustomStamps';
+import type { Crop, GeoLocation, Orientation } from '../types';
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -40,7 +42,8 @@ export function CreatePage() {
   const [params] = useSearchParams();
   const { sendPostcard, userName } = usePostcards();
   const { guest } = useAuth();
-  const { notify } = useFeedback();
+  const { notify, confirm } = useFeedback();
+  const { stamps: customStamps, addStamp, removeStamp } = useCustomStamps();
   // Guests (and the demo build) send locally; only real accounts reach the server.
   const localMode = !isOnline || guest;
   const fileRef = useRef<HTMLInputElement>(null);
@@ -58,8 +61,8 @@ export function CreatePage() {
   const [orientation, setOrientation] = useState<Orientation>('landscape');
   const [crop, setCrop] = useState<Crop>({ zoom: 1, x: 50, y: 50 });
   const [templateId, setTemplateId] = useState(TEMPLATES[0].id);
+  // Holds either a built-in stamp id or a saved custom stamp's own id.
   const [stampId, setStampId] = useState(STAMPS[0].id);
-  const [customStamp, setCustomStamp] = useState<Stamp | undefined>();
   const [makingStamp, setMakingStamp] = useState(false);
   const [filterId, setFilterId] = useState(FILTERS[0].id);
   const [message, setMessage] = useState('');
@@ -84,6 +87,14 @@ export function CreatePage() {
 
   const hasPhoto = image !== PLACEHOLDER;
   const filterCss = FILTERS.find((f) => f.id === filterId)?.css ?? 'none';
+  // A custom stamp is selected when stampId matches one of the saved stamps.
+  // The card always travels with stampId=CUSTOM_STAMP_ID + the stamp itself so
+  // the recipient can render it (its private id means nothing on their device).
+  const selectedCustom = customStamps.find((s) => s.id === stampId);
+  const sendStampId = selectedCustom ? CUSTOM_STAMP_ID : stampId;
+  const sendCustomStamp = selectedCustom
+    ? { ...selectedCustom, id: CUSTOM_STAMP_ID }
+    : undefined;
   const nameFor = (key: string) => options.find((o) => o.key === key)?.name ?? key;
   const recipientLabel =
     selected.length === 0
@@ -94,6 +105,19 @@ export function CreatePage() {
 
   function toggleRecipient(key: string) {
     setSelected((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+  }
+
+  async function handleRemoveStamp(id: string) {
+    const ok = await confirm({
+      title: 'Briefmarke entfernen?',
+      message: 'Diese eigene Briefmarke wird von diesem Gerät gelöscht.',
+      confirmLabel: 'Entfernen',
+      danger: true,
+    });
+    if (!ok) return;
+    removeStamp(id);
+    // If the removed stamp was selected, fall back to the first built-in one.
+    setStampId((prev) => (prev === id ? STAMPS[0].id : prev));
   }
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -154,8 +178,8 @@ export function CreatePage() {
           orientation,
           crop,
           templateId,
-          stampId,
-          customStamp: stampId === CUSTOM_STAMP_ID ? customStamp : undefined,
+          stampId: sendStampId,
+          customStamp: sendCustomStamp,
           filter: filterCss,
           message,
           to: nameFor(key),
@@ -184,8 +208,8 @@ export function CreatePage() {
     orientation,
     crop,
     templateId,
-    stampId,
-    customStamp: stampId === CUSTOM_STAMP_ID ? customStamp : undefined,
+    stampId: sendStampId,
+    customStamp: sendCustomStamp,
     filter: filterCss,
     message,
     to: recipientLabel,
@@ -327,17 +351,15 @@ export function CreatePage() {
                   {s.emoji}
                 </button>
               ))}
-              {customStamp && (
-                <button
-                  className={`stamp-chip ${stampId === CUSTOM_STAMP_ID ? 'sel' : ''}`}
-                  style={{ background: customStamp.bg }}
-                  onClick={() => setStampId(CUSTOM_STAMP_ID)}
-                  onDoubleClick={() => setMakingStamp(true)}
-                  title="Eigene Briefmarke (Doppeltipp zum Ändern)"
-                >
-                  {customStamp.emoji}
-                </button>
-              )}
+              {customStamps.map((s) => (
+                <CustomStampChip
+                  key={s.id}
+                  stamp={s}
+                  selected={stampId === s.id}
+                  onSelect={() => setStampId(s.id)}
+                  onRemove={() => handleRemoveStamp(s.id)}
+                />
+              ))}
               <button
                 className="stamp-chip add-stamp"
                 onClick={() => setMakingStamp(true)}
@@ -417,10 +439,9 @@ export function CreatePage() {
 
       {makingStamp && (
         <StampMaker
-          initial={customStamp}
           onApply={(s) => {
-            setCustomStamp(s);
-            setStampId(CUSTOM_STAMP_ID);
+            const saved = addStamp(s);
+            setStampId(saved.id);
             setMakingStamp(false);
           }}
           onClose={() => setMakingStamp(false)}
