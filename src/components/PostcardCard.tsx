@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Crop, Postcard } from '../types';
 import { resolveStamp, templateById } from '../data/templates';
@@ -124,14 +124,31 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
       : null;
   }
 
-  // Desktop: wheel / trackpad zooms toward the cursor.
-  function onWrapWheel(e: React.WheelEvent) {
-    if (!editable || !wrapRef.current) return;
-    const r = wrapRef.current.getBoundingClientRect();
-    const fx = (e.clientX - r.left) / r.width;
-    const fy = (e.clientY - r.top) / r.height;
-    onCropChange?.(focalZoom(crop, fx, fy, crop.zoom - e.deltaY * 0.0015 * crop.zoom));
-  }
+  // Desktop: wheel / trackpad zooms toward the cursor. The listener is attached
+  // natively (below) rather than via React's `onWheel`, because React registers
+  // its root wheel listener as *passive* — so a React handler cannot call
+  // preventDefault, and the browser scrolls the whole page while you zoom the
+  // photo. Latest crop/callback are read through refs so the listener, attached
+  // once, never goes stale.
+  const cropRef = useRef(crop);
+  cropRef.current = crop;
+  const onCropChangeRef = useRef(onCropChange);
+  onCropChangeRef.current = onCropChange;
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || !editable) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+      const fx = (e.clientX - r.left) / r.width;
+      const fy = (e.clientY - r.top) / r.height;
+      const c = cropRef.current;
+      onCropChangeRef.current?.(focalZoom(c, fx, fy, c.zoom - e.deltaY * 0.0015 * c.zoom));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [editable]);
 
   // Double-tap / double-click toggles between fit and a zoom on that spot.
   function onWrapDoubleClick(e: React.MouseEvent) {
@@ -175,7 +192,6 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
             onPointerMove={onWrapMove}
             onPointerUp={onWrapUp}
             onPointerCancel={onWrapUp}
-            onWheel={onWrapWheel}
             onDoubleClick={onWrapDoubleClick}
             onClick={(e) => editable && e.stopPropagation()}
           >
