@@ -101,7 +101,20 @@ function acceptInvite(token: string, userId: string): void {
   const inv = db.prepare('SELECT inviter_id FROM invites WHERE token = ?').get(token) as
     | { inviter_id: string }
     | undefined;
-  if (inv) addFriendship(inv.inviter_id, userId);
+  if (!inv) return;
+  const created = addFriendship(inv.inviter_id, userId);
+  // Only ping the inviter on a fresh connection (not on re-follows of the link).
+  if (!created || inv.inviter_id === userId) return;
+  const joiner = db.prepare('SELECT name FROM users WHERE id = ?').get(userId) as
+    | { name: string }
+    | undefined;
+  if (!joiner) return;
+  const iLang = userLang(inv.inviter_id);
+  void notifyUser(inv.inviter_id, {
+    title: tr(iLang, 'push.connected.title'),
+    body: tr(iLang, 'push.connected.body', { name: joiner.name }),
+    url: '/friends',
+  });
 }
 
 // --- Health check ---
@@ -486,9 +499,10 @@ app.post('/api/boards/:id/members', requireAuth, (req, res) => {
 
   const board = db.prepare('SELECT name FROM boards WHERE id = ?').get(boardId) as { name: string } | undefined;
   if (board) {
+    const fLang = userLang(friendId);
     void notifyUser(friendId, {
-      title: '📌 Geteilte Pinwand',
-      body: `${me.name} hat dich zur Pinwand „${board.name}" hinzugefügt.`,
+      title: tr(fLang, 'push.addedToBoard.title'),
+      body: tr(fLang, 'push.addedToBoard.body', { name: me.name, board: board.name }),
       url: '/pinboard',
     });
   }
