@@ -151,7 +151,9 @@
     "locExif": "Dai dati della foto",
     "locManual": "Luogo aggiunto",
     "toFront": "Al fronte",
-    "flip": "Gira la cartolina"
+    "flip": "Gira la cartolina",
+    "flipShort": "Gira",
+    "frontShort": "Fronte"
   },
   "mailbox": {
     "title": "Cassetta postale",

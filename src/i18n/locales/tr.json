@@ -151,7 +151,9 @@
     "locExif": "Fotoğraf verilerinden",
     "locManual": "Eklenen yer",
     "toFront": "Ön yüze",
-    "flip": "Kartı çevir"
+    "flip": "Kartı çevir",
+    "flipShort": "Çevir",
+    "frontShort": "Ön yüz"
   },
   "mailbox": {
     "title": "Posta kutusu",

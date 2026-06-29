@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RotateCw } from 'lucide-react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import type { Crop, Postcard } from '../types';
 import { resolveStamp, templateById } from '../data/templates';
@@ -181,10 +182,11 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
             e.stopPropagation();
             setFlipped((f) => !f);
           }}
-          title={flipped ? t('card.toFront') : t('card.flip')}
-          aria-label={t('card.flip')}
+          title={flipped ? t('card.toFront') : t('card.flipTitle')}
+          aria-label={flipped ? t('card.toFront') : t('card.flip')}
         >
-          ⟳
+          <RotateCw size={15} aria-hidden />
+          <span>{flipped ? t('card.frontShort') : t('card.flipShort')}</span>
         </button>
       )}
     </div>
