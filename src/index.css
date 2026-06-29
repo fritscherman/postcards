@@ -239,9 +239,16 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
 .postcard-front { display: flex; }
 .photo-wrap { position: relative; flex: 1; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
 .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-wrap.editable { cursor: zoom-in; touch-action: none; }
+.photo-wrap.editable { cursor: zoom-in; }
 .photo-wrap.editable.zoomed { cursor: grab; }
 .photo-wrap.editable.zoomed:active { cursor: grabbing; }
+/* The crop editor reuses react-zoom-pan-pinch (like the detail viewer). The
+   stage must fill the photo frame, and own every touch gesture so a pinch/drag
+   can never become a page scroll. */
+.photo-wrap.editable .crop-stage { width: 100% !important; height: 100% !important;
+  touch-action: none; overscroll-behavior: contain; }
+.photo-wrap.editable .crop-content { width: 100%; height: 100%; }
+.photo-wrap.editable .crop-stage img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .zoom-reset { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px;
   display: grid; place-items: center; border: none; border-radius: 999px; cursor: pointer;
   background: rgba(0,0,0,.5); color: #fff; font-size: 1.05rem; line-height: 1;
