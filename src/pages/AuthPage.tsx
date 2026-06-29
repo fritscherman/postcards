@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { Logo } from '../components/Logo';
 
@@ -11,10 +11,23 @@ const FEATURES = [
   { icon: '📌', titleKey: 'auth.feature4Title', descKey: 'auth.feature4Desc' },
 ];
 
-export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGuest?: () => void }) {
+export function AuthPage({
+  inviteToken,
+  shareToken,
+  onGuest,
+  header,
+}: {
+  inviteToken?: string;
+  /** when set, the visitor is registering to keep a postcard shared with them */
+  shareToken?: string;
+  onGuest?: () => void;
+  /** replaces the generic hero/features (used by the shared-card preview page) */
+  header?: ReactNode;
+}) {
   const { t } = useTranslation();
   const { login, register } = useAuth();
-  const [mode, setMode] = useState<'login' | 'register'>(inviteToken ? 'register' : 'login');
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<'login' | 'register'>(inviteToken || shareToken ? 'register' : 'login');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -26,8 +39,11 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
     setBusy(true);
     setError('');
     try {
-      if (mode === 'register') await register(email, name, password, inviteToken);
-      else await login(email, password, inviteToken);
+      const tokens = { inviteToken, shareToken };
+      if (mode === 'register') await register(email, name, password, tokens);
+      else await login(email, password, tokens);
+      // The card was just delivered server-side — land in the mailbox to see it.
+      if (shareToken) navigate('/mailbox');
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -37,38 +53,47 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
 
   return (
     <div className="landing-shell">
-      {/* Hero */}
-      <div className="landing-hero">
-        <div className="landing-logo-row">
-          <Logo size={64} title="Wanderpost" />
-          <span className="landing-wordmark">Wanderpost</span>
-        </div>
-        <p className="landing-tagline">{t('auth.tagline')}</p>
-        <span className="landing-free-badge">{t('auth.freeBadge')}</span>
-      </div>
-
-      {/* Features */}
-      <div className="landing-features">
-        {FEATURES.map((f) => (
-          <div key={f.titleKey} className="landing-feature">
-            <span className="landing-feature-icon">{f.icon}</span>
-            <div>
-              <strong>{t(f.titleKey)}</strong>
-              <p>{t(f.descKey)}</p>
+      {header ? (
+        // Shared-card preview replaces the generic hero/features.
+        header
+      ) : (
+        <>
+          {/* Hero */}
+          <div className="landing-hero">
+            <div className="landing-logo-row">
+              <Logo size={64} title="Wanderpost" />
+              <span className="landing-wordmark">Wanderpost</span>
             </div>
+            <p className="landing-tagline">{t('auth.tagline')}</p>
+            <span className="landing-free-badge">{t('auth.freeBadge')}</span>
           </div>
-        ))}
-      </div>
+
+          {/* Features */}
+          <div className="landing-features">
+            {FEATURES.map((f) => (
+              <div key={f.titleKey} className="landing-feature">
+                <span className="landing-feature-icon">{f.icon}</span>
+                <div>
+                  <strong>{t(f.titleKey)}</strong>
+                  <p>{t(f.descKey)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Auth card */}
       <div className="auth-card landing-auth-card">
-        {inviteToken && (
+        {shareToken ? (
           <p className="auth-invite">
-            {mode === 'register'
-              ? t('auth.inviteRegister')
-              : t('auth.inviteLogin')}
+            {mode === 'register' ? t('auth.shareRegister') : t('auth.shareLogin')}
           </p>
-        )}
+        ) : inviteToken ? (
+          <p className="auth-invite">
+            {mode === 'register' ? t('auth.inviteRegister') : t('auth.inviteLogin')}
+          </p>
+        ) : null}
         <p className="auth-sub">{mode === 'login' ? t('auth.welcomeBack') : t('auth.createYourAccount')}</p>
 
         <form onSubmit={submit} className="auth-form">

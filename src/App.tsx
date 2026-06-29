@@ -12,6 +12,7 @@ import { PWAPrompt } from './components/PWAPrompt';
 import { InstallButton } from './components/InstallButton';
 import { Welcome } from './components/Welcome';
 import { AuthPage } from './pages/AuthPage';
+import { SharedCardPage } from './pages/SharedCardPage';
 import { InviteFriends } from './components/InviteFriends';
 import { Logo } from './components/Logo';
 import { NotificationToggle } from './components/NotificationToggle';
@@ -50,6 +51,7 @@ export default function App() {
     return (
       <Routes>
         <Route path="/invite/:token" element={<InviteAuth onGuest={enterGuest} />} />
+        <Route path="/card/:token" element={<SharedCardPage onGuest={enterGuest} />} />
         <Route path="/impressum" element={<Impressum />} />
         <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="*" element={<AuthPage onGuest={enterGuest} />} />
@@ -100,6 +102,7 @@ export default function App() {
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/invite/:token" element={<Navigate to="/create" replace />} />
+          <Route path="/card/:token" element={<SharedCardPage />} />
           <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>
       </main>

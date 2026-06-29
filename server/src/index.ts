@@ -104,6 +104,53 @@ function acceptInvite(token: string, userId: string): void {
   if (inv) addFriendship(inv.inviter_id, userId);
 }
 
+// Normalise an untrusted postcard payload down to the fields we store, so the
+// same shape is produced whether a card is sent directly or shared by link.
+function buildPayload(p: any): string {
+  return JSON.stringify({
+    image: String(p?.image ?? ''),
+    message: String(p?.message ?? ''),
+    templateId: String(p?.templateId ?? 'classic'),
+    stampId: String(p?.stampId ?? 'heart'),
+    customStamp:
+      p?.customStamp && typeof p.customStamp === 'object'
+        ? {
+            id: 'custom',
+            name: String(p.customStamp.name ?? 'Eigene'),
+            emoji: String(p.customStamp.emoji ?? '✨'),
+            bg: String(p.customStamp.bg ?? '#fef3c7'),
+          }
+        : undefined,
+    filter: p?.filter ?? 'none',
+    orientation: p?.orientation === 'portrait' ? 'portrait' : 'landscape',
+    crop: p?.crop ?? { zoom: 1, x: 50, y: 50 },
+    location: p?.location ?? undefined,
+  });
+}
+
+// Claim a shared postcard link: deliver a copy of the card to `userId` and
+// befriend the sender. Guarded by share_claims so re-opening the same link
+// never delivers twice; a no-op for empty/unknown tokens and the sender's own
+// link. Returns true when a fresh copy was delivered.
+function claimShare(token: string, userId: string): boolean {
+  if (!token) return false;
+  const share = db.prepare('SELECT sender_id, payload FROM shares WHERE token = ?').get(token) as
+    | { sender_id: string; payload: string }
+    | undefined;
+  if (!share || share.sender_id === userId) return false;
+
+  // Record the claim first; if it already existed, this user already has the card.
+  const claimed = db
+    .prepare('INSERT OR IGNORE INTO share_claims (token, user_id, created_at) VALUES (?,?,?)')
+    .run(token, userId, Date.now());
+  if (claimed.changes === 0) return false;
+
+  addFriendship(share.sender_id, userId);
+  db.prepare('INSERT INTO postcards (id, sender_id, recipient_id, payload, read, created_at) VALUES (?,?,?,?,0,?)')
+    .run(randomUUID(), share.sender_id, userId, share.payload, Date.now());
+  return true;
+}
+
 // --- Health check ---
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
@@ -124,6 +171,7 @@ app.post('/api/register', (req, res) => {
     .run(id, email, name, hashPassword(password), langFromReq(req), Date.now());
 
   acceptInvite(String(req.body.inviteToken ?? ''), id);
+  claimShare(String(req.body.shareToken ?? ''), id);
 
   const user: TokenUser = { id, email, name };
   res.status(201).json({ token: signToken(user, JWT_SECRET!), user });
@@ -143,6 +191,8 @@ app.post('/api/login', (req, res) => {
 
   // An existing user who follows an invite link becomes the inviter's friend too.
   acceptInvite(String(req.body.inviteToken ?? ''), u.id);
+  // …and following a shared-card link delivers that card to their mailbox.
+  claimShare(String(req.body.shareToken ?? ''), u.id);
 
   const user: TokenUser = { id: u.id, email: u.email, name: u.name };
   res.json({ token: signToken(user, JWT_SECRET!), user });
@@ -207,26 +257,7 @@ app.post('/api/postcards', requireAuth, (req, res) => {
     return res.status(404).json({ error: 'Diese Person ist noch nicht dabei — lade sie zuerst ein.', code: 'NO_RECIPIENT' });
   }
 
-  const p = req.body.payload ?? {};
-  const payload = JSON.stringify({
-    image: String(p.image ?? ''),
-    message: String(p.message ?? ''),
-    templateId: String(p.templateId ?? 'classic'),
-    stampId: String(p.stampId ?? 'heart'),
-    customStamp:
-      p.customStamp && typeof p.customStamp === 'object'
-        ? {
-            id: 'custom',
-            name: String(p.customStamp.name ?? 'Eigene'),
-            emoji: String(p.customStamp.emoji ?? '✨'),
-            bg: String(p.customStamp.bg ?? '#fef3c7'),
-          }
-        : undefined,
-    filter: p.filter ?? 'none',
-    orientation: p.orientation === 'portrait' ? 'portrait' : 'landscape',
-    crop: p.crop ?? { zoom: 1, x: 50, y: 50 },
-    location: p.location ?? undefined,
-  });
+  const payload = buildPayload(req.body.payload ?? {});
 
   const id = randomUUID();
   db.prepare('INSERT INTO postcards (id, sender_id, recipient_id, payload, read, created_at) VALUES (?,?,?,?,0,?)')
@@ -321,6 +352,42 @@ app.post('/api/invites', requireAuth, async (req, res) => {
   const link = `${APP_URL}/invite/${token}`;
   const emailed = email ? await sendInviteEmail(email, me.name, link, userLang(me.id)) : false;
   res.status(201).json({ token, link, emailed });
+});
+
+// --- Share a postcard by public link ---
+// Stores the designed card and hands back a link anyone can open to preview it.
+// Registering / logging in through that link delivers the card and befriends us.
+app.post('/api/shares', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const payload = buildPayload(req.body.payload ?? {});
+  const token = randomUUID();
+  db.prepare('INSERT INTO shares (token, sender_id, payload, created_at) VALUES (?,?,?,?)')
+    .run(token, me.id, payload, Date.now());
+  const link = `${APP_URL}/card/${token}`;
+  res.status(201).json({ token, link });
+});
+
+// --- Public preview of a shared card (no auth) ---
+// Returns just enough to render the postcard and name its sender.
+app.get('/api/shares/:token', (req, res) => {
+  const row = db.prepare(
+    `SELECT s.payload, u.name AS from_name
+     FROM shares s JOIN users u ON u.id = s.sender_id
+     WHERE s.token = ?`,
+  ).get(req.params.token) as { payload: string; from_name: string } | undefined;
+  if (!row) return res.status(404).json({ error: 'Diese Karte gibt es nicht mehr.', code: 'SHARE_NOT_FOUND' });
+  res.json({ from: row.from_name, card: JSON.parse(row.payload) });
+});
+
+// --- Claim a shared card into my mailbox (already-signed-in users) ---
+app.post('/api/shares/:token/claim', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const share = db.prepare('SELECT sender_id FROM shares WHERE token = ?').get(req.params.token) as
+    | { sender_id: string }
+    | undefined;
+  if (!share) return res.status(404).json({ error: 'Diese Karte gibt es nicht mehr.', code: 'SHARE_NOT_FOUND' });
+  const delivered = claimShare(req.params.token, me.id);
+  res.json({ ok: true, delivered, mine: share.sender_id === me.id });
 });
 
 // --- List friends ---

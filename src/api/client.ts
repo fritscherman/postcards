@@ -63,10 +63,10 @@ async function api<T>(
   return data as T;
 }
 
-export const apiRegister = (b: { email: string; name: string; password: string; inviteToken?: string }) =>
+export const apiRegister = (b: { email: string; name: string; password: string; inviteToken?: string; shareToken?: string }) =>
   api<{ token: string; user: AuthUser }>('/api/register', 'POST', b);
 
-export const apiLogin = (b: { email: string; password: string; inviteToken?: string }) =>
+export const apiLogin = (b: { email: string; password: string; inviteToken?: string; shareToken?: string }) =>
   api<{ token: string; user: AuthUser }>('/api/login', 'POST', b);
 
 export const apiMe = () => api<{ user: AuthUser }>('/api/me');
@@ -87,6 +87,31 @@ export const apiSetLike = (id: string, liked: boolean) =>
 
 export const apiCreateInvite = (b: { email?: string }) =>
   api<{ token: string; link: string; emailed: boolean }>('/api/invites', 'POST', b);
+
+/** A postcard payload as carried by a public share link. */
+export interface SharedCard {
+  image: string;
+  message: string;
+  templateId: string;
+  stampId: string;
+  customStamp?: { id: string; name: string; emoji: string; bg: string };
+  filter?: string;
+  orientation?: 'landscape' | 'portrait';
+  crop?: { zoom: number; x: number; y: number };
+  location?: { lat: number; lng: number; label?: string; source?: 'exif' | 'manual' };
+}
+
+/** Create a public link to the designed card so an unregistered friend can see it. */
+export const apiCreateShare = (payload: SharedCard) =>
+  api<{ token: string; link: string }>('/api/shares', 'POST', { payload });
+
+/** Public preview of a shared card — no auth required. */
+export const apiGetShare = (token: string) =>
+  api<{ from: string; card: SharedCard }>(`/api/shares/${token}`);
+
+/** Deliver a shared card into the signed-in user's mailbox. */
+export const apiClaimShare = (token: string) =>
+  api<{ ok: boolean; delivered: boolean; mine: boolean }>(`/api/shares/${token}/claim`, 'POST');
 
 export const apiListFriends = () => api<{ friends: AuthUser[] }>('/api/friends');
 

@@ -32,7 +32,8 @@
     "PICK_TWO_FRIENDS": "Scegli due amici diversi.",
     "ONLY_OWN_FRIENDS": "Puoi presentare solo i tuoi amici.",
     "NOT_FOUND": "Non trovato.",
-    "SERVER_ERROR": "Si è verificato un errore del server."
+    "SERVER_ERROR": "Si è verificato un errore del server.",
+    "SHARE_NOT_FOUND": "Questa cartolina non è più disponibile."
   },
   "app": {
     "invite": "Invita",
@@ -102,7 +103,12 @@
     "errNeedPhoto": "Scegli prima una foto. 📷",
     "errNeedRecipient": "Seleziona almeno un destinatario.",
     "errNoRecipient": "Questa persona non c'è ancora. Invitala con il pulsante «💌 Invita» qui sopra.",
-    "errSendFailed": "Invio non riuscito: {{error}}"
+    "errSendFailed": "Invio non riuscito: {{error}}",
+    "shareNew": "Condividi link",
+    "sharing": "Creazione link…",
+    "shareNewTitle": "Condividi la cartolina via link con chi non è ancora su Wanderpost",
+    "shareHint": "Oppure condividi la cartolina via link — anche con amici che non ci sono ancora. Vedranno la cartolina subito e potranno registrarsi per rispondere.",
+    "errShareFailed": "Condivisione non riuscita: {{error}}"
   },
   "templates": {
     "classic": "Classico",
@@ -229,7 +235,9 @@
     "switchToRegister": "Non hai ancora un account? Registrati",
     "switchToLogin": "Sei già dei nostri? Accedi",
     "or": "oppure",
-    "tryGuest": "Prova prima senza account →"
+    "tryGuest": "Prova prima senza account →",
+    "shareRegister": "Registrati per conservare questa cartolina e rispondere.",
+    "shareLogin": "Accedi per conservare questa cartolina nella tua cassetta."
   },
   "welcome": {
     "aria": "Benvenuto su Wanderpost",
@@ -436,5 +444,17 @@
     "memberAdded": "{{name}} è stato aggiunto 📌",
     "adding": "Aggiunta…",
     "add": "Aggiungi"
+  },
+  "shareCard": {
+    "aria": "Condividi cartolina",
+    "heading": "Condividi cartolina 💌",
+    "body": "Invia questo link alla persona che vuoi raggiungere. Vedrà la cartolina subito e potrà registrarsi entrando per conservarla e risponderti.",
+    "shareText": "Ti ho mandato una cartolina su Wanderpost! Guarda qui:",
+    "greeting": "{{name}} ti ha mandato una cartolina!",
+    "previewFlipHint": "⟳ Tocca per girare la cartolina",
+    "goneTitle": "Cartolina non trovata",
+    "youLabel": "Te",
+    "signedInBody": "Metti la cartolina nella tua cassetta, {{name}}.",
+    "keepCard": "Salva nella mia cassetta"
   }
 }

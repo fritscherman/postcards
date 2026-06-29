@@ -32,7 +32,8 @@
     "PICK_TWO_FRIENDS": "Choisis deux ami(e)s différent(e)s.",
     "ONLY_OWN_FRIENDS": "Tu ne peux présenter que tes propres ami(e)s.",
     "NOT_FOUND": "Introuvable.",
-    "SERVER_ERROR": "Une erreur de serveur s’est produite."
+    "SERVER_ERROR": "Une erreur de serveur s’est produite.",
+    "SHARE_NOT_FOUND": "Cette carte n'est plus disponible."
   },
   "app": {
     "invite": "Inviter",
@@ -102,7 +103,12 @@
     "errSendFailed": "Échec de l'envoi : {{error}}",
     "removeStampTitle": "Retirer le timbre ?",
     "removeStampMessage": "Ce timbre personnalisé sera supprimé de cet appareil.",
-    "removeStampConfirm": "Retirer"
+    "removeStampConfirm": "Retirer",
+    "shareNew": "Partager le lien",
+    "sharing": "Création du lien…",
+    "shareNewTitle": "Partager la carte par lien avec quelqu'un qui n'est pas encore sur Wanderpost",
+    "shareHint": "Ou partage la carte par lien — même avec des ami·e·s qui ne sont pas encore là. Ils voient la carte aussitôt et peuvent s'inscrire pour répondre.",
+    "errShareFailed": "Échec du partage : {{error}}"
   },
   "templates": {
     "classic": "Classique",
@@ -229,7 +235,9 @@
     "switchToRegister": "Pas encore de compte ? S'inscrire",
     "switchToLogin": "Déjà inscrit·e ? Se connecter",
     "or": "ou",
-    "tryGuest": "Essayer d'abord sans compte →"
+    "tryGuest": "Essayer d'abord sans compte →",
+    "shareRegister": "Inscris-toi pour garder cette carte et répondre.",
+    "shareLogin": "Connecte-toi pour garder cette carte dans ta boîte aux lettres."
   },
   "welcome": {
     "aria": "Bienvenue sur Wanderpost",
@@ -436,5 +444,17 @@
     "memberAdded": "{{name}} a été ajouté·e 📌",
     "adding": "Ajout…",
     "add": "Ajouter"
+  },
+  "shareCard": {
+    "aria": "Partager la carte postale",
+    "heading": "Partager la carte 💌",
+    "body": "Envoie ce lien à la personne que tu veux joindre. Elle verra la carte tout de suite et pourra s'inscrire en rejoignant pour la garder et te répondre.",
+    "shareText": "Je t'ai envoyé une carte postale sur Wanderpost ! Regarde ici :",
+    "greeting": "{{name}} t'a envoyé une carte postale !",
+    "previewFlipHint": "⟳ Touche pour retourner la carte",
+    "goneTitle": "Carte introuvable",
+    "youLabel": "Toi",
+    "signedInBody": "Range la carte dans ta boîte aux lettres, {{name}}.",
+    "keepCard": "Garder dans ma boîte"
   }
 }

@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import QRCode from 'qrcode';
-import { Check, Link2, MessageCircle, Share2 } from 'lucide-react';
 import { apiCreateInvite } from '../api/client';
 import { useDialog } from '../hooks/useDialog';
+import { ShareLinkBox } from './ShareLinkBox';
 
 export function InviteFriends({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
-  const SHARE_TEXT = t('invite.shareText');
   const ref = useDialog<HTMLDivElement>(onClose);
   const [link, setLink] = useState('');
-  const [qr, setQr] = useState('');
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
 
   // Generate the invite link as soon as the dialog opens.
   useEffect(() => {
@@ -24,42 +20,6 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
       active = false;
     };
   }, []);
-
-  // Render a scannable QR code of the link — handy when showing your phone to
-  // someone in person.
-  useEffect(() => {
-    if (!link) return;
-    let active = true;
-    QRCode.toDataURL(link, { width: 220, margin: 1, color: { dark: '#0b5563', light: '#ffffff' } })
-      .then((url) => active && setQr(url))
-      .catch(() => active && setQr(''));
-    return () => {
-      active = false;
-    };
-  }, [link]);
-
-  const canShare = typeof navigator !== 'undefined' && !!navigator.share;
-  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT} ${link}`)}`;
-
-  async function share() {
-    if (!link) return;
-    try {
-      await navigator.share({ title: 'Wanderpost', text: SHARE_TEXT, url: link });
-    } catch {
-      /* user cancelled or sharing unavailable */
-    }
-  }
-
-  async function copy() {
-    if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      /* clipboard may be unavailable */
-    }
-  }
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -80,27 +40,7 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <p>{t('invite.body')}</p>
-            {qr && (
-              <div className="invite-qr">
-                <img src={qr} alt={t('invite.qrAlt')} width={180} height={180} />
-                <span className="invite-qr-hint">{t('invite.qrHint')}</span>
-              </div>
-            )}
-            <input readOnly value={link} onFocus={(e) => e.target.select()} />
-
-            <div className="invite-actions">
-              {canShare && (
-                <button className="btn primary" onClick={share}>
-                  <Share2 size={16} /> {t('invite.share')}
-                </button>
-              )}
-              <a className="btn ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                <MessageCircle size={16} /> WhatsApp
-              </a>
-              <button className="btn ghost" onClick={copy}>
-                {copied ? <><Check size={16} /> {t('invite.copied')}</> : <><Link2 size={16} /> {t('invite.copyLink')}</>}
-              </button>
-            </div>
+            <ShareLinkBox link={link} shareText={t('invite.shareText')} />
           </>
         )}
         <button className="btn link" onClick={onClose}>{t('common.close')}</button>

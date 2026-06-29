@@ -90,6 +90,26 @@ raw.exec(`
     UNIQUE (board_id, postcard_id)
   );
   CREATE INDEX IF NOT EXISTS idx_board_cards_board ON board_cards(board_id);
+
+  -- A postcard shared via a public link, before it has a registered recipient.
+  -- Anyone who opens the link can preview the card; registering / logging in
+  -- through it delivers a copy to their mailbox and befriends the sender.
+  CREATE TABLE IF NOT EXISTS shares (
+    token      TEXT PRIMARY KEY,
+    sender_id  TEXT NOT NULL REFERENCES users(id),
+    payload    TEXT NOT NULL,        -- JSON, same shape as postcards.payload
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_shares_sender ON shares(sender_id);
+
+  -- Who has already claimed a shared link, so re-opening it doesn't deliver the
+  -- same card twice. One row per (link, user).
+  CREATE TABLE IF NOT EXISTS share_claims (
+    token      TEXT NOT NULL REFERENCES shares(token),
+    user_id    TEXT NOT NULL REFERENCES users(id),
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (token, user_id)
+  );
 `);
 
 // Add the `liked` column to postcard tables created before it existed.
