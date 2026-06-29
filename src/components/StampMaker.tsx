@@ -8,18 +8,18 @@ import {
 import { useDialog } from '../hooks/useDialog';
 
 interface Props {
-  /** the stamp currently being edited, if the user is tweaking an existing one */
-  initial?: Stamp;
   onApply: (stamp: Stamp) => void;
   onClose: () => void;
 }
 
 /** Little designer for a self-made stamp: pick an emoji (or type your own)
- *  and a background colour, with a live preview of the finished stamp. */
-export function StampMaker({ initial, onApply, onClose }: Props) {
+ *  and a background colour, with a live preview of the finished stamp.
+ *  Always opens blank so the emoji field shows its "eigenes Emoji" hint
+ *  rather than the previously chosen one. */
+export function StampMaker({ onApply, onClose }: Props) {
   const ref = useDialog<HTMLDivElement>(onClose);
-  const [emoji, setEmoji] = useState(initial?.emoji ?? STAMP_EMOJIS[0]);
-  const [bg, setBg] = useState(initial?.bg ?? STAMP_COLORS[2]);
+  const [emoji, setEmoji] = useState('');
+  const [bg, setBg] = useState(STAMP_COLORS[2]);
 
   const preview = makeCustomStamp(emoji, bg);
 
