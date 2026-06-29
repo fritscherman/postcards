@@ -62,7 +62,6 @@ export default function App() {
       <header className="app-bar">
         <span className="logo"><Logo size={36} /> Wanderpost</span>
         <div className="app-bar-actions">
-          <LanguageSwitcher />
           <InstallButton />
           {isOnline && user && <NotificationToggle />}
           {isOnline && user && (
@@ -207,6 +206,7 @@ function ProfileModal({
         />
         {isAccount && email && <p className="field-hint">{email}</p>}
         {nameError && <p className="auth-error">{nameError}</p>}
+        <LanguageSwitcher />
         <button className="btn primary" onClick={saveName} disabled={saving}>
           {saving ? t('common.saving') : t('common.save')}
         </button>
