@@ -17,6 +17,23 @@
   "errors": {
     "generic": "Quelque chose s'est mal passé."
   },
+  "serverErrors": {
+    "NOT_AUTHENTICATED": "Non connecté.",
+    "INVALID_EMAIL": "Adresse e-mail invalide.",
+    "NAME_REQUIRED": "Saisis un nom.",
+    "PASSWORD_TOO_SHORT": "Le mot de passe doit comporter au moins 6 caractères.",
+    "EMAIL_TAKEN": "Cet e-mail est déjà enregistré.",
+    "INVALID_CREDENTIALS": "E-mail ou mot de passe incorrect.",
+    "NAME_TOO_LONG": "Ce nom est trop long.",
+    "RECIPIENT_EMAIL_REQUIRED": "Saisis l’e-mail du destinataire.",
+    "NO_RECIPIENT": "Cette personne n’est pas encore là — invite-la d’abord.",
+    "INVALID_SUBSCRIPTION": "Abonnement invalide.",
+    "CARD_NOT_FOUND": "Carte postale introuvable.",
+    "PICK_TWO_FRIENDS": "Choisis deux ami(e)s différent(e)s.",
+    "ONLY_OWN_FRIENDS": "Tu ne peux présenter que tes propres ami(e)s.",
+    "NOT_FOUND": "Introuvable.",
+    "SERVER_ERROR": "Une erreur de serveur s’est produite."
+  },
   "app": {
     "invite": "Inviter",
     "inviteTitle": "Inviter des amis",

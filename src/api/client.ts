@@ -41,12 +41,21 @@ async function api<T>(path: string, method: 'GET' | 'POST' = 'GET', body?: unkno
     method,
     headers: {
       'Content-Type': 'application/json',
+      // Tell the server our language so it can localise push/email it sends us.
+      'X-Lang': (i18n.language || 'en').split('-')[0],
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(data.error ?? i18n.t('errors.generic'), res.status, data.code);
+  if (!res.ok) {
+    // Prefer a stable error code translated into the current UI language; fall
+    // back to the server's own message, then a generic one.
+    const message = data.code
+      ? i18n.t(`serverErrors.${data.code}`, { defaultValue: data.error ?? i18n.t('errors.generic') })
+      : data.error ?? i18n.t('errors.generic');
+    throw new ApiError(message, res.status, data.code);
+  }
   return data as T;
 }
 

@@ -17,6 +17,23 @@
   "errors": {
     "generic": "Bir şeyler ters gitti."
   },
+  "serverErrors": {
+    "NOT_AUTHENTICATED": "Giriş yapılmadı.",
+    "INVALID_EMAIL": "Geçersiz e-posta adresi.",
+    "NAME_REQUIRED": "Lütfen bir ad gir.",
+    "PASSWORD_TOO_SHORT": "Şifre en az 6 karakter olmalı.",
+    "EMAIL_TAKEN": "Bu e-posta zaten kayıtlı.",
+    "INVALID_CREDENTIALS": "E-posta veya şifre yanlış.",
+    "NAME_TOO_LONG": "Bu ad çok uzun.",
+    "RECIPIENT_EMAIL_REQUIRED": "Lütfen alıcının e-postasını gir.",
+    "NO_RECIPIENT": "Bu kişi henüz burada değil — önce onu davet et.",
+    "INVALID_SUBSCRIPTION": "Geçersiz abonelik.",
+    "CARD_NOT_FOUND": "Kartpostal bulunamadı.",
+    "PICK_TWO_FRIENDS": "İki farklı arkadaş seç.",
+    "ONLY_OWN_FRIENDS": "Yalnızca kendi arkadaşlarını tanıştırabilirsin.",
+    "NOT_FOUND": "Bulunamadı.",
+    "SERVER_ERROR": "Bir sunucu hatası oluştu."
+  },
   "app": {
     "invite": "Davet et",
     "inviteTitle": "Arkadaşlarını davet et",

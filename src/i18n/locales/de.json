@@ -17,6 +17,23 @@
   "errors": {
     "generic": "Etwas ist schiefgelaufen."
   },
+  "serverErrors": {
+    "NOT_AUTHENTICATED": "Nicht angemeldet.",
+    "INVALID_EMAIL": "Ungültige E-Mail-Adresse.",
+    "NAME_REQUIRED": "Bitte gib einen Namen an.",
+    "PASSWORD_TOO_SHORT": "Passwort braucht mindestens 6 Zeichen.",
+    "EMAIL_TAKEN": "Diese E-Mail ist bereits registriert.",
+    "INVALID_CREDENTIALS": "E-Mail oder Passwort ist falsch.",
+    "NAME_TOO_LONG": "Der Name ist zu lang.",
+    "RECIPIENT_EMAIL_REQUIRED": "Bitte gib die E-Mail des Empfängers an.",
+    "NO_RECIPIENT": "Diese Person ist noch nicht dabei — lade sie zuerst ein.",
+    "INVALID_SUBSCRIPTION": "Ungültiges Abo.",
+    "CARD_NOT_FOUND": "Karte nicht gefunden.",
+    "PICK_TWO_FRIENDS": "Wähle zwei verschiedene Freund:innen aus.",
+    "ONLY_OWN_FRIENDS": "Du kannst nur eigene Freund:innen miteinander bekannt machen.",
+    "NOT_FOUND": "Nicht gefunden.",
+    "SERVER_ERROR": "Es ist ein Serverfehler aufgetreten."
+  },
   "app": {
     "invite": "Einladen",
     "inviteTitle": "Freunde einladen",

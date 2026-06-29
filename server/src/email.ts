@@ -1,8 +1,16 @@
 import nodemailer from 'nodemailer';
+import { t, type Lang } from './i18n';
 
 // Sends an invite email via SMTP when SMTP_HOST is configured; otherwise the
-// caller falls back to just returning the shareable link.
-export async function sendInviteEmail(to: string, inviter: string, link: string): Promise<boolean> {
+// caller falls back to just returning the shareable link. The wording is
+// localised in `lang` (the inviter's language — the closest signal we have for
+// what the invitee will understand).
+export async function sendInviteEmail(
+  to: string,
+  inviter: string,
+  link: string,
+  lang: Lang,
+): Promise<boolean> {
   const host = process.env.SMTP_HOST;
   if (!host) return false;
 
@@ -17,10 +25,10 @@ export async function sendInviteEmail(to: string, inviter: string, link: string)
     await transport.sendMail({
       from: process.env.INVITE_FROM ?? process.env.SMTP_USER,
       to,
-      subject: `${inviter} lädt dich zu Postkarten ein ✉️`,
-      html: `<p>${inviter} möchte dir virtuelle Postkarten schicken.</p>
-             <p><a href="${link}">Jetzt beitreten</a></p>
-             <p>Oder kopiere diesen Link: ${link}</p>`,
+      subject: t(lang, 'email.invite.subject', { inviter }),
+      html: `<p>${t(lang, 'email.invite.intro', { inviter })}</p>
+             <p><a href="${link}">${t(lang, 'email.invite.join')}</a></p>
+             <p>${t(lang, 'email.invite.copy', { link })}</p>`,
     });
     return true;
   } catch (err) {

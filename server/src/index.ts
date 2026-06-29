@@ -8,6 +8,7 @@ import { db } from './db';
 import { hashPassword, signToken, verifyPassword, verifyToken, type TokenUser } from './auth';
 import { sendInviteEmail } from './email';
 import { notifyUser, publicKey, removeSubscription, saveSubscription } from './push';
+import { normLang, t as tr, type Lang } from './i18n';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -26,6 +27,16 @@ app.use(cors({ origin: origins.includes('*') ? true : origins }));
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const normEmail = (e: string) => e.trim().toLowerCase();
 
+// The caller's UI language, taken from the X-Lang header the frontend sends on
+// every request. Used to localise outgoing push/email in the recipient's tongue.
+const langFromReq = (req: Request): Lang => normLang(req.headers['x-lang']);
+
+// A user's stored language (falls back to the supported default when unset).
+function userLang(id: string): Lang {
+  const row = db.prepare('SELECT lang FROM users WHERE id = ?').get(id) as { lang?: string } | undefined;
+  return normLang(row?.lang);
+}
+
 interface UserRow {
   id: string;
   email: string;
@@ -39,8 +50,12 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
   const user = token ? verifyToken(token, JWT_SECRET!) : null;
-  if (!user) return res.status(401).json({ error: 'Nicht angemeldet.' });
+  if (!user) return res.status(401).json({ error: 'Nicht angemeldet.', code: 'NOT_AUTHENTICATED' });
   res.locals.user = user;
+  // Keep the user's language current so push/email reach them in the right tongue.
+  // Single conditional write — a no-op when nothing changed.
+  db.prepare('UPDATE users SET lang = ? WHERE id = ? AND (lang IS NULL OR lang != ?)')
+    .run(langFromReq(req), user.id, langFromReq(req));
   next();
 }
 const currentUser = (res: Response): TokenUser => res.locals.user;
@@ -82,16 +97,16 @@ app.post('/api/register', (req, res) => {
   const email = normEmail(String(req.body.email ?? ''));
   const name = String(req.body.name ?? '').trim();
   const password = String(req.body.password ?? '');
-  if (!emailRe.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
-  if (name.length < 2) return res.status(400).json({ error: 'Bitte gib einen Namen an.' });
-  if (password.length < 6) return res.status(400).json({ error: 'Passwort braucht mindestens 6 Zeichen.' });
+  if (!emailRe.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.', code: 'INVALID_EMAIL' });
+  if (name.length < 2) return res.status(400).json({ error: 'Bitte gib einen Namen an.', code: 'NAME_REQUIRED' });
+  if (password.length < 6) return res.status(400).json({ error: 'Passwort braucht mindestens 6 Zeichen.', code: 'PASSWORD_TOO_SHORT' });
 
   const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-  if (exists) return res.status(409).json({ error: 'Diese E-Mail ist bereits registriert.' });
+  if (exists) return res.status(409).json({ error: 'Diese E-Mail ist bereits registriert.', code: 'EMAIL_TAKEN' });
 
   const id = randomUUID();
-  db.prepare('INSERT INTO users (id, email, name, pw, created_at) VALUES (?,?,?,?,?)')
-    .run(id, email, name, hashPassword(password), Date.now());
+  db.prepare('INSERT INTO users (id, email, name, pw, lang, created_at) VALUES (?,?,?,?,?,?)')
+    .run(id, email, name, hashPassword(password), langFromReq(req), Date.now());
 
   acceptInvite(String(req.body.inviteToken ?? ''), id);
 
@@ -105,8 +120,11 @@ app.post('/api/login', (req, res) => {
   const password = String(req.body.password ?? '');
   const u = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as UserRow | undefined;
   if (!u || !verifyPassword(password, u.pw)) {
-    return res.status(401).json({ error: 'E-Mail oder Passwort ist falsch.' });
+    return res.status(401).json({ error: 'E-Mail oder Passwort ist falsch.', code: 'INVALID_CREDENTIALS' });
   }
+
+  // Refresh the stored language from the current session.
+  db.prepare('UPDATE users SET lang = ? WHERE id = ?').run(langFromReq(req), u.id);
 
   // An existing user who follows an invite link becomes the inviter's friend too.
   acceptInvite(String(req.body.inviteToken ?? ''), u.id);
@@ -126,8 +144,8 @@ app.get('/api/me', requireAuth, (_req, res) => {
 app.post('/api/me', requireAuth, (req, res) => {
   const me = currentUser(res);
   const name = String(req.body.name ?? '').trim();
-  if (name.length < 2) return res.status(400).json({ error: 'Bitte gib einen Namen an.' });
-  if (name.length > 60) return res.status(400).json({ error: 'Der Name ist zu lang.' });
+  if (name.length < 2) return res.status(400).json({ error: 'Bitte gib einen Namen an.', code: 'NAME_REQUIRED' });
+  if (name.length > 60) return res.status(400).json({ error: 'Der Name ist zu lang.', code: 'NAME_TOO_LONG' });
 
   db.prepare('UPDATE users SET name = ? WHERE id = ?').run(name, me.id);
 
@@ -167,7 +185,7 @@ app.get('/api/postcards', requireAuth, (_req, res) => {
 app.post('/api/postcards', requireAuth, (req, res) => {
   const me = currentUser(res);
   const toEmail = normEmail(String(req.body.toEmail ?? ''));
-  if (!emailRe.test(toEmail)) return res.status(400).json({ error: 'Bitte gib die E-Mail des Empfängers an.' });
+  if (!emailRe.test(toEmail)) return res.status(400).json({ error: 'Bitte gib die E-Mail des Empfängers an.', code: 'RECIPIENT_EMAIL_REQUIRED' });
 
   const recipient = db.prepare('SELECT * FROM users WHERE email = ?').get(toEmail) as UserRow | undefined;
   if (!recipient) {
@@ -204,9 +222,10 @@ app.post('/api/postcards', requireAuth, (req, res) => {
   const unread = db
     .prepare('SELECT COUNT(*) AS n FROM postcards WHERE recipient_id = ? AND read = 0')
     .get(recipient.id) as { n: number } | undefined;
+  const rLang = userLang(recipient.id);
   void notifyUser(recipient.id, {
-    title: '📬 Neue Postkarte',
-    body: `${me.name} hat dir eine Postkarte geschickt.`,
+    title: tr(rLang, 'push.newPostcard.title'),
+    body: tr(rLang, 'push.newPostcard.body', { name: me.name }),
     url: '/mailbox',
     badgeCount: unread?.n ?? 1,
   });
@@ -220,7 +239,7 @@ app.post('/api/push/subscribe', requireAuth, (req, res) => {
   const me = currentUser(res);
   const sub = req.body.sub;
   if (!sub || typeof sub.endpoint !== 'string') {
-    return res.status(400).json({ error: 'Ungültiges Abo.' });
+    return res.status(400).json({ error: 'Ungültiges Abo.', code: 'INVALID_SUBSCRIPTION' });
   }
   saveSubscription(me.id, sub);
   res.status(201).json({ ok: true });
@@ -248,7 +267,7 @@ app.post('/api/postcards/:id/like', requireAuth, (req, res) => {
   const card = db
     .prepare('SELECT sender_id, liked FROM postcards WHERE id = ? AND recipient_id = ?')
     .get(req.params.id, me.id) as { sender_id: string; liked: number } | undefined;
-  if (!card) return res.status(404).json({ error: 'Karte nicht gefunden.' });
+  if (!card) return res.status(404).json({ error: 'Karte nicht gefunden.', code: 'CARD_NOT_FOUND' });
 
   db.prepare('UPDATE postcards SET liked = ? WHERE id = ? AND recipient_id = ?')
     .run(liked, req.params.id, me.id);
@@ -257,9 +276,10 @@ app.post('/api/postcards/:id/like', requireAuth, (req, res) => {
   // Tell the sender their card got some love — only on the rising edge, and
   // never for self-sent cards. Fire-and-forget: never blocks the response.
   if (liked && !card.liked && card.sender_id !== me.id) {
+    const sLang = userLang(card.sender_id);
     void notifyUser(card.sender_id, {
-      title: '❤️ Postkarte gefällt',
-      body: `${me.name} gefällt deine Postkarte.`,
+      title: tr(sLang, 'push.liked.title'),
+      body: tr(sLang, 'push.liked.body', { name: me.name }),
       url: '/mailbox',
     });
   }
@@ -270,7 +290,7 @@ app.post('/api/postcards/:id/like', requireAuth, (req, res) => {
 app.post('/api/invites', requireAuth, async (req, res) => {
   const me = currentUser(res);
   const email = req.body.email ? normEmail(String(req.body.email)) : null;
-  if (email && !emailRe.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
+  if (email && !emailRe.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.', code: 'INVALID_EMAIL' });
 
   const existing = db.prepare(
     'SELECT token FROM invites WHERE inviter_id = ? ORDER BY created_at LIMIT 1',
@@ -284,7 +304,7 @@ app.post('/api/invites', requireAuth, async (req, res) => {
   }
 
   const link = `${APP_URL}/invite/${token}`;
-  const emailed = email ? await sendInviteEmail(email, me.name, link) : false;
+  const emailed = email ? await sendInviteEmail(email, me.name, link, userLang(me.id)) : false;
   res.status(201).json({ token, link, emailed });
 });
 
@@ -311,10 +331,10 @@ app.post('/api/friends/introduce', requireAuth, (req, res) => {
   const aId = String(req.body.aId ?? '');
   const bId = String(req.body.bId ?? '');
   if (!aId || !bId || aId === bId) {
-    return res.status(400).json({ error: 'Wähle zwei verschiedene Freund:innen aus.' });
+    return res.status(400).json({ error: 'Wähle zwei verschiedene Freund:innen aus.', code: 'PICK_TWO_FRIENDS' });
   }
   if (!areFriends(me.id, aId) || !areFriends(me.id, bId)) {
-    return res.status(403).json({ error: 'Du kannst nur eigene Freund:innen miteinander bekannt machen.' });
+    return res.status(403).json({ error: 'Du kannst nur eigene Freund:innen miteinander bekannt machen.', code: 'ONLY_OWN_FRIENDS' });
   }
 
   const created = addFriendship(aId, bId);
@@ -324,14 +344,16 @@ app.post('/api/friends/introduce', requireAuth, (req, res) => {
   const a = db.prepare('SELECT name FROM users WHERE id = ?').get(aId) as { name: string } | undefined;
   const b = db.prepare('SELECT name FROM users WHERE id = ?').get(bId) as { name: string } | undefined;
   if (a && b) {
+    const aLang = userLang(aId);
+    const bLang = userLang(bId);
     void notifyUser(aId, {
-      title: '🤝 Neue Bekanntschaft',
-      body: `${me.name} hat dich mit ${b.name} bekannt gemacht.`,
+      title: tr(aLang, 'push.introduced.title'),
+      body: tr(aLang, 'push.introduced.body', { actor: me.name, other: b.name }),
       url: '/friends',
     });
     void notifyUser(bId, {
-      title: '🤝 Neue Bekanntschaft',
-      body: `${me.name} hat dich mit ${a.name} bekannt gemacht.`,
+      title: tr(bLang, 'push.introduced.title'),
+      body: tr(bLang, 'push.introduced.body', { actor: me.name, other: a.name }),
       url: '/friends',
     });
   }
@@ -339,7 +361,7 @@ app.post('/api/friends/introduce', requireAuth, (req, res) => {
 });
 
 // --- Unknown API routes → JSON 404 (don't fall through to the SPA) ---
-app.use('/api', (_req, res) => res.status(404).json({ error: 'Nicht gefunden.' }));
+app.use('/api', (_req, res) => res.status(404).json({ error: 'Nicht gefunden.', code: 'NOT_FOUND' }));
 
 // --- Serve the built frontend (single origin: Node serves the SPA + the API) ---
 const STATIC_DIR = resolve(process.env.STATIC_DIR ?? join(__dirname, '../../dist'));
@@ -355,7 +377,7 @@ if (existsSync(STATIC_DIR)) {
 // --- Fallback error handler ---
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
-  res.status(500).json({ error: 'Serverfehler' });
+  res.status(500).json({ error: 'Serverfehler', code: 'SERVER_ERROR' });
 });
 
 app.listen(PORT, () => console.log(`Postcards API listening on :${PORT}`));

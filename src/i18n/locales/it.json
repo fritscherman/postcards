@@ -17,6 +17,23 @@
   "errors": {
     "generic": "Qualcosa è andato storto."
   },
+  "serverErrors": {
+    "NOT_AUTHENTICATED": "Non hai effettuato l’accesso.",
+    "INVALID_EMAIL": "Indirizzo e-mail non valido.",
+    "NAME_REQUIRED": "Inserisci un nome.",
+    "PASSWORD_TOO_SHORT": "La password deve avere almeno 6 caratteri.",
+    "EMAIL_TAKEN": "Questa e-mail è già registrata.",
+    "INVALID_CREDENTIALS": "E-mail o password non corretti.",
+    "NAME_TOO_LONG": "Questo nome è troppo lungo.",
+    "RECIPIENT_EMAIL_REQUIRED": "Inserisci l’e-mail del destinatario.",
+    "NO_RECIPIENT": "Questa persona non c’è ancora — invitala prima.",
+    "INVALID_SUBSCRIPTION": "Abbonamento non valido.",
+    "CARD_NOT_FOUND": "Cartolina non trovata.",
+    "PICK_TWO_FRIENDS": "Scegli due amici diversi.",
+    "ONLY_OWN_FRIENDS": "Puoi presentare solo i tuoi amici.",
+    "NOT_FOUND": "Non trovato.",
+    "SERVER_ERROR": "Si è verificato un errore del server."
+  },
   "app": {
     "invite": "Invita",
     "inviteTitle": "Invita gli amici",

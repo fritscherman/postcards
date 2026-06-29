@@ -17,6 +17,23 @@
   "errors": {
     "generic": "Something went wrong."
   },
+  "serverErrors": {
+    "NOT_AUTHENTICATED": "Not signed in.",
+    "INVALID_EMAIL": "Invalid email address.",
+    "NAME_REQUIRED": "Please enter a name.",
+    "PASSWORD_TOO_SHORT": "Password needs at least 6 characters.",
+    "EMAIL_TAKEN": "This email is already registered.",
+    "INVALID_CREDENTIALS": "Email or password is incorrect.",
+    "NAME_TOO_LONG": "That name is too long.",
+    "RECIPIENT_EMAIL_REQUIRED": "Please enter the recipient’s email.",
+    "NO_RECIPIENT": "This person isn’t here yet — invite them first.",
+    "INVALID_SUBSCRIPTION": "Invalid subscription.",
+    "CARD_NOT_FOUND": "Postcard not found.",
+    "PICK_TWO_FRIENDS": "Pick two different friends.",
+    "ONLY_OWN_FRIENDS": "You can only introduce your own friends.",
+    "NOT_FOUND": "Not found.",
+    "SERVER_ERROR": "A server error occurred."
+  },
   "app": {
     "invite": "Invite",
     "inviteTitle": "Invite friends",

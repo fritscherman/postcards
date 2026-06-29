@@ -66,6 +66,13 @@ try {
   /* column already exists */
 }
 
+// Add the `lang` column so we can localise push/email in each user's language.
+try {
+  raw.exec('ALTER TABLE users ADD COLUMN lang TEXT');
+} catch {
+  /* column already exists */
+}
+
 // Backfill friendships from any invites that were accepted under the old
 // one-shot model, so existing connections survive the move to reusable links.
 raw.exec(`
