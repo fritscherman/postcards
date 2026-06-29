@@ -392,6 +392,50 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
 .dd-loc { display: inline-flex; align-items: center; gap: 4px; }
 .board-tip { text-align: center; margin-top: 14px; color: var(--muted); }
 
+/* ---------- Shared / multi pinboards ---------- */
+.board-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.board-tab {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+  background: var(--paper); border: 1.5px solid var(--line); font: inherit; font-weight: 600;
+  cursor: pointer; color: var(--ink); box-shadow: var(--shadow-sm); transition: transform .15s ease;
+}
+.board-tab:hover { transform: translateY(-2px); }
+.board-tab.sel { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(14, 116, 144, .2), var(--shadow-sm); }
+.board-tab.new { border-style: dashed; color: var(--teal-dark); }
+.board-tab-badge {
+  display: inline-flex; align-items: center; gap: 2px; font-size: .78rem; color: var(--muted);
+  background: rgba(0,0,0,.05); border-radius: 999px; padding: 1px 6px;
+}
+
+.board-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 12px;
+}
+.board-members { display: flex; flex-wrap: wrap; }
+.board-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; margin-right: -8px; border-radius: 50%;
+  background: var(--teal); color: #fff; font-size: .8rem; font-weight: 700;
+  border: 2px solid var(--paper); box-shadow: var(--shadow-sm);
+}
+.board-toolbar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn.small.danger { color: var(--coral); border-color: var(--coral); }
+
+/* Card picker for pinning one of your own postcards onto a board. */
+.card-picker { max-width: 520px; }
+.card-picker-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;
+  max-height: 50vh; overflow-y: auto; margin: 12px 0;
+}
+.card-picker-item {
+  border: none; padding: 0; border-radius: 12px; overflow: hidden; cursor: pointer;
+  aspect-ratio: 3 / 2; background: var(--line); box-shadow: var(--shadow-sm);
+  transition: transform .15s ease;
+}
+.card-picker-item:hover:not(:disabled) { transform: translateY(-3px); }
+.card-picker-item:disabled { opacity: .5; cursor: default; }
+.card-picker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* ---------- Modal ---------- */
 .modal-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(40,30,20,.45);
   backdrop-filter: blur(3px); display: grid; place-items: center; padding: 20px; animation: slidein .2s ease; }
@@ -556,7 +600,10 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
    Gestures are owned by react-zoom-pan-pinch (the .zoomable wrapper). */
 .detail-viewer { background: #111; width: min(640px, 100%); position: relative; }
 .detail-photo.zoomable { width: 100% !important; height: auto !important;
-  aspect-ratio: 3 / 2; max-height: 80vh; background: #111; cursor: grab; }
+  aspect-ratio: 3 / 2; max-height: 80vh; background: #111; cursor: grab;
+  /* Hand every touch gesture to the zoom library so the browser never turns a
+     pinch or drag into a page scroll. */
+  touch-action: none; overscroll-behavior: contain; }
 .detail-photo.zoomable:active { cursor: grabbing; }
 .detail-photo.zoomable .zoom-content { width: 100%; height: 100%; }
 .detail-photo.zoomable img { display: block; width: 100%; height: 100%;

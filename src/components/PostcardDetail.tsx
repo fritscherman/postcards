@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { X, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
@@ -15,6 +16,16 @@ interface Props {
 export function PostcardDetail({ card, onClose }: Props) {
   const { t } = useTranslation();
   const dialogRef = useDialog<HTMLDivElement>(onClose);
+
+  // Freeze the page behind the viewer so a gesture that reaches the backdrop
+  // can't scroll the underlying page.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>

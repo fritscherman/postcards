@@ -35,7 +35,11 @@ export class ApiError extends Error {
   }
 }
 
-async function api<T>(path: string, method: 'GET' | 'POST' = 'GET', body?: unknown): Promise<T> {
+async function api<T>(
+  path: string,
+  method: 'GET' | 'POST' | 'DELETE' = 'GET',
+  body?: unknown,
+): Promise<T> {
   const token = getToken();
   const res = await fetch(BASE + path, {
     method,
@@ -98,3 +102,81 @@ export const apiPushSubscribe = (sub: unknown) =>
 
 export const apiPushUnsubscribe = (endpoint: string) =>
   api<{ ok: boolean }>('/api/push/unsubscribe', 'POST', { endpoint });
+
+// --- Shared pinboards ---
+
+export interface BoardSummary {
+  id: string;
+  name: string;
+  ownerId: string;
+  memberCount: number;
+  cardCount: number;
+  createdAt: number;
+}
+
+export interface BoardMember {
+  id: string;
+  name: string;
+  email: string;
+}
+
+/** A postcard placed on a board: its payload plus position + who pinned it. */
+export interface BoardCard {
+  placementId: string;
+  postcardId: string;
+  x: number;
+  y: number;
+  rotation: number;
+  placedBy: string;
+  from: string;
+  to: string;
+  createdAt: number;
+  image: string;
+  message: string;
+  templateId: string;
+  stampId: string;
+  customStamp?: { id: string; name: string; emoji: string; bg: string };
+  filter?: string;
+  orientation?: 'landscape' | 'portrait';
+  crop?: { zoom: number; x: number; y: number };
+  location?: { lat: number; lng: number; label?: string; source?: 'exif' | 'manual' };
+}
+
+export interface BoardDetail {
+  board: { id: string; name: string; ownerId: string };
+  members: BoardMember[];
+  cards: BoardCard[];
+}
+
+export const apiListBoards = () => api<{ boards: BoardSummary[] }>('/api/boards');
+
+export const apiCreateBoard = (name: string) =>
+  api<{ board: BoardSummary }>('/api/boards', 'POST', { name });
+
+export const apiGetBoard = (id: string) => api<BoardDetail>(`/api/boards/${id}`);
+
+export const apiRenameBoard = (id: string, name: string) =>
+  api<{ ok: boolean; name: string }>(`/api/boards/${id}`, 'POST', { name });
+
+export const apiDeleteBoard = (id: string) =>
+  api<{ ok: boolean }>(`/api/boards/${id}`, 'DELETE');
+
+export const apiAddBoardMember = (id: string, friendId: string) =>
+  api<{ ok: boolean; added: boolean }>(`/api/boards/${id}/members`, 'POST', { friendId });
+
+export const apiRemoveBoardMember = (id: string, userId: string) =>
+  api<{ ok: boolean }>(`/api/boards/${id}/members/${userId}`, 'DELETE');
+
+export const apiPinBoardCard = (
+  id: string,
+  b: { postcardId: string; x: number; y: number; rotation: number },
+) => api<{ placementId: string }>(`/api/boards/${id}/cards`, 'POST', b);
+
+export const apiMoveBoardCard = (
+  id: string,
+  placementId: string,
+  b: { x: number; y: number; rotation: number },
+) => api<{ ok: boolean }>(`/api/boards/${id}/cards/${placementId}`, 'POST', b);
+
+export const apiUnpinBoardCard = (id: string, placementId: string) =>
+  api<{ ok: boolean }>(`/api/boards/${id}/cards/${placementId}`, 'DELETE');

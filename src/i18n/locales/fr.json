@@ -99,7 +99,10 @@
     "errNeedPhoto": "Choisis d'abord une photo. 📷",
     "errNeedRecipient": "Choisis au moins un·e destinataire.",
     "errNoRecipient": "Cette personne n'est pas encore là. Invite-la en haut via « 💌 Inviter ».",
-    "errSendFailed": "Échec de l'envoi : {{error}}"
+    "errSendFailed": "Échec de l'envoi : {{error}}",
+    "removeStampTitle": "Retirer le timbre ?",
+    "removeStampMessage": "Ce timbre personnalisé sera supprimé de cet appareil.",
+    "removeStampConfirm": "Retirer"
   },
   "templates": {
     "classic": "Classique",
@@ -177,6 +180,7 @@
   "pinboard": {
     "title": "Tableau",
     "subtitle": "Accroche tes cartes préférées et place-les comme tu veux.",
+    "subtitleOnline": "Crée plusieurs tableaux et partage-les avec tes ami·e·s pour épingler ensemble.",
     "emptyTitle": "Ton tableau est encore vide",
     "emptyBodyBefore": "Ouvre une carte dans la ",
     "emptyBodyLink": "boîte aux lettres",
@@ -263,7 +267,8 @@
     "customEmojiPlaceholder": "ou ton propre emoji…",
     "background": "Arrière-plan",
     "colorAria": "Couleur {{color}}",
-    "apply": "Appliquer"
+    "apply": "Appliquer",
+    "customChipTitle": "Timbre personnalisé (appui long pour retirer)"
   },
   "decorator": {
     "aria": "Décorer la photo",
@@ -386,5 +391,50 @@
     "back": "← Retour",
     "imprint": "Mentions légales",
     "privacy": "Confidentialité"
+  },
+  "boards": {
+    "loadError": "Impossible de charger les tableaux : {{error}}",
+    "newBoard": "Nouveau tableau",
+    "newBoardHeading": "Nouveau tableau 📌",
+    "newBoardBody": "Donne-lui un nom — par exemple « Été 2026 » ou « Nos voyages ».",
+    "nameLabel": "Nom du tableau",
+    "create": "Créer le tableau",
+    "createShort": "Créer",
+    "creating": "Création…",
+    "createError": "Échec de la création : {{error}}",
+    "tabTitle": "{{name}} · {{members}} membres · {{cards}} cartes",
+    "noneTitle": "Aucun tableau pour l'instant",
+    "noneBody": "Crée un tableau, accroche tes cartes préférées et invite tes ami·e·s à épingler ensemble.",
+    "boardLoadError": "Impossible de charger le tableau : {{error}}",
+    "deleteTitle": "Supprimer le tableau ?",
+    "deleteMessage": "« {{name}} » sera supprimé pour tous les membres.",
+    "deleteError": "Échec de la suppression : {{error}}",
+    "deleteBoard": "Supprimer le tableau",
+    "leaveTitle": "Quitter le tableau ?",
+    "leaveMessage": "Tu quittes « {{name}} » et tu ne le verras plus.",
+    "leave": "Quitter",
+    "leaveBoard": "Quitter le tableau",
+    "leaveError": "Échec : impossible de quitter : {{error}}",
+    "members": "Membres",
+    "ownerLabel": "{{name}} (propriétaire)",
+    "member": "Membre",
+    "rename": "Renommer",
+    "renameTitle": "Renommer le tableau",
+    "renameError": "Échec du renommage : {{error}}",
+    "unpinError": "Impossible de retirer la carte : {{error}}",
+    "emptyCards": "Aucune carte pour l'instant — épingles-en ! 📌",
+    "sharedTip": "Astuce : tous les membres peuvent épingler leurs propres cartes et les déplacer librement.",
+    "pinCard": "Épingler une carte",
+    "pinCardHeading": "Épingler une carte 📌",
+    "pinError": "Échec de l'épinglage : {{error}}",
+    "noCardsToPin": "Toutes tes cartes sont déjà sur ce tableau — ou tu n'en as pas encore.",
+    "addMember": "Ajouter un membre",
+    "addMemberHeading": "Ajouter un membre 🤝",
+    "addMemberBody": "Choisis les ami·e·s autorisé·e·s à épingler sur ce tableau.",
+    "addMemberError": "Échec de l'ajout : {{error}}",
+    "noCandidates": "Tous tes ami·e·s sont déjà là — ou tu n'as encore connecté personne.",
+    "memberAdded": "{{name}} a été ajouté·e 📌",
+    "adding": "Ajout…",
+    "add": "Ajouter"
   }
 }

@@ -57,6 +57,39 @@ raw.exec(`
     created_at INTEGER NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_push_user ON push_subscriptions(user_id);
+
+  -- Shared pinboards ("Pinwände"). A board has one owner and any number of
+  -- members; everyone on it can place their own postcards and rearrange them.
+  CREATE TABLE IF NOT EXISTS boards (
+    id         TEXT PRIMARY KEY,
+    owner_id   TEXT NOT NULL REFERENCES users(id),
+    name       TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+
+  -- Who can see/edit a board. The owner is also stored here as a member.
+  CREATE TABLE IF NOT EXISTS board_members (
+    board_id   TEXT NOT NULL REFERENCES boards(id),
+    user_id    TEXT NOT NULL REFERENCES users(id),
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (board_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_board_members_user ON board_members(user_id);
+
+  -- A postcard pinned onto a board, with its position + rotation. A given card
+  -- can sit on a board only once (UNIQUE), and is placed by one of the members.
+  CREATE TABLE IF NOT EXISTS board_cards (
+    id          TEXT PRIMARY KEY,
+    board_id    TEXT NOT NULL REFERENCES boards(id),
+    postcard_id TEXT NOT NULL REFERENCES postcards(id),
+    placed_by   TEXT NOT NULL REFERENCES users(id),
+    x           REAL NOT NULL,
+    y           REAL NOT NULL,
+    rotation    REAL NOT NULL,
+    created_at  INTEGER NOT NULL,
+    UNIQUE (board_id, postcard_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_board_cards_board ON board_cards(board_id);
 `);
 
 // Add the `liked` column to postcard tables created before it existed.

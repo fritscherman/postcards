@@ -99,7 +99,10 @@
     "errNeedPhoto": "Lütfen önce bir fotoğraf seç. 📷",
     "errNeedRecipient": "Lütfen en az bir alıcı seç.",
     "errNoRecipient": "Bu kişi henüz aramızda değil. Yukarıdaki \"💌 Davet et\" ile onu davet et.",
-    "errSendFailed": "Gönderme başarısız: {{error}}"
+    "errSendFailed": "Gönderme başarısız: {{error}}",
+    "removeStampTitle": "Pul kaldırılsın mı?",
+    "removeStampMessage": "Bu özel pul bu cihazdan silinecek.",
+    "removeStampConfirm": "Kaldır"
   },
   "templates": {
     "classic": "Klasik",
@@ -182,7 +185,8 @@
     "emptyBodyLink": "Posta kutusu",
     "emptyBodyAfter": " bir kart açıp \"Panoya as\"a dokun — sonra burada görünür, asıp kaydırabilirsin.",
     "unpinTitle": "Panodan kaldır",
-    "tip": "İpucu: Kartları serbestçe kaydırabilirsin — panonun üzerinde sürüklemen yeterli. Arka yüzü görmek için bir karta ya da ⟳ simgesine dokun."
+    "tip": "İpucu: Kartları serbestçe kaydırabilirsin — panonun üzerinde sürüklemen yeterli. Arka yüzü görmek için bir karta ya da ⟳ simgesine dokun.",
+    "subtitleOnline": "Birden çok pano oluştur ve arkadaşlarınla birlikte asmak için paylaş."
   },
   "friends": {
     "title": "Arkadaşlarım",
@@ -263,7 +267,8 @@
     "customEmojiPlaceholder": "ya da kendi emojin…",
     "background": "Arka plan",
     "colorAria": "{{color}} rengi",
-    "apply": "Uygula"
+    "apply": "Uygula",
+    "customChipTitle": "Kendi pulun (kaldırmak için uzun bas)"
   },
   "decorator": {
     "aria": "Fotoğrafı süsle",
@@ -386,5 +391,50 @@
     "back": "← Geri",
     "imprint": "Künye",
     "privacy": "Gizlilik"
+  },
+  "boards": {
+    "loadError": "Panolar yüklenemedi: {{error}}",
+    "newBoard": "Yeni pano",
+    "newBoardHeading": "Yeni pano 📌",
+    "newBoardBody": "Ona bir ad ver — örneğin \"Yaz 2026\" ya da \"Gezilerimiz\".",
+    "nameLabel": "Panonun adı",
+    "create": "Pano oluştur",
+    "createShort": "Oluştur",
+    "creating": "Oluşturuluyor…",
+    "createError": "Oluşturma başarısız: {{error}}",
+    "tabTitle": "{{name}} · {{members}} üye · {{cards}} kart",
+    "noneTitle": "Henüz pano yok",
+    "noneBody": "Bir pano oluştur, en sevdiğin kartları as ve birlikte asmak için arkadaşlarını davet et.",
+    "boardLoadError": "Pano yüklenemedi: {{error}}",
+    "deleteTitle": "Pano silinsin mi?",
+    "deleteMessage": "\"{{name}}\" tüm üyeler için silinecek.",
+    "deleteError": "Silme başarısız: {{error}}",
+    "deleteBoard": "Panoyu sil",
+    "leaveTitle": "Panodan ayrılınsın mı?",
+    "leaveMessage": "\"{{name}}\" panosundan ayrılıyorsun ve onu artık göremeyeceksin.",
+    "leave": "Ayrıl",
+    "leaveBoard": "Panodan ayrıl",
+    "leaveError": "Ayrılma başarısız: {{error}}",
+    "members": "Üyeler",
+    "ownerLabel": "{{name}} (sahip)",
+    "member": "Üye",
+    "rename": "Yeniden adlandır",
+    "renameTitle": "Panoyu yeniden adlandır",
+    "renameError": "Yeniden adlandırma başarısız: {{error}}",
+    "unpinError": "Kart kaldırılamadı: {{error}}",
+    "emptyCards": "Henüz kart yok — birkaç tane as! 📌",
+    "sharedTip": "İpucu: Tüm üyeler kendi kartlarını asabilir ve serbestçe taşıyabilir.",
+    "pinCard": "Kart as",
+    "pinCardHeading": "Kart as 📌",
+    "pinError": "Asma başarısız: {{error}}",
+    "noCardsToPin": "Tüm kartların bu panoda zaten asılı — ya da henüz hiç kartın yok.",
+    "addMember": "Üye ekle",
+    "addMemberHeading": "Üye ekle 🤝",
+    "addMemberBody": "Bu panoya birlikte asabilecek arkadaşlarını seç.",
+    "addMemberError": "Ekleme başarısız: {{error}}",
+    "noCandidates": "Tüm arkadaşların zaten burada — ya da henüz kimseyle bağlanmadın.",
+    "memberAdded": "{{name}} eklendi 📌",
+    "adding": "Ekleniyor…",
+    "add": "Ekle"
   }
 }
