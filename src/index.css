@@ -343,10 +343,6 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
 .world-hint { margin-top: 16px; color: var(--muted); font-family: 'Caveat', cursive; font-size: 1.4rem; }
 
 /* ---------- Pinboard ---------- */
-/* Center the page name above the board, as a real pinboard caption. */
-.pinboard-page .page-head { text-align: center; }
-.pinboard-page .page-head h1::after { margin-left: auto; margin-right: auto; }
-
 .corkboard {
   position: relative; height: clamp(640px, 150vh, 1400px); border-radius: var(--radius); overflow: hidden;
   background-color: #c79a5b;
@@ -361,6 +357,15 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
      still capture the gesture for repositioning (they keep touch-action: none). */
   touch-action: pan-y;
 }
+/* The board's name, written across the top-centre of the cork like a label. */
+.board-name {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2;
+  max-width: 80%; padding: 6px 22px; text-align: center; pointer-events: none;
+  font-family: 'Caveat', cursive; font-weight: 700; font-size: clamp(1.6rem, 4vw, 2.4rem);
+  color: #fffaf0; text-shadow: 0 2px 4px rgba(0,0,0,.45);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
 .pinned { position: absolute; width: 230px; cursor: grab; touch-action: none; transition: filter .15s ease; }
 .pinned:active { cursor: grabbing; filter: drop-shadow(0 14px 20px rgba(0,0,0,.4)); z-index: 20; }
 .pinned-inner { box-shadow: var(--shadow-lg); border-radius: 16px; }

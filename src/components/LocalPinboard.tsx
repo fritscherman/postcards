@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Pin, PinOff, ZoomIn } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
+import { useAuth } from '../auth/AuthContext';
 import { PostcardCard } from './PostcardCard';
 import { CardLightbox } from './CardLightbox';
 import type { Postcard } from '../types';
@@ -11,6 +12,8 @@ import type { Postcard } from '../types';
 export function LocalPinboard() {
   const { t } = useTranslation();
   const { pinnedCards, movePin, togglePin } = usePostcards();
+  const { user } = useAuth();
+  const boardName = user?.name || t('pinboard.title');
   const [enlarged, setEnlarged] = useState<Postcard | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const dragId = useRef<string | null>(null);
@@ -74,6 +77,7 @@ export function LocalPinboard() {
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
       >
+        <span className="board-name">{boardName}</span>
         {pinnedCards.map((card) => (
           <div
             key={card.id}

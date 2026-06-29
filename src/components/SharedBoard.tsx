@@ -229,6 +229,7 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
           >
+            <span className="board-name">{board.name}</span>
             {cards.length === 0 && (
               <div className="board-empty">{t('boards.emptyCards')}</div>
             )}
