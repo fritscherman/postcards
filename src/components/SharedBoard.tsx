@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pencil, PinOff, Plus, Trash2, UserPlus, LogOut } from 'lucide-react';
+import { Pencil, PinOff, Plus, Trash2, UserPlus, LogOut, ZoomIn } from 'lucide-react';
 import {
   apiAddBoardMember,
   apiDeleteBoard,
@@ -22,6 +22,7 @@ import { useFeedback } from './Feedback';
 import { useDialog } from '../hooks/useDialog';
 import { initials } from '../utils/initials';
 import { PostcardCard } from './PostcardCard';
+import { CardLightbox } from './CardLightbox';
 import type { Postcard } from '../types';
 
 interface Props {
@@ -65,6 +66,7 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
   const [picking, setPicking] = useState(false);
   const [adding, setAdding] = useState(false);
   const [renaming, setRenaming] = useState(false);
+  const [enlarged, setEnlarged] = useState<Postcard | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -227,6 +229,7 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
           >
+            <span className="board-name">{board.name}</span>
             {cards.length === 0 && (
               <div className="board-empty">{t('boards.emptyCards')}</div>
             )}
@@ -245,6 +248,16 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
                   onClickCapture={onClickCapture}
                 >
                   <span className="thumbtack" />
+                  <button
+                    type="button"
+                    className="enlarge-btn"
+                    title={t('pinboard.enlargeTitle')}
+                    aria-label={t('pinboard.enlargeTitle')}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => setEnlarged(toPostcard(card))}
+                  >
+                    <ZoomIn size={16} />
+                  </button>
                   {canRemove && (
                     <button
                       type="button"
@@ -267,6 +280,8 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
           <p className="board-tip">{t('boards.sharedTip')}</p>
         </>
       )}
+
+      {enlarged && <CardLightbox card={enlarged} onClose={() => setEnlarged(null)} />}
 
       {picking && detail && (
         <CardPicker

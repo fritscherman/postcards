@@ -1,14 +1,20 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Pin, PinOff } from 'lucide-react';
+import { Pin, PinOff, ZoomIn } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
+import { useAuth } from '../auth/AuthContext';
 import { PostcardCard } from './PostcardCard';
+import { CardLightbox } from './CardLightbox';
+import type { Postcard } from '../types';
 
 /** The single, on-device pinboard used in demo / guest mode. */
 export function LocalPinboard() {
   const { t } = useTranslation();
   const { pinnedCards, movePin, togglePin } = usePostcards();
+  const { user } = useAuth();
+  const boardName = user?.name || t('pinboard.title');
+  const [enlarged, setEnlarged] = useState<Postcard | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const dragId = useRef<string | null>(null);
   // Remember where a drag started and whether it actually moved, so a genuine
@@ -71,6 +77,7 @@ export function LocalPinboard() {
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
       >
+        <span className="board-name">{boardName}</span>
         {pinnedCards.map((card) => (
           <div
             key={card.id}
@@ -84,6 +91,16 @@ export function LocalPinboard() {
             onClickCapture={onClickCapture}
           >
             <span className="thumbtack" />
+            <button
+              type="button"
+              className="enlarge-btn"
+              title={t('pinboard.enlargeTitle')}
+              aria-label={t('pinboard.enlargeTitle')}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => setEnlarged(card)}
+            >
+              <ZoomIn size={16} />
+            </button>
             <button
               type="button"
               className="unpin-btn"
@@ -101,6 +118,7 @@ export function LocalPinboard() {
         ))}
       </div>
       <p className="board-tip">{t('pinboard.tip')}</p>
+      {enlarged && <CardLightbox card={enlarged} onClose={() => setEnlarged(null)} />}
     </>
   );
 }
