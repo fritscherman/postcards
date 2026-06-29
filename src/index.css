@@ -82,17 +82,8 @@ textarea:focus-visible, select:focus-visible, input:focus-visible,
   font-weight: 700; letter-spacing: .3px; color: var(--teal-dark);
 }
 
-/* Compact language picker in the app bar: a globe icon with a borderless select. */
-.lang-switcher {
-  display: inline-flex; align-items: center; gap: 4px;
-  color: var(--teal-dark); cursor: pointer; padding: 4px 2px;
-}
-.lang-select {
-  font: inherit; font-weight: 600; color: var(--teal-dark);
-  background: transparent; border: none; cursor: pointer;
-  padding: 2px 2px; max-width: 7.5rem;
-}
-.lang-select:focus-visible { outline: 2px solid var(--teal-dark); outline-offset: 2px; border-radius: 6px; }
+/* Language picker inside the profile settings — a normal full-width field. */
+.lang-select { cursor: pointer; font-weight: 600; color: var(--teal-dark); }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

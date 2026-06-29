@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Languages } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 
 /**
- * Compact language picker for the app bar. The starting language is auto-detected
- * from the browser (see src/i18n); this lets the user override that choice, and
- * the pick is remembered for next time.
+ * Language picker shown inside the profile settings. The starting language is
+ * auto-detected from the browser/system (see src/i18n); this lets the user
+ * override that choice, and the pick is remembered for next time.
  */
 export function LanguageSwitcher() {
   const { t, i18n } = useTranslation();
@@ -13,10 +12,10 @@ export function LanguageSwitcher() {
   const current = i18n.language?.split('-')[0] ?? 'en';
 
   return (
-    <label className="lang-switcher" title={t('language.label')}>
-      <Languages size={16} aria-hidden="true" />
-      <span className="visually-hidden">{t('language.label')}</span>
+    <div className="field">
+      <label htmlFor="lang-select">{t('language.label')}</label>
       <select
+        id="lang-select"
         className="lang-select"
         value={current}
         onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -28,6 +27,6 @@ export function LanguageSwitcher() {
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }
