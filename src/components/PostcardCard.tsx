@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import type { Crop, Postcard } from '../types';
 import { resolveStamp, templateById } from '../data/templates';
 
@@ -17,41 +18,31 @@ interface Props {
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 
 const MAX_ZOOM = 3;
-const DOUBLE_TAP_ZOOM = 2.2;
 
-// Re-frame the photo so that the source point currently shown under the focal
-// point (fx, fy — fractions of the frame) stays put while the zoom changes.
-// This is what makes pinch / wheel / double-tap zoom feel like "real" map and
-// photo apps: you zoom *into the spot you're touching*, not the centre.
-function focalZoom(crop: Crop, fx: number, fy: number, nextZoom: number): Crop {
-  const z1 = clamp(nextZoom, 1, MAX_ZOOM);
-  if (z1 <= 1.001) return { zoom: 1, x: 50, y: 50 };
-  const z0 = crop.zoom;
-  const ox = crop.x / 100;
-  const oy = crop.y / 100;
-  // Source fraction sitting under the focal point at the current zoom…
-  const px = ox + (fx - ox) / z0;
-  const py = oy + (fy - oy) / z0;
-  // …and the transform-origin that keeps it there at the new zoom.
-  const nx = (px * z1 - fx) / (z1 - 1);
-  const ny = (py * z1 - fy) / (z1 - 1);
-  return { zoom: z1, x: clamp(nx * 100, 0, 100), y: clamp(ny * 100, 0, 100) };
+// react-zoom-pan-pinch frames the photo as `translate(posX, posY) scale(s)` from
+// a top-left origin. Our stored crop instead frames it with
+// `transform-origin: x% y%; scale` — the form every *other* view of the card
+// renders. Convert the library's live transform into that crop so the rest of
+// the app stays untouched. (Solving screen = posX + s·p === s·p + (1−s)·origin
+// for origin gives origin = posX / (1 − s).)
+function transformToCrop(scale: number, posX: number, posY: number, w: number, h: number): Crop {
+  if (scale <= 1.001 || w === 0 || h === 0) return { zoom: 1, x: 50, y: 50 };
+  return {
+    zoom: clamp(scale, 1, MAX_ZOOM),
+    x: clamp((posX / ((1 - scale) * w)) * 100, 0, 100),
+    y: clamp((posY / ((1 - scale) * h)) * 100, 0, 100),
+  };
 }
 
 export function PostcardCard({ card, flippable = true, onCardClick, editable = false, onCropChange }: Props) {
   const { t, i18n } = useTranslation();
   const [flipped, setFlipped] = useState(false);
+  // Live zoom of the crop editor, only used to toggle the hint / reset button.
+  const [editZoom, setEditZoom] = useState(1);
   const template = templateById(card.templateId);
   const stamp = resolveStamp(card.stampId, card.customStamp);
   const orientation = card.orientation ?? 'landscape';
   const crop = card.crop ?? { zoom: 1, x: 50, y: 50 };
-
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const last = useRef<{ x: number; y: number } | null>(null);
-  // Active pointers (id -> position) so we can tell a one-finger pan from a
-  // two-finger pinch.
-  const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const pinchStart = useRef<{ dist: number; zoom: number } | null>(null);
 
   const date = new Date(card.createdAt).toLocaleDateString(i18n.language || 'en', {
     day: '2-digit',
@@ -64,94 +55,20 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
     else if (flippable) setFlipped((f) => !f);
   }
 
-  function onWrapDown(e: React.PointerEvent) {
-    if (!editable) return;
-    e.stopPropagation();
-    wrapRef.current?.setPointerCapture(e.pointerId);
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    last.current = { x: e.clientX, y: e.clientY };
-    pinchStart.current = null;
-  }
-  function onWrapMove(e: React.PointerEvent) {
-    if (!editable || !wrapRef.current || !pointers.current.has(e.pointerId)) return;
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    const r = wrapRef.current.getBoundingClientRect();
-
-    // Two fingers → pinch to zoom around the point between the fingers, and let
-    // a two-finger drag slide the photo at the same time (just like Photos).
-    if (pointers.current.size >= 2) {
-      const [a, b] = [...pointers.current.values()];
-      const dist = Math.hypot(a.x - b.x, a.y - b.y);
-      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-      if (!pinchStart.current) {
-        pinchStart.current = { dist, zoom: crop.zoom };
-        last.current = mid;
-        return;
-      }
-      const nextZoom = (pinchStart.current.zoom * dist) / pinchStart.current.dist;
-      let next = focalZoom(crop, (mid.x - r.left) / r.width, (mid.y - r.top) / r.height, nextZoom);
-      // Follow the fingers' midpoint 1:1 (see the one-finger pan note below).
-      if (last.current && next.zoom > 1.001) {
-        const gain = 1 / (next.zoom - 1);
-        const dx = ((mid.x - last.current.x) / r.width) * 100 * gain;
-        const dy = ((mid.y - last.current.y) / r.height) * 100 * gain;
-        next = { ...next, x: clamp(next.x - dx, 0, 100), y: clamp(next.y - dy, 0, 100) };
-      }
-      last.current = mid;
-      onCropChange?.(next);
-      return;
-    }
-
-    // One finger → pan. The photo is scaled around `transform-origin`, so a
-    // fixed pixel moves by (1 - z) on screen per unit of origin shift. Gain
-    // 1/(z-1) therefore makes the photo track the finger exactly 1:1 — the
-    // earlier z/(z-1) over-panned by a factor of z, which felt jumpy.
-    if (!last.current || crop.zoom <= 1.001) {
-      last.current = { x: e.clientX, y: e.clientY };
-      return;
-    }
-    const gain = 1 / (crop.zoom - 1);
-    const dx = ((e.clientX - last.current.x) / r.width) * 100 * gain;
-    const dy = ((e.clientY - last.current.y) / r.height) * 100 * gain;
-    last.current = { x: e.clientX, y: e.clientY };
-    onCropChange?.({ ...crop, x: clamp(crop.x - dx, 0, 100), y: clamp(crop.y - dy, 0, 100) });
-  }
-  function onWrapUp(e: React.PointerEvent) {
-    pointers.current.delete(e.pointerId);
-    pinchStart.current = null;
-    last.current = pointers.current.size
-      ? [...pointers.current.values()][0]
-      : null;
+  // Mirror every pan/zoom the library makes into the stored crop. `ref` carries
+  // the stage element, whose size matches the photo frame the math needs.
+  function reportTransform(
+    ref: { instance: { wrapperComponent: HTMLElement | null } },
+    state: { scale: number; positionX: number; positionY: number },
+  ) {
+    const el = ref.instance.wrapperComponent;
+    const w = el?.clientWidth ?? 0;
+    const h = el?.clientHeight ?? 0;
+    setEditZoom(state.scale);
+    onCropChange?.(transformToCrop(state.scale, state.positionX, state.positionY, w, h));
   }
 
-  // Desktop: wheel / trackpad zooms toward the cursor.
-  function onWrapWheel(e: React.WheelEvent) {
-    if (!editable || !wrapRef.current) return;
-    const r = wrapRef.current.getBoundingClientRect();
-    const fx = (e.clientX - r.left) / r.width;
-    const fy = (e.clientY - r.top) / r.height;
-    onCropChange?.(focalZoom(crop, fx, fy, crop.zoom - e.deltaY * 0.0015 * crop.zoom));
-  }
-
-  // Double-tap / double-click toggles between fit and a zoom on that spot.
-  function onWrapDoubleClick(e: React.MouseEvent) {
-    if (!editable || !wrapRef.current) return;
-    e.stopPropagation();
-    if (crop.zoom > 1.001) {
-      onCropChange?.({ zoom: 1, x: 50, y: 50 });
-      return;
-    }
-    const r = wrapRef.current.getBoundingClientRect();
-    const fx = (e.clientX - r.left) / r.width;
-    const fy = (e.clientY - r.top) / r.height;
-    onCropChange?.(focalZoom(crop, fx, fy, DOUBLE_TAP_ZOOM));
-  }
-
-  function resetZoom(e: React.PointerEvent | React.MouseEvent) {
-    e.stopPropagation();
-    onCropChange?.({ zoom: 1, x: 50, y: 50 });
-  }
-
+  // Non-editable views frame the photo straight from the stored crop.
   const imgStyle = {
     filter: card.filter || 'none',
     transform: `scale(${crop.zoom})`,
@@ -169,33 +86,59 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
         {/* Front: the photo */}
         <div className="postcard-face postcard-front" style={{ background: template.frame }}>
           <div
-            className={`photo-wrap ${editable ? 'editable' : ''} ${editable && crop.zoom > 1.001 ? 'zoomed' : ''}`}
-            ref={wrapRef}
-            onPointerDown={onWrapDown}
-            onPointerMove={onWrapMove}
-            onPointerUp={onWrapUp}
-            onPointerCancel={onWrapUp}
-            onWheel={onWrapWheel}
-            onDoubleClick={onWrapDoubleClick}
+            className={`photo-wrap ${editable ? 'editable' : ''} ${editable && editZoom > 1.001 ? 'zoomed' : ''}`}
+            // Keep a tap/drag on the photo from flipping the card behind it.
             onClick={(e) => editable && e.stopPropagation()}
           >
-            <img src={card.image} alt={t('card.alt')} draggable={false} style={imgStyle} />
-            {editable && crop.zoom > 1.001 && (
-              <button
-                type="button"
-                className="zoom-reset"
-                onPointerDown={resetZoom}
-                onClick={resetZoom}
-                title={t('card.resetZoom')}
-                aria-label={t('card.resetZoom')}
+            {editable ? (
+              // Same zoom/pan engine as the detail loupe view, so choosing the
+              // crop feels identical: it owns wheel + pinch + drag and never
+              // lets the gesture turn into a page scroll.
+              <TransformWrapper
+                // Remount on a new photo so its zoom/pan resets to fit, matching
+                // the crop CreatePage resets alongside it.
+                key={card.image}
+                minScale={1}
+                maxScale={MAX_ZOOM}
+                centerOnInit
+                doubleClick={{ mode: 'toggle', step: 1.2 }}
+                wheel={{ step: 0.12 }}
+                pinch={{ step: 6 }}
+                panning={{ velocityDisabled: true }}
+                onTransformed={reportTransform}
               >
-                ↺
-              </button>
-            )}
-            {editable && (
-              <span className="photo-grip">
-                {crop.zoom > 1.001 ? t('card.panHint') : t('card.zoomHint')}
-              </span>
+                {({ resetTransform }) => (
+                  <>
+                    <TransformComponent wrapperClass="crop-stage" contentClass="crop-content">
+                      <img
+                        src={card.image}
+                        alt={t('card.alt')}
+                        draggable={false}
+                        style={{ filter: card.filter || 'none' }}
+                      />
+                    </TransformComponent>
+                    {editZoom > 1.001 && (
+                      <button
+                        type="button"
+                        className="zoom-reset"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          resetTransform();
+                        }}
+                        title={t('card.resetZoom')}
+                        aria-label={t('card.resetZoom')}
+                      >
+                        ↺
+                      </button>
+                    )}
+                    <span className="photo-grip">
+                      {editZoom > 1.001 ? t('card.panHint') : t('card.zoomHint')}
+                    </span>
+                  </>
+                )}
+              </TransformWrapper>
+            ) : (
+              <img src={card.image} alt={t('card.alt')} draggable={false} style={imgStyle} />
             )}
           </div>
         </div>
