@@ -539,7 +539,10 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
    Gestures are owned by react-zoom-pan-pinch (the .zoomable wrapper). */
 .detail-viewer { background: #111; width: min(640px, 100%); position: relative; }
 .detail-photo.zoomable { width: 100% !important; height: auto !important;
-  aspect-ratio: 3 / 2; max-height: 80vh; background: #111; cursor: grab; }
+  aspect-ratio: 3 / 2; max-height: 80vh; background: #111; cursor: grab;
+  /* Hand every touch gesture to the zoom library so the browser never turns a
+     pinch or drag into a page scroll. */
+  touch-action: none; overscroll-behavior: contain; }
 .detail-photo.zoomable:active { cursor: grabbing; }
 .detail-photo.zoomable .zoom-content { width: 100%; height: 100%; }
 .detail-photo.zoomable img { display: block; width: 100%; height: 100%;
