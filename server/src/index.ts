@@ -63,6 +63,21 @@ function areFriends(a: string, b: string): boolean {
   return !!db.prepare('SELECT 1 FROM friendships WHERE user_a = ? AND user_b = ?').get(lo, hi);
 }
 
+// True when `userId` is a member of the given board.
+function isBoardMember(boardId: string, userId: string): boolean {
+  return !!db
+    .prepare('SELECT 1 FROM board_members WHERE board_id = ? AND user_id = ?')
+    .get(boardId, userId);
+}
+
+// The owner id of a board, or undefined when the board doesn't exist.
+function boardOwner(boardId: string): string | undefined {
+  const row = db.prepare('SELECT owner_id FROM boards WHERE id = ?').get(boardId) as
+    | { owner_id: string }
+    | undefined;
+  return row?.owner_id;
+}
+
 // Redeem an invite link: connect the inviter and `userId` as friends.
 // Reusable — many people can redeem the same token. No-op for empty/unknown
 // tokens or self-invites.
@@ -336,6 +351,211 @@ app.post('/api/friends/introduce', requireAuth, (req, res) => {
     });
   }
   res.json({ ok: true, created: true });
+});
+
+// --- List my pinboards (boards I own or am a member of) ---
+app.get('/api/boards', requireAuth, (_req, res) => {
+  const me = currentUser(res);
+  const boards = db.prepare(
+    `SELECT b.id, b.name, b.owner_id AS ownerId, b.created_at AS createdAt,
+            (SELECT COUNT(*) FROM board_members m WHERE m.board_id = b.id) AS memberCount,
+            (SELECT COUNT(*) FROM board_cards c WHERE c.board_id = b.id) AS cardCount
+     FROM boards b
+     JOIN board_members me ON me.board_id = b.id AND me.user_id = ?
+     ORDER BY b.created_at DESC`,
+  ).all(me.id) as any[];
+  res.json({ boards });
+});
+
+// --- Create a pinboard ---
+app.post('/api/boards', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const name = String(req.body.name ?? '').trim();
+  if (name.length < 1) return res.status(400).json({ error: 'Bitte gib der Pinwand einen Namen.' });
+  if (name.length > 40) return res.status(400).json({ error: 'Der Name ist zu lang.' });
+
+  const id = randomUUID();
+  const now = Date.now();
+  db.prepare('INSERT INTO boards (id, owner_id, name, created_at) VALUES (?,?,?,?)')
+    .run(id, me.id, name, now);
+  db.prepare('INSERT INTO board_members (board_id, user_id, created_at) VALUES (?,?,?)')
+    .run(id, me.id, now);
+  res.status(201).json({ board: { id, name, ownerId: me.id, createdAt: now, memberCount: 1, cardCount: 0 } });
+});
+
+// --- A pinboard's full contents: members + placed cards ---
+app.get('/api/boards/:id', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  const board = db.prepare('SELECT id, name, owner_id AS ownerId FROM boards WHERE id = ?').get(boardId) as
+    | { id: string; name: string; ownerId: string }
+    | undefined;
+  if (!board) return res.status(404).json({ error: 'Pinwand nicht gefunden.' });
+  if (!isBoardMember(boardId, me.id)) return res.status(403).json({ error: 'Kein Zugriff auf diese Pinwand.' });
+
+  const members = db.prepare(
+    `SELECT u.id, u.name, u.email
+     FROM board_members m JOIN users u ON u.id = m.user_id
+     WHERE m.board_id = ? ORDER BY u.name COLLATE NOCASE`,
+  ).all(boardId) as any[];
+
+  const rows = db.prepare(
+    `SELECT bc.id AS placementId, bc.postcard_id AS postcardId, bc.x, bc.y, bc.rotation,
+            bc.placed_by AS placedBy, p.payload, p.created_at AS createdAt,
+            s.name AS fromName, r.name AS toName
+     FROM board_cards bc
+     JOIN postcards p ON p.id = bc.postcard_id
+     JOIN users s ON s.id = p.sender_id
+     JOIN users r ON r.id = p.recipient_id
+     WHERE bc.board_id = ? ORDER BY bc.created_at`,
+  ).all(boardId) as any[];
+
+  const cards = rows.map((c) => ({
+    placementId: c.placementId,
+    postcardId: c.postcardId,
+    x: c.x,
+    y: c.y,
+    rotation: c.rotation,
+    placedBy: c.placedBy,
+    from: c.fromName,
+    to: c.toName,
+    createdAt: c.createdAt,
+    ...JSON.parse(c.payload),
+  }));
+
+  res.json({ board, members, cards });
+});
+
+// --- Rename a pinboard (owner only) ---
+app.post('/api/boards/:id', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  if (boardOwner(boardId) !== me.id) return res.status(403).json({ error: 'Nur die Besitzer:in kann die Pinwand umbenennen.' });
+  const name = String(req.body.name ?? '').trim();
+  if (name.length < 1) return res.status(400).json({ error: 'Bitte gib der Pinwand einen Namen.' });
+  if (name.length > 40) return res.status(400).json({ error: 'Der Name ist zu lang.' });
+  db.prepare('UPDATE boards SET name = ? WHERE id = ?').run(name, boardId);
+  res.json({ ok: true, name });
+});
+
+// --- Delete a pinboard (owner only) ---
+app.delete('/api/boards/:id', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  if (boardOwner(boardId) !== me.id) return res.status(403).json({ error: 'Nur die Besitzer:in kann die Pinwand löschen.' });
+  db.prepare('DELETE FROM board_cards WHERE board_id = ?').run(boardId);
+  db.prepare('DELETE FROM board_members WHERE board_id = ?').run(boardId);
+  db.prepare('DELETE FROM boards WHERE id = ?').run(boardId);
+  res.json({ ok: true });
+});
+
+// --- Add one of my friends to a pinboard ---
+app.post('/api/boards/:id/members', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  const friendId = String(req.body.friendId ?? '');
+  if (!isBoardMember(boardId, me.id)) return res.status(403).json({ error: 'Kein Zugriff auf diese Pinwand.' });
+  if (!areFriends(me.id, friendId)) return res.status(403).json({ error: 'Du kannst nur eigene Freund:innen hinzufügen.' });
+  if (isBoardMember(boardId, friendId)) return res.json({ ok: true, added: false });
+
+  db.prepare('INSERT OR IGNORE INTO board_members (board_id, user_id, created_at) VALUES (?,?,?)')
+    .run(boardId, friendId, Date.now());
+  res.status(201).json({ ok: true, added: true });
+
+  const board = db.prepare('SELECT name FROM boards WHERE id = ?').get(boardId) as { name: string } | undefined;
+  if (board) {
+    void notifyUser(friendId, {
+      title: '📌 Geteilte Pinwand',
+      body: `${me.name} hat dich zur Pinwand „${board.name}" hinzugefügt.`,
+      url: '/pinboard',
+    });
+  }
+});
+
+// --- Leave a pinboard, or (as owner) remove a member ---
+app.delete('/api/boards/:id/members/:userId', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  const target = req.params.userId;
+  const owner = boardOwner(boardId);
+  if (!owner) return res.status(404).json({ error: 'Pinwand nicht gefunden.' });
+  // You can always remove yourself (leave); the owner can remove anyone else.
+  const allowed = target === me.id || owner === me.id;
+  if (!allowed) return res.status(403).json({ error: 'Keine Berechtigung.' });
+  // The owner can't leave their own board — they delete it instead.
+  if (target === owner) return res.status(400).json({ error: 'Die Besitzer:in kann die Pinwand nur löschen.' });
+  db.prepare('DELETE FROM board_members WHERE board_id = ? AND user_id = ?').run(boardId, target);
+  res.json({ ok: true });
+});
+
+// --- Pin one of my postcards onto a board ---
+app.post('/api/boards/:id/cards', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  if (!isBoardMember(boardId, me.id)) return res.status(403).json({ error: 'Kein Zugriff auf diese Pinwand.' });
+
+  const postcardId = String(req.body.postcardId ?? '');
+  const owns = db
+    .prepare('SELECT 1 FROM postcards WHERE id = ? AND (sender_id = ? OR recipient_id = ?)')
+    .get(postcardId, me.id, me.id);
+  if (!owns) return res.status(403).json({ error: 'Du kannst nur eigene Postkarten anpinnen.' });
+
+  const x = Number(req.body.x);
+  const y = Number(req.body.y);
+  const rotation = Number(req.body.rotation);
+  const id = randomUUID();
+  try {
+    db.prepare(
+      'INSERT INTO board_cards (id, board_id, postcard_id, placed_by, x, y, rotation, created_at) VALUES (?,?,?,?,?,?,?,?)',
+    ).run(
+      id,
+      boardId,
+      postcardId,
+      me.id,
+      Number.isFinite(x) ? x : 0.5,
+      Number.isFinite(y) ? y : 0.4,
+      Number.isFinite(rotation) ? rotation : 0,
+      Date.now(),
+    );
+  } catch {
+    return res.status(409).json({ error: 'Diese Karte hängt schon an der Pinwand.' });
+  }
+  res.status(201).json({ placementId: id });
+});
+
+// --- Move a pinned card (any member may rearrange) ---
+app.post('/api/boards/:id/cards/:placementId', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  if (!isBoardMember(boardId, me.id)) return res.status(403).json({ error: 'Kein Zugriff auf diese Pinwand.' });
+  const x = Number(req.body.x);
+  const y = Number(req.body.y);
+  const rotation = Number(req.body.rotation);
+  db.prepare(
+    'UPDATE board_cards SET x = ?, y = ?, rotation = ? WHERE id = ? AND board_id = ?',
+  ).run(
+    Number.isFinite(x) ? x : 0.5,
+    Number.isFinite(y) ? y : 0.4,
+    Number.isFinite(rotation) ? rotation : 0,
+    req.params.placementId,
+    boardId,
+  );
+  res.json({ ok: true });
+});
+
+// --- Unpin a card (the member who placed it, or the board owner) ---
+app.delete('/api/boards/:id/cards/:placementId', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const boardId = req.params.id;
+  const placement = db
+    .prepare('SELECT placed_by FROM board_cards WHERE id = ? AND board_id = ?')
+    .get(req.params.placementId, boardId) as { placed_by: string } | undefined;
+  if (!placement) return res.json({ ok: true });
+  if (placement.placed_by !== me.id && boardOwner(boardId) !== me.id) {
+    return res.status(403).json({ error: 'Nur wer die Karte angepinnt hat, kann sie entfernen.' });
+  }
+  db.prepare('DELETE FROM board_cards WHERE id = ? AND board_id = ?').run(req.params.placementId, boardId);
+  res.json({ ok: true });
 });
 
 // --- Unknown API routes → JSON 404 (don't fall through to the SPA) ---
