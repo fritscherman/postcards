@@ -343,8 +343,12 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
 .world-hint { margin-top: 16px; color: var(--muted); font-family: 'Caveat', cursive; font-size: 1.4rem; }
 
 /* ---------- Pinboard ---------- */
+/* Center the page name above the board, as a real pinboard caption. */
+.pinboard-page .page-head { text-align: center; }
+.pinboard-page .page-head h1::after { margin-left: auto; margin-right: auto; }
+
 .corkboard {
-  position: relative; height: min(72vh, 640px); border-radius: var(--radius); overflow: hidden;
+  position: relative; height: clamp(640px, 150vh, 1400px); border-radius: var(--radius); overflow: hidden;
   background-color: #c79a5b;
   background-image:
     radial-gradient(circle at 25% 30%, rgba(255,255,255,.12) 0 2px, transparent 3px),
@@ -353,7 +357,9 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
     linear-gradient(135deg, #d3a868, #b9844a);
   background-size: 26px 26px, 30px 30px, 22px 22px, 100% 100%;
   box-shadow: inset 0 0 60px rgba(0,0,0,.35), var(--shadow-md); border: 10px solid #8a5a2b;
-  touch-action: none;
+  /* Let a finger drag scroll the page vertically over the board; pinned cards
+     still capture the gesture for repositioning (they keep touch-action: none). */
+  touch-action: pan-y;
 }
 .pinned { position: absolute; width: 230px; cursor: grab; touch-action: none; transition: filter .15s ease; }
 .pinned:active { cursor: grabbing; filter: drop-shadow(0 14px 20px rgba(0,0,0,.4)); z-index: 20; }
@@ -388,6 +394,37 @@ textarea:focus:not(:focus-visible), select:focus:not(:focus-visible),
 .pinned:hover .unpin-btn { opacity: 1; }
 .unpin-btn:hover { transform: scale(1.1); }
 @media (hover: none) { .unpin-btn { opacity: 1; } }
+
+/* Magnifier on a pinned card — opens the full-size loupe view. */
+.enlarge-btn {
+  position: absolute; top: -8px; left: -8px; z-index: 4;
+  width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--teal-dark); box-shadow: var(--shadow-md);
+  opacity: 0; transition: opacity .15s ease, transform .15s ease;
+}
+.pinned:hover .enlarge-btn { opacity: 1; }
+.enlarge-btn:hover { transform: scale(1.1); }
+@media (hover: none) { .enlarge-btn { opacity: 1; } }
+
+/* Full-size "loupe" view of a single card, opened from the magnifier. */
+.card-lightbox {
+  position: relative; width: min(680px, 100%);
+  display: flex; flex-direction: column; align-items: center;
+  animation: rise .3s ease backwards;
+}
+/* Keep the loupe card within the viewport: landscape is width-led, portrait is
+   height-led (its 2/3 ratio would otherwise run off the top and bottom). */
+.card-lightbox .postcard { max-width: min(680px, 92vw, 132vh); cursor: default; }
+.card-lightbox .postcard.portrait { max-width: min(440px, 92vw, 58vh); }
+.card-lightbox-close {
+  position: absolute; top: -14px; right: -14px; z-index: 5;
+  width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--ink); box-shadow: var(--shadow-md);
+  transition: transform .15s ease;
+}
+.card-lightbox-close:hover { transform: scale(1.08); }
 
 .liked-heart { color: var(--coral); vertical-align: middle; margin-left: 4px; }
 .dd-loc { display: inline-flex; align-items: center; gap: 4px; }
