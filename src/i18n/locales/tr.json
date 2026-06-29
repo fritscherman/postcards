@@ -32,7 +32,8 @@
     "PICK_TWO_FRIENDS": "İki farklı arkadaş seç.",
     "ONLY_OWN_FRIENDS": "Yalnızca kendi arkadaşlarını tanıştırabilirsin.",
     "NOT_FOUND": "Bulunamadı.",
-    "SERVER_ERROR": "Bir sunucu hatası oluştu."
+    "SERVER_ERROR": "Bir sunucu hatası oluştu.",
+    "SHARE_NOT_FOUND": "Bu kart artık mevcut değil."
   },
   "app": {
     "invite": "Davet et",
@@ -102,7 +103,12 @@
     "errSendFailed": "Gönderme başarısız: {{error}}",
     "removeStampTitle": "Pul kaldırılsın mı?",
     "removeStampMessage": "Bu özel pul bu cihazdan silinecek.",
-    "removeStampConfirm": "Kaldır"
+    "removeStampConfirm": "Kaldır",
+    "shareNew": "Bağlantıyı paylaş",
+    "sharing": "Bağlantı oluşturuluyor…",
+    "shareNewTitle": "Kartı henüz Wanderpost'ta olmayan biriyle bağlantı yoluyla paylaş",
+    "shareHint": "Ya da kartı bağlantıyla paylaş — henüz katılmamış arkadaşlarınla bile. Kartı hemen görürler ve yanıt verirken kaydolabilirler.",
+    "errShareFailed": "Paylaşım başarısız: {{error}}"
   },
   "templates": {
     "classic": "Klasik",
@@ -229,7 +235,9 @@
     "switchToRegister": "Hesabın yok mu? Kaydol",
     "switchToLogin": "Zaten üye misin? Giriş yap",
     "or": "veya",
-    "tryGuest": "Önce hesapsız dene →"
+    "tryGuest": "Önce hesapsız dene →",
+    "shareRegister": "Bu kartpostalı saklamak ve yanıtlamak için kaydol.",
+    "shareLogin": "Bu kartpostalı posta kutunda saklamak için giriş yap."
   },
   "welcome": {
     "aria": "Wanderpost'a hoş geldin",
@@ -436,5 +444,17 @@
     "memberAdded": "{{name}} eklendi 📌",
     "adding": "Ekleniyor…",
     "add": "Ekle"
+  },
+  "shareCard": {
+    "aria": "Kartpostalı paylaş",
+    "heading": "Kartpostalı paylaş 💌",
+    "body": "Bu bağlantıyı ulaşmak istediğin kişiye gönder. Kartı hemen görür ve saklamak ile yanıtlamak için katılırken kaydolabilir.",
+    "shareText": "Sana Wanderpost'ta bir kartpostal gönderdim! Buraya bak:",
+    "greeting": "{{name}} sana bir kartpostal gönderdi!",
+    "previewFlipHint": "⟳ Kartı çevirmek için dokun",
+    "goneTitle": "Kart bulunamadı",
+    "youLabel": "Sen",
+    "signedInBody": "Kartı posta kutuna ekle, {{name}}.",
+    "keepCard": "Posta kutuma kaydet"
   }
 }

@@ -32,7 +32,8 @@
     "PICK_TWO_FRIENDS": "Wähle zwei verschiedene Freund:innen aus.",
     "ONLY_OWN_FRIENDS": "Du kannst nur eigene Freund:innen miteinander bekannt machen.",
     "NOT_FOUND": "Nicht gefunden.",
-    "SERVER_ERROR": "Es ist ein Serverfehler aufgetreten."
+    "SERVER_ERROR": "Es ist ein Serverfehler aufgetreten.",
+    "SHARE_NOT_FOUND": "Diese Karte gibt es nicht mehr."
   },
   "app": {
     "invite": "Einladen",
@@ -102,7 +103,12 @@
     "errNeedPhoto": "Bitte wähle zuerst ein Foto aus. 📷",
     "errNeedRecipient": "Bitte wähle mindestens eine Empfänger:in aus.",
     "errNoRecipient": "Diese Person ist noch nicht dabei. Lade sie oben über „💌 Einladen“ ein.",
-    "errSendFailed": "Senden fehlgeschlagen: {{error}}"
+    "errSendFailed": "Senden fehlgeschlagen: {{error}}",
+    "shareNew": "Link teilen",
+    "sharing": "Erstelle Link…",
+    "shareNewTitle": "Karte per Link mit jemandem teilen, der noch nicht dabei ist",
+    "shareHint": "Oder teile die Karte per Link – auch mit Freund:innen, die noch nicht dabei sind. Sie sehen die Karte sofort und können sich beim Antworten registrieren.",
+    "errShareFailed": "Teilen fehlgeschlagen: {{error}}"
   },
   "templates": {
     "classic": "Klassisch",
@@ -274,7 +280,9 @@
     "switchToRegister": "Noch kein Konto? Registrieren",
     "switchToLogin": "Schon dabei? Anmelden",
     "or": "oder",
-    "tryGuest": "Erst mal ohne Konto ausprobieren →"
+    "tryGuest": "Erst mal ohne Konto ausprobieren →",
+    "shareRegister": "Registriere dich, um diese Postkarte zu behalten und zu antworten.",
+    "shareLogin": "Melde dich an, um diese Postkarte in deinem Briefkasten zu behalten."
   },
   "welcome": {
     "aria": "Willkommen bei Wanderpost",
@@ -436,5 +444,17 @@
     "back": "← Zurück",
     "imprint": "Impressum",
     "privacy": "Datenschutz"
+  },
+  "shareCard": {
+    "aria": "Postkarte teilen",
+    "heading": "Postkarte teilen 💌",
+    "body": "Schick diesen Link an die Person, die du erreichen willst. Sie sieht die Karte sofort und kann sich beim Beitreten registrieren, um sie zu behalten und dir zu antworten.",
+    "shareText": "Ich hab dir eine Postkarte über Wanderpost geschickt! Schau sie dir hier an:",
+    "greeting": "{{name}} hat dir eine Postkarte geschickt!",
+    "previewFlipHint": "⟳ Tippen, um die Karte umzudrehen",
+    "goneTitle": "Karte nicht gefunden",
+    "youLabel": "Dich",
+    "signedInBody": "Leg die Karte in deinen Briefkasten, {{name}}.",
+    "keepCard": "In meinen Briefkasten legen"
   }
 }

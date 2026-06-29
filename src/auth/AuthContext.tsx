@@ -3,14 +3,20 @@ import { apiLogin, apiMe, apiRegister, apiUpdateName, getToken, isOnline, setTok
 
 const GUEST_KEY = 'postcards.guest.v1';
 
+/** Optional link tokens redeemed on sign-in: an invite link and/or a shared card. */
+export interface AuthTokens {
+  inviteToken?: string;
+  shareToken?: string;
+}
+
 interface AuthValue {
   user: AuthUser | null;
   /** true when exploring the app locally without an account (online builds only) */
   guest: boolean;
   /** false until the initial session check has finished */
   ready: boolean;
-  login: (email: string, password: string, inviteToken?: string) => Promise<void>;
-  register: (email: string, name: string, password: string, inviteToken?: string) => Promise<void>;
+  login: (email: string, password: string, tokens?: AuthTokens) => Promise<void>;
+  register: (email: string, name: string, password: string, tokens?: AuthTokens) => Promise<void>;
   /** Change the signed-in user's display name (online mode only). */
   updateName: (name: string) => Promise<void>;
   logout: () => void;
@@ -42,16 +48,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(GUEST_KEY);
   }, []);
 
-  const login = useCallback(async (email: string, password: string, inviteToken?: string) => {
-    const { token, user } = await apiLogin({ email, password, inviteToken });
+  const login = useCallback(async (email: string, password: string, tokens?: AuthTokens) => {
+    const { token, user } = await apiLogin({ email, password, ...tokens });
     setToken(token);
     setUser(user);
     clearGuest();
   }, [clearGuest]);
 
   const register = useCallback(
-    async (email: string, name: string, password: string, inviteToken?: string) => {
-      const { token, user } = await apiRegister({ email, name, password, inviteToken });
+    async (email: string, name: string, password: string, tokens?: AuthTokens) => {
+      const { token, user } = await apiRegister({ email, name, password, ...tokens });
       setToken(token);
       setUser(user);
       clearGuest();

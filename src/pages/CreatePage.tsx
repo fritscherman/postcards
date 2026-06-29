@@ -8,6 +8,7 @@ import {
   RectangleVertical,
   RefreshCw,
   Send,
+  Share2,
   Wand2,
 } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
@@ -22,9 +23,10 @@ import { PhotoDecorator } from '../components/PhotoDecorator';
 import { StampMaker } from '../components/StampMaker';
 import { CustomStampChip } from '../components/CustomStampChip';
 import { CUSTOM_STAMP_ID } from '../data/templates';
-import { isOnline, ApiError, apiListFriends, type AuthUser } from '../api/client';
+import { isOnline, ApiError, apiCreateShare, apiListFriends, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { GuestBanner } from '../components/GuestBanner';
+import { ShareCardDialog } from '../components/ShareCardDialog';
 import { useFeedback } from '../components/Feedback';
 import { useCustomStamps } from '../hooks/useCustomStamps';
 import type { Crop, GeoLocation, Orientation } from '../types';
@@ -75,6 +77,9 @@ export function CreatePage() {
   const [busy, setBusy] = useState(false);
   const [decorating, setDecorating] = useState(false);
   const [flying, setFlying] = useState(false);
+  // A public link to the designed card, once created (opens the share dialog).
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
 
   // Available recipients as { key (send id), name } pairs.
   const options = localMode
@@ -199,6 +204,35 @@ export function CreatePage() {
       } else {
         notify(t('create.errSendFailed', { error: (err as Error).message }), { type: 'error' });
       }
+    }
+  }
+
+  // Create a public link to the card the user is designing, so they can send it
+  // to someone who isn't on Wanderpost yet: that person previews the card, then
+  // registers (or signs in) to keep it.
+  async function handleShare() {
+    if (!hasPhoto) {
+      notify(t('create.errNeedPhoto'), { type: 'error' });
+      return;
+    }
+    setSharing(true);
+    try {
+      const { link } = await apiCreateShare({
+        image,
+        message,
+        templateId,
+        stampId: sendStampId,
+        customStamp: sendCustomStamp,
+        filter: filterCss,
+        orientation,
+        crop,
+        location,
+      });
+      setShareLink(link);
+    } catch (err) {
+      notify(t('create.errShareFailed', { error: (err as Error).message }), { type: 'error' });
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -369,7 +403,7 @@ export function CreatePage() {
 
           <div className="field">
             <label>{t('create.step6')} {selected.length > 0 && <span className="counter">{t('create.selectedCount', { count: selected.length })}</span>}</label>
-            {options.length > 0 ? (
+            {options.length > 0 || !localMode ? (
               <div className="recipient-row">
                 {options.map((o) => (
                   <button
@@ -384,10 +418,29 @@ export function CreatePage() {
                     <span className="recipient-name">{o.name}</span>
                   </button>
                 ))}
+                {/* Real accounts can also share the card with someone not yet on
+                    Wanderpost: a link they preview, then register to keep. */}
+                {!localMode && (
+                  <button
+                    type="button"
+                    className="recipient-chip add-recipient"
+                    onClick={handleShare}
+                    disabled={sharing}
+                    title={t('create.shareNewTitle')}
+                  >
+                    <span className="recipient-avatar">
+                      <Share2 size={16} />
+                    </span>
+                    <span className="recipient-name">
+                      {sharing ? t('create.sharing') : t('create.shareNew')}
+                    </span>
+                  </button>
+                )}
               </div>
             ) : (
               <p className="field-hint">{t('create.noFriends')}</p>
             )}
+            {!localMode && <p className="field-hint">{t('create.shareHint')}</p>}
           </div>
 
           <GuestBanner message={t('create.guestBanner')} />
@@ -441,6 +494,8 @@ export function CreatePage() {
           onClose={() => setMakingStamp(false)}
         />
       )}
+
+      {shareLink && <ShareCardDialog link={shareLink} onClose={() => setShareLink(null)} />}
 
       {flying && (
         <div className="fly-overlay">

@@ -32,7 +32,8 @@
     "PICK_TWO_FRIENDS": "Pick two different friends.",
     "ONLY_OWN_FRIENDS": "You can only introduce your own friends.",
     "NOT_FOUND": "Not found.",
-    "SERVER_ERROR": "A server error occurred."
+    "SERVER_ERROR": "A server error occurred.",
+    "SHARE_NOT_FOUND": "This card is no longer available."
   },
   "app": {
     "invite": "Invite",
@@ -102,7 +103,12 @@
     "errNeedPhoto": "Please choose a photo first. 📷",
     "errNeedRecipient": "Please choose at least one recipient.",
     "errNoRecipient": "This person hasn't joined yet. Invite them via \"💌 Invite\" above.",
-    "errSendFailed": "Sending failed: {{error}}"
+    "errSendFailed": "Sending failed: {{error}}",
+    "shareNew": "Share by link",
+    "sharing": "Creating link…",
+    "shareNewTitle": "Share the card by link with someone not on Wanderpost yet",
+    "shareHint": "Or share the card by link — even with friends who aren't here yet. They see the card right away and can register when they reply.",
+    "errShareFailed": "Sharing failed: {{error}}"
   },
   "templates": {
     "classic": "Classic",
@@ -229,7 +235,9 @@
     "switchToRegister": "No account yet? Sign up",
     "switchToLogin": "Already here? Log in",
     "or": "or",
-    "tryGuest": "Just try it without an account first →"
+    "tryGuest": "Just try it without an account first →",
+    "shareRegister": "Register to keep this postcard and reply.",
+    "shareLogin": "Sign in to keep this postcard in your mailbox."
   },
   "welcome": {
     "aria": "Welcome to Wanderpost",
@@ -436,5 +444,17 @@
     "back": "← Back",
     "imprint": "Imprint",
     "privacy": "Privacy"
+  },
+  "shareCard": {
+    "aria": "Share postcard",
+    "heading": "Share postcard 💌",
+    "body": "Send this link to the person you want to reach. They'll see the card straight away and can register while joining to keep it and reply.",
+    "shareText": "I sent you a postcard on Wanderpost! Have a look here:",
+    "greeting": "{{name}} sent you a postcard!",
+    "previewFlipHint": "⟳ Tap to flip the card",
+    "goneTitle": "Card not found",
+    "youLabel": "You",
+    "signedInBody": "Drop the card into your mailbox, {{name}}.",
+    "keepCard": "Save to my mailbox"
   }
 }
