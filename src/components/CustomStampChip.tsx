@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Stamp } from '../types';
 import { useLongPress } from '../hooks/useLongPress';
 
@@ -11,6 +12,7 @@ interface Props {
 
 /** A chip for one self-made stamp: tap to select, long-press to remove. */
 export function CustomStampChip({ stamp, selected, onSelect, onRemove }: Props) {
+  const { t } = useTranslation();
   const { handlers, didLongPress } = useLongPress(onRemove);
 
   return (
@@ -23,7 +25,7 @@ export function CustomStampChip({ stamp, selected, onSelect, onRemove }: Props) 
         if (!didLongPress()) onSelect();
       }}
       onContextMenu={(e) => e.preventDefault()}
-      title="Eigene Briefmarke (lang drücken zum Entfernen)"
+      title={t('stamp.customChipTitle')}
       {...handlers}
     >
       {stamp.emoji}

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import QRCode from 'qrcode';
 import { Check, Link2, MessageCircle, Share2 } from 'lucide-react';
 import { apiCreateInvite } from '../api/client';
 import { useDialog } from '../hooks/useDialog';
 
-const SHARE_TEXT = 'Ich schicke dir Postkarten über Wanderpost! Tritt mit diesem Link bei:';
-
 export function InviteFriends({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
+  const SHARE_TEXT = t('invite.shareText');
   const ref = useDialog<HTMLDivElement>(onClose);
   const [link, setLink] = useState('');
   const [qr, setQr] = useState('');
@@ -67,22 +68,22 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Freunde einladen"
+        aria-label={t('invite.aria')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Freunde einladen 💌</h3>
+        <h3>{t('invite.heading')}</h3>
         {error ? (
           <p className="auth-error">{error}</p>
         ) : !link ? (
-          <p>Link wird erstellt…</p>
+          <p>{t('invite.creating')}</p>
         ) : (
           <>
-            <p>Teile diesen Link, damit Freund:innen beitreten und deine Postkarten empfangen können.</p>
+            <p>{t('invite.body')}</p>
             {qr && (
               <div className="invite-qr">
-                <img src={qr} alt="QR-Code zum Beitreten" width={180} height={180} />
-                <span className="invite-qr-hint">Zum Beitreten einfach scannen 📷</span>
+                <img src={qr} alt={t('invite.qrAlt')} width={180} height={180} />
+                <span className="invite-qr-hint">{t('invite.qrHint')}</span>
               </div>
             )}
             <input readOnly value={link} onFocus={(e) => e.target.select()} />
@@ -90,19 +91,19 @@ export function InviteFriends({ onClose }: { onClose: () => void }) {
             <div className="invite-actions">
               {canShare && (
                 <button className="btn primary" onClick={share}>
-                  <Share2 size={16} /> Teilen
+                  <Share2 size={16} /> {t('invite.share')}
                 </button>
               )}
               <a className="btn ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
                 <MessageCircle size={16} /> WhatsApp
               </a>
               <button className="btn ghost" onClick={copy}>
-                {copied ? <><Check size={16} /> Kopiert</> : <><Link2 size={16} /> Link kopieren</>}
+                {copied ? <><Check size={16} /> {t('invite.copied')}</> : <><Link2 size={16} /> {t('invite.copyLink')}</>}
               </button>
             </div>
           </>
         )}
-        <button className="btn link" onClick={onClose}>Schließen</button>
+        <button className="btn link" onClick={onClose}>{t('common.close')}</button>
       </div>
     </div>
   );

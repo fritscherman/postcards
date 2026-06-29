@@ -1,24 +1,26 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Logo } from '../components/Logo';
 
 function LegalLayout({ title, children }: { title: string; children: ReactNode }) {
+  const { t } = useTranslation();
   return (
     <div className="legal-page">
       <header className="legal-head">
-        <Link to="/" className="legal-home" aria-label="Zur Startseite">
+        <Link to="/" className="legal-home" aria-label={t('legal.home')}>
           <Logo size={32} /> <span className="landing-wordmark legal-wordmark">Wanderpost</span>
         </Link>
-        <Link to="/" className="btn link">← Zurück</Link>
+        <Link to="/" className="btn link">{t('legal.back')}</Link>
       </header>
 
       <h1>{title}</h1>
       <div className="legal-body">{children}</div>
 
       <footer className="legal-foot">
-        <Link to="/impressum">Impressum</Link>
+        <Link to="/impressum">{t('legal.imprint')}</Link>
         <span aria-hidden="true">·</span>
-        <Link to="/datenschutz">Datenschutz</Link>
+        <Link to="/datenschutz">{t('legal.privacy')}</Link>
       </footer>
     </div>
   );

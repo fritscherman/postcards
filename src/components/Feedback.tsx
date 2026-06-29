@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Check, Info, TriangleAlert, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useDialog } from '../hooks/useDialog';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -54,6 +55,7 @@ const ICONS: Record<ToastType, ReactNode> = {
 };
 
 export function FeedbackProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [pending, setPending] = useState<(ConfirmOptions & { resolve: (v: boolean) => void }) | null>(
     null,
@@ -92,23 +94,23 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     <FeedbackContext.Provider value={{ notify, confirm }}>
       {children}
 
-      <div className="toast-stack" role="region" aria-label="Hinweise" aria-live="polite">
-        {toasts.map((t) => (
-          <div key={t.id} className={`toast toast-${t.type}`}>
-            <span className="toast-icon" aria-hidden="true">{ICONS[t.type]}</span>
-            <span className="toast-message">{t.message}</span>
-            {t.action && (
+      <div className="toast-stack" role="region" aria-label={t('feedback.hintsAria')} aria-live="polite">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            <span className="toast-icon" aria-hidden="true">{ICONS[toast.type]}</span>
+            <span className="toast-message">{toast.message}</span>
+            {toast.action && (
               <button
                 className="toast-action"
                 onClick={() => {
-                  t.action!.onClick();
-                  dismiss(t.id);
+                  toast.action!.onClick();
+                  dismiss(toast.id);
                 }}
               >
-                {t.action.label}
+                {toast.action.label}
               </button>
             )}
-            <button className="toast-close" aria-label="Schließen" onClick={() => dismiss(t.id)}>
+            <button className="toast-close" aria-label={t('common.close')} onClick={() => dismiss(toast.id)}>
               <X size={16} />
             </button>
           </div>
@@ -129,12 +131,13 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
 function ConfirmDialog({
   title,
   message,
-  confirmLabel = 'OK',
-  cancelLabel = 'Abbrechen',
+  confirmLabel,
+  cancelLabel,
   danger,
   onConfirm,
   onCancel,
 }: ConfirmOptions & { onConfirm: () => void; onCancel: () => void }) {
+  const { t } = useTranslation();
   const ref = useDialog<HTMLDivElement>(onCancel);
   return (
     <div className="modal-backdrop" onClick={onCancel}>
@@ -150,9 +153,9 @@ function ConfirmDialog({
         <h3>{title}</h3>
         {message && <p>{message}</p>}
         <div className="modal-actions">
-          <button className="btn ghost" onClick={onCancel}>{cancelLabel}</button>
+          <button className="btn ghost" onClick={onCancel}>{cancelLabel ?? t('common.cancel')}</button>
           <button className={`btn ${danger ? 'danger' : 'primary'}`} onClick={onConfirm}>
-            {confirmLabel}
+            {confirmLabel ?? t('common.ok')}
           </button>
         </div>
       </div>

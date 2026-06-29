@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { RotateCcw, Sparkles, UserPlus } from 'lucide-react';
 import { NavBar } from './components/NavBar';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { CreatePage } from './pages/CreatePage';
 import { MailboxPage } from './pages/MailboxPage';
 import { WorldPage } from './pages/WorldPage';
@@ -28,6 +30,7 @@ function InviteAuth({ onGuest }: { onGuest: () => void }) {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const { userName, setUserName, resetDemo } = usePostcards();
   const { user, guest, ready, updateName, logout, enterGuest } = useAuth();
   const localMode = !isOnline || guest;
@@ -39,7 +42,7 @@ export default function App() {
   if (isOnline && !ready) {
     return (
       <div className="app">
-        <div className="auth-shell"><p className="auth-sub">Lädt…</p></div>
+        <div className="auth-shell"><p className="auth-sub">{t('common.loading')}</p></div>
       </div>
     );
   }
@@ -59,27 +62,28 @@ export default function App() {
       <header className="app-bar">
         <span className="logo"><Logo size={36} /> Wanderpost</span>
         <div className="app-bar-actions">
+          <LanguageSwitcher />
           <InstallButton />
           {isOnline && user && <NotificationToggle />}
           {isOnline && user && (
-            <button className="btn link" onClick={() => setInviting(true)} title="Freunde einladen">
-              <UserPlus size={16} /> Einladen
+            <button className="btn link" onClick={() => setInviting(true)} title={t('app.inviteTitle')}>
+              <UserPlus size={16} /> {t('app.invite')}
             </button>
           )}
           {guest && (
-            <button className="btn primary small" onClick={logout} title="Kostenloses Konto erstellen">
-              <Sparkles size={16} /> Konto erstellen
+            <button className="btn primary small" onClick={logout} title={t('app.createAccountTitle')}>
+              <Sparkles size={16} /> {t('common.createAccount')}
             </button>
           )}
           <button
             className="who who-initials"
-            title={`${userName} · Profil`}
+            title={t('app.profileTitle', { name: userName })}
             onClick={() => setEditing(true)}
           >
             {initials(userName)}
           </button>
           {localMode && (
-            <button className="btn link" onClick={resetDemo} title="Daten zurücksetzen">
+            <button className="btn link" onClick={resetDemo} title={t('app.resetData')}>
               <RotateCcw size={16} />
             </button>
           )}
@@ -141,6 +145,7 @@ function ProfileModal({
   onLogout,
   onClose,
 }: ProfileModalProps) {
+  const { t } = useTranslation();
   const { confirm } = useFeedback();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [draft, setDraft] = useState(initialName);
@@ -152,7 +157,7 @@ function ProfileModal({
     const next = draft.trim();
     if (isAccount) {
       if (next.length < 2) {
-        setNameError('Bitte gib einen Namen an.');
+        setNameError(t('profile.nameRequired'));
         return;
       }
       setSaving(true);
@@ -173,9 +178,9 @@ function ProfileModal({
 
   const handleLogout = async () => {
     const ok = await confirm({
-      title: 'Abmelden?',
-      message: 'Du wirst aus deinem Konto abgemeldet.',
-      confirmLabel: 'Abmelden',
+      title: t('profile.logoutConfirmTitle'),
+      message: t('profile.logoutConfirmMessage'),
+      confirmLabel: t('profile.logout'),
       danger: true,
     });
     if (ok) onLogout();
@@ -188,26 +193,26 @@ function ProfileModal({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label={isAccount ? 'Dein Profil' : 'Wie heißt du?'}
+        aria-label={isAccount ? t('profile.yourProfile') : t('profile.whatsYourName')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>{isAccount ? 'Dein Profil' : 'Wie heißt du?'}</h3>
-        <p>Dein Name erscheint als Absender auf den Karten.</p>
+        <h3>{isAccount ? t('profile.yourProfile') : t('profile.whatsYourName')}</h3>
+        <p>{t('profile.nameSubtitle')}</p>
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && saveName()}
-          aria-label="Dein Name"
+          aria-label={t('profile.nameAria')}
         />
         {isAccount && email && <p className="field-hint">{email}</p>}
         {nameError && <p className="auth-error">{nameError}</p>}
         <button className="btn primary" onClick={saveName} disabled={saving}>
-          {saving ? 'Speichert…' : 'Speichern'}
+          {saving ? t('common.saving') : t('common.save')}
         </button>
         {isAccount && (
           <button className="btn link" onClick={handleLogout}>
-            Abmelden
+            {t('profile.logout')}
           </button>
         )}
       </div>

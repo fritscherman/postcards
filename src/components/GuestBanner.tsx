@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 
 /**
@@ -5,13 +6,14 @@ import { useAuth } from '../auth/AuthContext';
  * Renders nothing for the demo build or signed-in users.
  */
 export function GuestBanner({ message }: { message: string }) {
+  const { t } = useTranslation();
   const { guest, logout } = useAuth();
   if (!guest) return null;
   return (
     <div className="guest-note">
       <span>✨ {message}</span>
       <button type="button" className="btn primary small" onClick={logout}>
-        Konto erstellen
+        {t('guest.createAccount')}
       </button>
     </div>
   );

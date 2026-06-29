@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Users } from 'lucide-react';
 import { apiCreateBoard, apiListBoards, type BoardSummary } from '../api/client';
 import { useFeedback } from './Feedback';
@@ -7,6 +8,7 @@ import { SharedBoard } from './SharedBoard';
 
 /** Online mode: manage several shared pinboards and switch between them. */
 export function BoardsPinboard() {
+  const { t } = useTranslation();
   const { notify } = useFeedback();
   const [boards, setBoards] = useState<BoardSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,11 +24,11 @@ export function BoardsPinboard() {
         prev && boards.some((b) => b.id === prev) ? prev : boards[0]?.id ?? null,
       );
     } catch (err) {
-      notify('Pinwände konnten nicht geladen werden: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.loadError', { error: (err as Error).message }), { type: 'error' });
     } finally {
       setLoading(false);
     }
-  }, [notify]);
+  }, [notify, t]);
 
   useEffect(() => {
     void refresh();
@@ -34,7 +36,7 @@ export function BoardsPinboard() {
 
   const selected = boards.find((b) => b.id === selectedId) ?? null;
 
-  if (loading) return <p className="field-hint">Lädt…</p>;
+  if (loading) return <p className="field-hint">{t('common.loading')}</p>;
 
   return (
     <>
@@ -44,7 +46,7 @@ export function BoardsPinboard() {
             key={b.id}
             className={`board-tab ${b.id === selectedId ? 'sel' : ''}`}
             onClick={() => setSelectedId(b.id)}
-            title={`${b.name} · ${b.memberCount} Mitglieder · ${b.cardCount} Karten`}
+            title={t('boards.tabTitle', { name: b.name, members: b.memberCount, cards: b.cardCount })}
           >
             {b.name}
             {b.memberCount > 1 && (
@@ -54,8 +56,8 @@ export function BoardsPinboard() {
             )}
           </button>
         ))}
-        <button className="board-tab new" onClick={() => setCreating(true)} title="Neue Pinwand">
-          <Plus size={15} /> Neue Pinwand
+        <button className="board-tab new" onClick={() => setCreating(true)} title={t('boards.newBoard')}>
+          <Plus size={15} /> {t('boards.newBoard')}
         </button>
       </div>
 
@@ -69,13 +71,10 @@ export function BoardsPinboard() {
       ) : (
         <div className="board-empty-state">
           <Users size={40} strokeWidth={1.5} />
-          <h2>Noch keine Pinwand</h2>
-          <p>
-            Erstelle eine Pinwand, häng deine Lieblingskarten auf und lade Freund:innen ein, gemeinsam
-            zu pinnen.
-          </p>
+          <h2>{t('boards.noneTitle')}</h2>
+          <p>{t('boards.noneBody')}</p>
           <button className="btn primary" onClick={() => setCreating(true)}>
-            <Plus size={16} /> Pinwand erstellen
+            <Plus size={16} /> {t('boards.create')}
           </button>
         </div>
       )}
@@ -101,6 +100,7 @@ function CreateBoard({
   onClose: () => void;
   onCreated: (board: BoardSummary) => void;
 }) {
+  const { t } = useTranslation();
   const { notify } = useFeedback();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [name, setName] = useState('');
@@ -114,7 +114,7 @@ function CreateBoard({
       const { board } = await apiCreateBoard(next);
       onCreated(board);
     } catch (err) {
-      notify('Erstellen fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.createError', { error: (err as Error).message }), { type: 'error' });
       setBusy(false);
     }
   }
@@ -126,26 +126,26 @@ function CreateBoard({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Neue Pinwand"
+        aria-label={t('boards.newBoard')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Neue Pinwand 📌</h3>
-        <p>Gib ihr einen Namen — z. B. „Sommer 2026“ oder „Unsere Reisen“.</p>
+        <h3>{t('boards.newBoardHeading')}</h3>
+        <p>{t('boards.newBoardBody')}</p>
         <input
           value={name}
           maxLength={40}
           autoFocus
-          placeholder="Name der Pinwand"
+          placeholder={t('boards.nameLabel')}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && create()}
-          aria-label="Name der Pinwand"
+          aria-label={t('boards.nameLabel')}
         />
         <button className="btn primary" onClick={create} disabled={busy || !name.trim()}>
-          {busy ? 'Erstellt…' : 'Erstellen'}
+          {busy ? t('boards.creating') : t('boards.createShort')}
         </button>
         <button className="btn link" onClick={onClose}>
-          Abbrechen
+          {t('common.cancel')}
         </button>
       </div>
     </div>

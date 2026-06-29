@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Camera,
@@ -33,11 +34,12 @@ const PLACEHOLDER =
   encodeURIComponent(
     `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
       <rect width='600' height='400' fill='#e2e8f0'/>
-      <text x='300' y='200' font-size='40' fill='#94a3b8' text-anchor='middle' font-family='sans-serif'>Foto wählen 📷</text>
+      <text x='300' y='215' font-size='96' text-anchor='middle' font-family='sans-serif'>📷</text>
     </svg>`,
   );
 
 export function CreatePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { sendPostcard, userName } = usePostcards();
@@ -98,10 +100,10 @@ export function CreatePage() {
   const nameFor = (key: string) => options.find((o) => o.key === key)?.name ?? key;
   const recipientLabel =
     selected.length === 0
-      ? 'Freund:in'
+      ? t('create.recipientDefault')
       : selected.length === 1
         ? nameFor(selected[0])
-        : `${selected.length} Freund:innen`;
+        : t('create.recipientsMany', { count: selected.length });
 
   function toggleRecipient(key: string) {
     setSelected((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
@@ -109,9 +111,9 @@ export function CreatePage() {
 
   async function handleRemoveStamp(id: string) {
     const ok = await confirm({
-      title: 'Briefmarke entfernen?',
-      message: 'Diese eigene Briefmarke wird von diesem Gerät gelöscht.',
-      confirmLabel: 'Entfernen',
+      title: t('create.removeStampTitle'),
+      message: t('create.removeStampMessage'),
+      confirmLabel: t('create.removeStampConfirm'),
       danger: true,
     });
     if (!ok) return;
@@ -130,13 +132,13 @@ export function CreatePage() {
       const exif = await readExifLocation(file);
       if (exif) setLocation(exif);
     } catch (err) {
-      notify('Fehler beim Laden des Fotos: ' + (err as Error).message, { type: 'error' });
+      notify(t('create.errPhotoLoad', { error: (err as Error).message }), { type: 'error' });
     }
   }
 
   function captureLocation() {
     if (!navigator.geolocation) {
-      notify('Standort wird von diesem Browser nicht unterstützt.', { type: 'error' });
+      notify(t('create.errGeoUnsupported'), { type: 'error' });
       return;
     }
     setLocating(true);
@@ -151,7 +153,7 @@ export function CreatePage() {
         setLocating(false);
       },
       () => {
-        notify('Standort konnte nicht ermittelt werden.', { type: 'error' });
+        notify(t('create.errGeoFailed'), { type: 'error' });
         setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 8000 },
@@ -160,11 +162,11 @@ export function CreatePage() {
 
   async function handleSend() {
     if (!hasPhoto) {
-      notify('Bitte wähle zuerst ein Foto aus. 📷', { type: 'error' });
+      notify(t('create.errNeedPhoto'), { type: 'error' });
       return;
     }
     if (selected.length === 0) {
-      notify('Bitte wähle mindestens eine Empfänger:in aus.', { type: 'error' });
+      notify(t('create.errNeedRecipient'), { type: 'error' });
       return;
     }
     setBusy(true);
@@ -193,11 +195,9 @@ export function CreatePage() {
       setFlying(false);
       setBusy(false);
       if (err instanceof ApiError && err.code === 'NO_RECIPIENT') {
-        notify('Diese Person ist noch nicht dabei. Lade sie oben über „💌 Einladen" ein.', {
-          type: 'error',
-        });
+        notify(t('create.errNoRecipient'), { type: 'error' });
       } else {
-        notify('Senden fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+        notify(t('create.errSendFailed', { error: (err as Error).message }), { type: 'error' });
       }
     }
   }
@@ -224,22 +224,22 @@ export function CreatePage() {
   return (
     <div className="page create-page">
       <header className="page-head">
-        <h1>Neue Postkarte</h1>
-        <p>Wähle ein Foto, gestalte deine Karte und sende sie ab. ✉️</p>
+        <h1>{t('create.title')}</h1>
+        <p>{t('create.subtitle')}</p>
       </header>
 
       <div className="create-grid">
         <section className="editor">
           <div className="field">
-            <label>1 · Foto</label>
+            <label>{t('create.step1')}</label>
             <div className="photo-actions">
               <button className="btn ghost" onClick={() => fileRef.current?.click()}>
                 {hasPhoto ? <RefreshCw size={16} /> : <Camera size={16} />}
-                {hasPhoto ? 'Anderes Foto' : 'Foto wählen / aufnehmen'}
+                {hasPhoto ? t('create.otherPhoto') : t('create.choosePhoto')}
               </button>
               {hasPhoto && (
                 <button className="btn ghost" onClick={() => setDecorating(true)}>
-                  <Wand2 size={16} /> Verzieren
+                  <Wand2 size={16} /> {t('create.decorate')}
                 </button>
               )}
               {/* No `capture` attribute: lets the phone offer both gallery and camera.
@@ -256,56 +256,53 @@ export function CreatePage() {
             <button className="btn link" onClick={captureLocation} disabled={locating}>
               <MapPin size={15} />
               {locating
-                ? ' Suche Standort…'
+                ? ` ${t('create.searchingLocation')}`
                 : location
-                  ? ` ${location.label}${location.source === 'exif' ? ' (aus Foto)' : ''}`
-                  : ' Aufnahmeort hinzufügen'}
+                  ? ` ${location.label}${location.source === 'exif' ? t('create.fromPhotoSuffix') : ''}`
+                  : ` ${t('create.addLocation')}`}
             </button>
 
             <div className="orient-row">
-              <span className="mini-label">Ausrichtung</span>
+              <span className="mini-label">{t('create.orientation')}</span>
               <div className="seg">
                 <button
                   className={`seg-btn ${orientation === 'landscape' ? 'on' : ''}`}
                   onClick={() => setOrientation('landscape')}
                 >
-                  <RectangleHorizontal size={16} /> Quer
+                  <RectangleHorizontal size={16} /> {t('create.landscape')}
                 </button>
                 <button
                   className={`seg-btn ${orientation === 'portrait' ? 'on' : ''}`}
                   onClick={() => setOrientation('portrait')}
                 >
-                  <RectangleVertical size={16} /> Hoch
+                  <RectangleVertical size={16} /> {t('create.portrait')}
                 </button>
               </div>
             </div>
 
             {hasPhoto && (
-              <p className="field-hint">
-                🔍 Zum Zuschneiden direkt in der Vorschau zoomen – mit zwei Fingern, dem Mausrad
-                oder per Doppeltipp. Danach ziehen, um den Ausschnitt zu verschieben.
-              </p>
+              <p className="field-hint">{t('create.cropHint')}</p>
             )}
           </div>
 
           <div className="field">
-            <label>2 · Vorlage</label>
+            <label>{t('create.step2')}</label>
             <div className="chip-row">
-              {TEMPLATES.map((t) => (
+              {TEMPLATES.map((tpl) => (
                 <button
-                  key={t.id}
-                  className={`chip ${templateId === t.id ? 'sel' : ''}`}
-                  style={{ background: t.frame, color: t.accent, borderColor: t.accent }}
-                  onClick={() => setTemplateId(t.id)}
+                  key={tpl.id}
+                  className={`chip ${templateId === tpl.id ? 'sel' : ''}`}
+                  style={{ background: tpl.frame, color: tpl.accent, borderColor: tpl.accent }}
+                  onClick={() => setTemplateId(tpl.id)}
                 >
-                  {t.name}
+                  {t(`templates.${tpl.id}`, tpl.name)}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="field">
-            <label>3 · Filter</label>
+            <label>{t('create.step3')}</label>
             <div className="chip-row">
               {FILTERS.map((f) => (
                 <button
@@ -320,25 +317,25 @@ export function CreatePage() {
                     className={`filter-swatch ${hasPhoto ? 'photo' : ''}`}
                     style={hasPhoto ? { backgroundImage: `url(${image})`, filter: f.css } : { filter: f.css }}
                   />
-                  {f.name}
+                  {t(`filters.${f.id}`, f.name)}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="field">
-            <label>4 · Text</label>
+            <label>{t('create.step4')}</label>
             <textarea
               value={message}
               maxLength={280}
-              placeholder="Liebe Grüße aus dem Urlaub…"
+              placeholder={t('create.messagePlaceholder')}
               onChange={(e) => setMessage(e.target.value)}
             />
             <span className="counter">{message.length}/280</span>
           </div>
 
           <div className="field">
-            <label>5 · Briefmarke 🏷️</label>
+            <label>{t('create.step5')}</label>
             <div className="chip-row">
               {STAMPS.map((s) => (
                 <button
@@ -363,7 +360,7 @@ export function CreatePage() {
               <button
                 className="stamp-chip add-stamp"
                 onClick={() => setMakingStamp(true)}
-                title="Eigene Briefmarke gestalten"
+                title={t('create.makeStampTitle')}
               >
                 +
               </button>
@@ -371,7 +368,7 @@ export function CreatePage() {
           </div>
 
           <div className="field">
-            <label>6 · Empfänger {selected.length > 0 && <span className="counter">{selected.length} gewählt</span>}</label>
+            <label>{t('create.step6')} {selected.length > 0 && <span className="counter">{t('create.selectedCount', { count: selected.length })}</span>}</label>
             {options.length > 0 ? (
               <div className="recipient-row">
                 {options.map((o) => (
@@ -389,14 +386,11 @@ export function CreatePage() {
                 ))}
               </div>
             ) : (
-              <p className="field-hint">
-                Du hast noch keine Freund:innen verbunden. Lade jemanden oben über „💌 Einladen" ein —
-                sobald er beitritt, erscheint er hier.
-              </p>
+              <p className="field-hint">{t('create.noFriends')}</p>
             )}
           </div>
 
-          <GuestBanner message="Im Gast-Modus bleibt deine Karte nur auf diesem Gerät. Für echtes Versenden an Freund:innen erstelle ein kostenloses Konto." />
+          <GuestBanner message={t('create.guestBanner')} />
 
           <button
             className="btn primary big"
@@ -405,15 +399,15 @@ export function CreatePage() {
           >
             <Send size={17} />
             {busy
-              ? ' Wird versendet…'
+              ? ` ${t('create.sending')}`
               : selected.length > 1
-                ? ` An ${selected.length} Freund:innen senden`
-                : ` An ${recipientLabel} senden`}
+                ? ` ${t('create.sendToMany', { count: selected.length })}`
+                : ` ${t('create.sendToOne', { name: recipientLabel })}`}
           </button>
         </section>
 
         <section className="preview">
-          <span className="preview-hint">{hasPhoto ? 'Vorschau · ⟳ zum Umdrehen' : 'So wird deine Karte aussehen'}</span>
+          <span className="preview-hint">{hasPhoto ? t('create.previewFlipHint') : t('create.previewHint')}</span>
           <div className="preview-card-wrap">
             <PostcardCard
               card={previewCard}
@@ -421,7 +415,7 @@ export function CreatePage() {
               onCropChange={(c) => setCrop(c)}
               onCardClick={hasPhoto ? undefined : () => fileRef.current?.click()}
             />
-            {!hasPhoto && <span className="dropzone-cta">📷 Tippen, um ein Foto zu wählen</span>}
+            {!hasPhoto && <span className="dropzone-cta">{t('create.tapToChoosePhoto')}</span>}
           </div>
         </section>
       </div>
@@ -453,7 +447,7 @@ export function CreatePage() {
           <div className="fly-card">
             <PostcardCard card={previewCard} flippable={false} />
           </div>
-          <p className="fly-text">Unterwegs zu {recipientLabel}… ✈️</p>
+          <p className="fly-text">{t('create.flyingTo', { name: recipientLabel })}</p>
         </div>
       )}
     </div>

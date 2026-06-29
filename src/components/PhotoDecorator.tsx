@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Pencil, Smile, Undo2, X } from 'lucide-react';
 import { useDialog } from '../hooks/useDialog';
 
@@ -17,6 +18,7 @@ const BRUSHES = [0.008, 0.016, 0.028];
 const EMOJIS = ['❤️', '⭐', '😎', '🌴', '✈️', '🎈', '🌸', '🍦', '👋', '🔥', '🌈', '📍'];
 
 export function PhotoDecorator({ src, onApply, onClose }: Props) {
+  const { t } = useTranslation();
   const dialogRef = useDialog<HTMLDivElement>(onClose);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -193,13 +195,13 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Foto verzieren"
+        aria-label={t('decorator.aria')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="dec-head">
-          <h3>Foto verzieren 🎨</h3>
-          <button className="btn link icon-btn" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
+          <h3>{t('decorator.heading')}</h3>
+          <button className="btn link icon-btn" onClick={onClose} aria-label={t('common.close')}><X size={18} /></button>
         </div>
 
         <div
@@ -235,10 +237,10 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
         <div className="dec-tools">
           <div className="seg">
             <button className={`seg-btn ${mode === 'sticker' ? 'on' : ''}`} onClick={() => setMode('sticker')}>
-              <Smile size={16} /> Sticker
+              <Smile size={16} /> {t('decorator.sticker')}
             </button>
             <button className={`seg-btn ${mode === 'draw' ? 'on' : ''}`} onClick={() => setMode('draw')}>
-              <Pencil size={16} /> Zeichnen
+              <Pencil size={16} /> {t('decorator.draw')}
             </button>
           </div>
 
@@ -273,13 +275,13 @@ export function PhotoDecorator({ src, onApply, onClose }: Props) {
           )}
 
           <p className="dec-hint">
-            {mode === 'sticker' ? 'Tippen zum Platzieren · ziehen zum Bewegen · Doppeltippen entfernt' : 'Mit dem Finger / der Maus zeichnen'}
+            {mode === 'sticker' ? t('decorator.stickerHint') : t('decorator.drawHint')}
           </p>
 
           <div className="dec-actions">
-            <button className="btn link" onClick={undo}><Undo2 size={16} /> Rückgängig</button>
-            <button className="btn link danger" onClick={clearAll}>Alles löschen</button>
-            <button className="btn primary" onClick={apply}><Check size={16} /> Fertig</button>
+            <button className="btn link" onClick={undo}><Undo2 size={16} /> {t('decorator.undo')}</button>
+            <button className="btn link danger" onClick={clearAll}>{t('decorator.clear')}</button>
+            <button className="btn primary" onClick={apply}><Check size={16} /> {t('decorator.done')}</button>
           </div>
         </div>
       </div>

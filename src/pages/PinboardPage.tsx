@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { isOnline } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { LocalPinboard } from '../components/LocalPinboard';
 import { BoardsPinboard } from '../components/BoardsPinboard';
 
 export function PinboardPage() {
+  const { t } = useTranslation();
   const { user, guest } = useAuth();
   // Real accounts get shareable, multi-board pinwände from the server.
   // Demo / guest mode keeps the single on-device board.
@@ -12,12 +14,8 @@ export function PinboardPage() {
   return (
     <div className="page pinboard-page">
       <header className="page-head">
-        <h1>Pinwand</h1>
-        <p>
-          {online
-            ? 'Erstelle mehrere Pinwände und teile sie mit Freund:innen zum gemeinsamen Pinnen.'
-            : 'Häng deine Lieblingskarten auf und zieh sie zurecht.'}
-        </p>
+        <h1>{t('pinboard.title')}</h1>
+        <p>{online ? t('pinboard.subtitleOnline') : t('pinboard.subtitle')}</p>
       </header>
 
       {online ? <BoardsPinboard /> : <LocalPinboard />}

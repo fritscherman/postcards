@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pencil, PinOff, Plus, Trash2, UserPlus, LogOut } from 'lucide-react';
 import {
   apiAddBoardMember,
@@ -53,6 +54,7 @@ function toPostcard(c: BoardCard): Postcard {
 }
 
 export function SharedBoard({ board, onChanged, onGone }: Props) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { notify, confirm } = useFeedback();
   const myId = user?.id ?? '';
@@ -69,11 +71,11 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
     try {
       setDetail(await apiGetBoard(board.id));
     } catch (err) {
-      notify('Pinwand konnte nicht geladen werden: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.boardLoadError', { error: (err as Error).message }), { type: 'error' });
     } finally {
       setLoading(false);
     }
-  }, [board.id, notify]);
+  }, [board.id, notify, t]);
 
   useEffect(() => {
     void load();
@@ -134,16 +136,16 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
       await apiUnpinBoardCard(board.id, card.placementId);
       onChanged();
     } catch (err) {
-      notify('Konnte die Karte nicht entfernen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.unpinError', { error: (err as Error).message }), { type: 'error' });
       void load();
     }
   }
 
   async function handleDelete() {
     const ok = await confirm({
-      title: 'Pinwand löschen?',
-      message: `„${board.name}" wird für alle Mitglieder gelöscht.`,
-      confirmLabel: 'Löschen',
+      title: t('boards.deleteTitle'),
+      message: t('boards.deleteMessage', { name: board.name }),
+      confirmLabel: t('common.delete'),
       danger: true,
     });
     if (!ok) return;
@@ -152,15 +154,15 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
       onGone();
       onChanged();
     } catch (err) {
-      notify('Löschen fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.deleteError', { error: (err as Error).message }), { type: 'error' });
     }
   }
 
   async function handleLeave() {
     const ok = await confirm({
-      title: 'Pinwand verlassen?',
-      message: `Du verlässt „${board.name}" und siehst sie nicht mehr.`,
-      confirmLabel: 'Verlassen',
+      title: t('boards.leaveTitle'),
+      message: t('boards.leaveMessage', { name: board.name }),
+      confirmLabel: t('boards.leave'),
       danger: true,
     });
     if (!ok) return;
@@ -169,7 +171,7 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
       onGone();
       onChanged();
     } catch (err) {
-      notify('Verlassen fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.leaveError', { error: (err as Error).message }), { type: 'error' });
     }
   }
 
@@ -179,12 +181,12 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
   return (
     <div className="shared-board">
       <div className="board-toolbar">
-        <div className="board-members" title="Mitglieder">
+        <div className="board-members" title={t('boards.members')}>
           {members.map((m) => (
             <span
               key={m.id}
               className="board-avatar"
-              title={m.id === board.ownerId ? `${m.name} (Besitzer:in)` : m.name}
+              title={m.id === board.ownerId ? t('boards.ownerLabel', { name: m.name }) : m.name}
             >
               {initials(m.name)}
             </span>
@@ -192,30 +194,30 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
         </div>
         <div className="board-toolbar-actions">
           <button className="btn ghost small" onClick={() => setAdding(true)}>
-            <UserPlus size={15} /> Mitglied
+            <UserPlus size={15} /> {t('boards.member')}
           </button>
           <button className="btn ghost small" onClick={() => setPicking(true)}>
-            <Plus size={15} /> Karte anpinnen
+            <Plus size={15} /> {t('boards.pinCard')}
           </button>
           {isOwner ? (
             <>
-              <button className="btn ghost small" onClick={() => setRenaming(true)} title="Umbenennen">
+              <button className="btn ghost small" onClick={() => setRenaming(true)} title={t('boards.rename')}>
                 <Pencil size={15} />
               </button>
-              <button className="btn ghost small danger" onClick={handleDelete} title="Pinwand löschen">
+              <button className="btn ghost small danger" onClick={handleDelete} title={t('boards.deleteBoard')}>
                 <Trash2 size={15} />
               </button>
             </>
           ) : (
-            <button className="btn ghost small danger" onClick={handleLeave} title="Pinwand verlassen">
-              <LogOut size={15} /> Verlassen
+            <button className="btn ghost small danger" onClick={handleLeave} title={t('boards.leaveBoard')}>
+              <LogOut size={15} /> {t('boards.leave')}
             </button>
           )}
         </div>
       </div>
 
       {loading ? (
-        <p className="field-hint">Lädt…</p>
+        <p className="field-hint">{t('common.loading')}</p>
       ) : (
         <>
           <div
@@ -226,7 +228,7 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
             onPointerLeave={onPointerUp}
           >
             {cards.length === 0 && (
-              <div className="board-empty">Noch keine Karten — pinne welche an! 📌</div>
+              <div className="board-empty">{t('boards.emptyCards')}</div>
             )}
             {cards.map((card) => {
               const canRemove = card.placedBy === myId || isOwner;
@@ -247,8 +249,8 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
                     <button
                       type="button"
                       className="unpin-btn"
-                      title="Von der Pinwand nehmen"
-                      aria-label="Von der Pinwand nehmen"
+                      title={t('pinboard.unpinTitle')}
+                      aria-label={t('pinboard.unpinTitle')}
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={() => unpin(card)}
                     >
@@ -262,9 +264,7 @@ export function SharedBoard({ board, onChanged, onGone }: Props) {
               );
             })}
           </div>
-          <p className="board-tip">
-            Tipp: Alle Mitglieder können eigene Karten anpinnen und frei verschieben.
-          </p>
+          <p className="board-tip">{t('boards.sharedTip')}</p>
         </>
       )}
 
@@ -320,6 +320,7 @@ function CardPicker({
   onClose: () => void;
   onPinned: () => void;
 }) {
+  const { t } = useTranslation();
   const { postcards } = usePostcards();
   const { notify } = useFeedback();
   const ref = useDialog<HTMLDivElement>(onClose);
@@ -338,7 +339,7 @@ function CardPicker({
       });
       onPinned();
     } catch (err) {
-      notify('Anpinnen fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.pinError', { error: (err as Error).message }), { type: 'error' });
       setBusy(false);
     }
   }
@@ -350,15 +351,13 @@ function CardPicker({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Karte anpinnen"
+        aria-label={t('boards.pinCard')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Karte anpinnen 📌</h3>
+        <h3>{t('boards.pinCardHeading')}</h3>
         {available.length === 0 ? (
-          <p className="field-hint">
-            Alle deine Karten hängen schon an dieser Pinwand — oder du hast noch keine.
-          </p>
+          <p className="field-hint">{t('boards.noCardsToPin')}</p>
         ) : (
           <div className="card-picker-grid">
             {available.map((p) => (
@@ -376,7 +375,7 @@ function CardPicker({
           </div>
         )}
         <button className="btn link" onClick={onClose}>
-          Schließen
+          {t('common.close')}
         </button>
       </div>
     </div>
@@ -395,6 +394,7 @@ function MemberAdder({
   onClose: () => void;
   onAdded: () => void;
 }) {
+  const { t } = useTranslation();
   const { notify } = useFeedback();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [friends, setFriends] = useState<AuthUser[]>([]);
@@ -415,11 +415,11 @@ function MemberAdder({
     setBusy(f.id);
     try {
       await apiAddBoardMember(boardId, f.id);
-      notify(`${f.name} wurde hinzugefügt 📌`);
+      notify(t('boards.memberAdded', { name: f.name }));
       onAdded();
       onClose();
     } catch (err) {
-      notify('Hinzufügen fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.addMemberError', { error: (err as Error).message }), { type: 'error' });
       setBusy('');
     }
   }
@@ -431,18 +431,16 @@ function MemberAdder({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Mitglied hinzufügen"
+        aria-label={t('boards.addMember')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Mitglied hinzufügen 🤝</h3>
-        <p>Wähle Freund:innen, die mit an dieser Pinwand pinnen dürfen.</p>
+        <h3>{t('boards.addMemberHeading')}</h3>
+        <p>{t('boards.addMemberBody')}</p>
         {loading ? (
-          <p className="field-hint">Lädt…</p>
+          <p className="field-hint">{t('common.loading')}</p>
         ) : candidates.length === 0 ? (
-          <p className="field-hint">
-            Alle deine Freund:innen sind schon dabei — oder du hast noch keine verbunden.
-          </p>
+          <p className="field-hint">{t('boards.noCandidates')}</p>
         ) : (
           <ul className="friend-list">
             {candidates.map((f) => (
@@ -457,14 +455,14 @@ function MemberAdder({
                   disabled={busy === f.id}
                   onClick={() => add(f)}
                 >
-                  <UserPlus size={15} /> {busy === f.id ? 'Fügt hinzu…' : 'Hinzufügen'}
+                  <UserPlus size={15} /> {busy === f.id ? t('boards.adding') : t('boards.add')}
                 </button>
               </li>
             ))}
           </ul>
         )}
         <button className="btn link" onClick={onClose}>
-          Schließen
+          {t('common.close')}
         </button>
       </div>
     </div>
@@ -483,6 +481,7 @@ function RenameBoard({
   onClose: () => void;
   onRenamed: () => void;
 }) {
+  const { t } = useTranslation();
   const { notify } = useFeedback();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [name, setName] = useState(current);
@@ -496,7 +495,7 @@ function RenameBoard({
       await apiRenameBoard(boardId, next);
       onRenamed();
     } catch (err) {
-      notify('Umbenennen fehlgeschlagen: ' + (err as Error).message, { type: 'error' });
+      notify(t('boards.renameError', { error: (err as Error).message }), { type: 'error' });
       setBusy(false);
     }
   }
@@ -508,23 +507,23 @@ function RenameBoard({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Pinwand umbenennen"
+        aria-label={t('boards.renameTitle')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Pinwand umbenennen</h3>
+        <h3>{t('boards.renameTitle')}</h3>
         <input
           value={name}
           maxLength={40}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && save()}
-          aria-label="Name der Pinwand"
+          aria-label={t('boards.nameLabel')}
         />
         <button className="btn primary" onClick={save} disabled={busy || !name.trim()}>
-          {busy ? 'Speichert…' : 'Speichern'}
+          {busy ? t('common.saving') : t('common.save')}
         </button>
         <button className="btn link" onClick={onClose}>
-          Abbrechen
+          {t('common.cancel')}
         </button>
       </div>
     </div>

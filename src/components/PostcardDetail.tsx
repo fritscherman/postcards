@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { X, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { useDialog } from '../hooks/useDialog';
 import type { Postcard } from '../types';
@@ -13,6 +14,7 @@ interface Props {
 // react-zoom-pan-pinch, which owns the touch + wheel gestures so the browser
 // never mistakes a pinch or drag for a page scroll.
 export function PostcardDetail({ card, onClose }: Props) {
+  const { t } = useTranslation();
   const dialogRef = useDialog<HTMLDivElement>(onClose);
 
   // Freeze the page behind the viewer so a gesture that reaches the backdrop
@@ -32,11 +34,11 @@ export function PostcardDetail({ card, onClose }: Props) {
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Postkarte ansehen"
+        aria-label={t('detail.aria')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="detail-close" onClick={onClose} aria-label="Schließen"><X size={18} /></button>
+        <button className="detail-close" onClick={onClose} aria-label={t('common.close')}><X size={18} /></button>
 
         <TransformWrapper
           minScale={1}
@@ -55,16 +57,16 @@ export function PostcardDetail({ card, onClose }: Props) {
               >
                 <img
                   src={card.image}
-                  alt="Postkarten-Motiv"
+                  alt={t('card.alt')}
                   draggable={false}
                   style={{ filter: card.filter || 'none' }}
                 />
               </TransformComponent>
 
-              <div className="zoom-controls" role="group" aria-label="Zoom">
-                <button type="button" onClick={() => zoomOut()} aria-label="Verkleinern"><ZoomOut size={18} /></button>
-                <button type="button" onClick={() => resetTransform()} aria-label="Ansicht zurücksetzen"><Maximize size={18} /></button>
-                <button type="button" onClick={() => zoomIn()} aria-label="Vergrößern"><ZoomIn size={18} /></button>
+              <div className="zoom-controls" role="group" aria-label={t('detail.zoomGroup')}>
+                <button type="button" onClick={() => zoomOut()} aria-label={t('detail.zoomOut')}><ZoomOut size={18} /></button>
+                <button type="button" onClick={() => resetTransform()} aria-label={t('detail.reset')}><Maximize size={18} /></button>
+                <button type="button" onClick={() => zoomIn()} aria-label={t('detail.zoomIn')}><ZoomIn size={18} /></button>
               </div>
             </>
           )}

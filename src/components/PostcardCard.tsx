@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Crop, Postcard } from '../types';
 import { resolveStamp, templateById } from '../data/templates';
 
@@ -38,6 +39,7 @@ function focalZoom(crop: Crop, fx: number, fy: number, nextZoom: number): Crop {
 }
 
 export function PostcardCard({ card, flippable = true, onCardClick, editable = false, onCropChange }: Props) {
+  const { t, i18n } = useTranslation();
   const [flipped, setFlipped] = useState(false);
   const template = templateById(card.templateId);
   const stamp = resolveStamp(card.stampId, card.customStamp);
@@ -51,7 +53,7 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
   const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchStart = useRef<{ dist: number; zoom: number } | null>(null);
 
-  const date = new Date(card.createdAt).toLocaleDateString('de-DE', {
+  const date = new Date(card.createdAt).toLocaleDateString(i18n.language || 'en', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -161,7 +163,7 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
       className={`postcard ${orientation} ${flipped ? 'flipped' : ''}`}
       onClick={handleBody}
       role={onCardClick || flippable ? 'button' : undefined}
-      title={onCardClick ? undefined : flippable ? 'Klicken zum Umdrehen' : undefined}
+      title={onCardClick ? undefined : flippable ? t('card.flipTitle') : undefined}
     >
       <div className="postcard-inner">
         {/* Front: the photo */}
@@ -177,22 +179,22 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
             onDoubleClick={onWrapDoubleClick}
             onClick={(e) => editable && e.stopPropagation()}
           >
-            <img src={card.image} alt="Postkarten-Motiv" draggable={false} style={imgStyle} />
+            <img src={card.image} alt={t('card.alt')} draggable={false} style={imgStyle} />
             {editable && crop.zoom > 1.001 && (
               <button
                 type="button"
                 className="zoom-reset"
                 onPointerDown={resetZoom}
                 onClick={resetZoom}
-                title="Zoom zurücksetzen"
-                aria-label="Zoom zurücksetzen"
+                title={t('card.resetZoom')}
+                aria-label={t('card.resetZoom')}
               >
                 ↺
               </button>
             )}
             {editable && (
               <span className="photo-grip">
-                {crop.zoom > 1.001 ? 'Ziehen zum Verschieben · Doppeltippen für Reset' : 'Doppeltippen oder 2 Finger zum Zoomen'}
+                {crop.zoom > 1.001 ? t('card.panHint') : t('card.zoomHint')}
               </span>
             )}
           </div>
@@ -205,19 +207,19 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
         >
           <div className="back-grid">
             <div className="back-message" style={{ color: template.id === 'night' ? '#f1f5f9' : '#1f2937' }}>
-              {card.message || 'Liebe Grüße!'}
+              {card.message || t('card.defaultMessage')}
             </div>
             <div className="back-side">
               <div className="stamp" style={{ background: stamp.bg, borderColor: template.accent }}>
                 <span>{stamp.emoji}</span>
               </div>
               <div className="address" style={{ borderColor: template.accent }}>
-                <span className="addr-label" style={{ color: template.accent }}>An</span>
+                <span className="addr-label" style={{ color: template.accent }}>{t('card.to')}</span>
                 <strong>{card.to}</strong>
-                <span className="addr-label" style={{ color: template.accent }}>Von</span>
+                <span className="addr-label" style={{ color: template.accent }}>{t('card.from')}</span>
                 <em>{card.from}</em>
                 {card.location?.label && (
-                  <span className="addr-loc" title={card.location.source === 'exif' ? 'Aus den Foto-Daten' : 'Hinzugefügter Ort'}>
+                  <span className="addr-loc" title={card.location.source === 'exif' ? t('card.locExif') : t('card.locManual')}>
                     📍 {card.location.label}
                   </span>
                 )}
@@ -236,8 +238,8 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
             e.stopPropagation();
             setFlipped((f) => !f);
           }}
-          title={flipped ? 'Zur Vorderseite' : 'Karte umdrehen'}
-          aria-label="Karte umdrehen"
+          title={flipped ? t('card.toFront') : t('card.flip')}
+          aria-label={t('card.flip')}
         >
           ⟳
         </button>
