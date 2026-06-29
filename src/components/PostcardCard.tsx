@@ -146,8 +146,19 @@ export function PostcardCard({ card, flippable = true, onCardClick, editable = f
       const c = cropRef.current;
       onCropChangeRef.current?.(focalZoom(c, fx, fy, c.zoom - e.deltaY * 0.0015 * c.zoom));
     };
+    // Mobile: `touch-action: none` is supposed to keep a pan/pinch on the photo
+    // from scrolling the page, but iOS Safari (and some Android browsers) don't
+    // reliably honour it during a fast or ambiguous gesture — so the page still
+    // moves while you reposition the crop. A native non-passive touchmove that
+    // preventDefaults is the dependable backstop. Pointer events still fire, so
+    // pan/pinch keep working; only the browser's scroll is suppressed.
+    const onTouchMove = (e: TouchEvent) => e.preventDefault();
     el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchmove', onTouchMove);
+    };
   }, [editable]);
 
   // Double-tap / double-click toggles between fit and a zoom on that spot.
