@@ -1,16 +1,18 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { Logo } from '../components/Logo';
 
 const FEATURES = [
-  { icon: '✏️', title: 'Postkarten schreiben', desc: 'Gestalte persönliche Karten mit Text und wähle den perfekten Absender-Ort.' },
-  { icon: '📬', title: 'Briefkasten', desc: 'Empfange Karten von Freunden aus aller Welt direkt in deinem Postfach.' },
-  { icon: '🌍', title: 'Weltkarte', desc: 'Sieh auf einer interaktiven Karte, woher deine Postkarten gereist sind.' },
-  { icon: '📌', title: 'Pinnwand', desc: 'Hefte deine schönsten Karten an und zeige sie stolz deiner Welt.' },
+  { icon: '✏️', titleKey: 'auth.feature1Title', descKey: 'auth.feature1Desc' },
+  { icon: '📬', titleKey: 'auth.feature2Title', descKey: 'auth.feature2Desc' },
+  { icon: '🌍', titleKey: 'auth.feature3Title', descKey: 'auth.feature3Desc' },
+  { icon: '📌', titleKey: 'auth.feature4Title', descKey: 'auth.feature4Desc' },
 ];
 
 export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGuest?: () => void }) {
+  const { t } = useTranslation();
   const { login, register } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(inviteToken ? 'register' : 'login');
   const [email, setEmail] = useState('');
@@ -41,18 +43,18 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
           <Logo size={64} title="Wanderpost" />
           <span className="landing-wordmark">Wanderpost</span>
         </div>
-        <p className="landing-tagline">Postkarten neu entdeckt — digital, persönlich, weltweit.</p>
-        <span className="landing-free-badge">100&nbsp;% kostenlos · keine Werbung</span>
+        <p className="landing-tagline">{t('auth.tagline')}</p>
+        <span className="landing-free-badge">{t('auth.freeBadge')}</span>
       </div>
 
       {/* Features */}
       <div className="landing-features">
         {FEATURES.map((f) => (
-          <div key={f.title} className="landing-feature">
+          <div key={f.titleKey} className="landing-feature">
             <span className="landing-feature-icon">{f.icon}</span>
             <div>
-              <strong>{f.title}</strong>
-              <p>{f.desc}</p>
+              <strong>{t(f.titleKey)}</strong>
+              <p>{t(f.descKey)}</p>
             </div>
           </div>
         ))}
@@ -63,25 +65,25 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
         {inviteToken && (
           <p className="auth-invite">
             {mode === 'register'
-              ? 'Du wurdest eingeladen! Erstelle ein Konto, um Postkarten zu empfangen.'
-              : 'Du wurdest eingeladen! Melde dich an — ihr werdet automatisch verbunden.'}
+              ? t('auth.inviteRegister')
+              : t('auth.inviteLogin')}
           </p>
         )}
-        <p className="auth-sub">{mode === 'login' ? 'Willkommen zurück.' : 'Erstelle dein Konto.'}</p>
+        <p className="auth-sub">{mode === 'login' ? t('auth.welcomeBack') : t('auth.createYourAccount')}</p>
 
         <form onSubmit={submit} className="auth-form">
           {mode === 'register' && (
             <label>
-              Name
+              {t('auth.name')}
               <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required />
             </label>
           )}
           <label>
-            E-Mail
+            {t('auth.email')}
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
           </label>
           <label>
-            Passwort
+            {t('auth.password')}
             <input
               type="password"
               value={password}
@@ -94,7 +96,7 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
           {error && <p className="auth-error">{error}</p>}
 
           <button className="btn primary big" disabled={busy}>
-            {busy ? '…' : mode === 'login' ? 'Anmelden' : 'Konto erstellen'}
+            {busy ? '…' : mode === 'login' ? t('auth.login') : t('auth.register')}
           </button>
         </form>
 
@@ -102,23 +104,23 @@ export function AuthPage({ inviteToken, onGuest }: { inviteToken?: string; onGue
           className="btn link auth-switch"
           onClick={() => { setError(''); setMode(mode === 'login' ? 'register' : 'login'); }}
         >
-          {mode === 'login' ? 'Noch kein Konto? Registrieren' : 'Schon dabei? Anmelden'}
+          {mode === 'login' ? t('auth.switchToRegister') : t('auth.switchToLogin')}
         </button>
 
         {onGuest && (
           <>
-            <div className="auth-divider"><span>oder</span></div>
+            <div className="auth-divider"><span>{t('auth.or')}</span></div>
             <button type="button" className="btn link auth-guest" onClick={onGuest}>
-              Erst mal ohne Konto ausprobieren →
+              {t('auth.tryGuest')}
             </button>
           </>
         )}
       </div>
 
       <footer className="landing-footer">
-        <Link to="/impressum">Impressum</Link>
+        <Link to="/impressum">{t('legal.imprint')}</Link>
         <span aria-hidden="true">·</span>
-        <Link to="/datenschutz">Datenschutz</Link>
+        <Link to="/datenschutz">{t('legal.privacy')}</Link>
       </footer>
     </div>
   );

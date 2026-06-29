@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Stamp } from '../types';
 import {
   STAMP_COLORS,
@@ -17,6 +18,7 @@ interface Props {
 /** Little designer for a self-made stamp: pick an emoji (or type your own)
  *  and a background colour, with a live preview of the finished stamp. */
 export function StampMaker({ initial, onApply, onClose }: Props) {
+  const { t } = useTranslation();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [emoji, setEmoji] = useState(initial?.emoji ?? STAMP_EMOJIS[0]);
   const [bg, setBg] = useState(initial?.bg ?? STAMP_COLORS[2]);
@@ -30,11 +32,11 @@ export function StampMaker({ initial, onApply, onClose }: Props) {
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Eigene Briefmarke gestalten"
+        aria-label={t('stamp.aria')}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>Eigene Briefmarke 🏷️</h3>
+        <h3>{t('stamp.heading')}</h3>
 
         <div className="stamp-maker-preview">
           <div className="stamp big" style={{ background: preview.bg }}>
@@ -42,7 +44,7 @@ export function StampMaker({ initial, onApply, onClose }: Props) {
           </div>
         </div>
 
-        <label className="mini-label">Motiv</label>
+        <label className="mini-label">{t('stamp.motif')}</label>
         <div className="emoji-grid">
           {STAMP_EMOJIS.map((e) => (
             <button
@@ -59,12 +61,12 @@ export function StampMaker({ initial, onApply, onClose }: Props) {
           className="emoji-input"
           value={emoji}
           maxLength={4}
-          aria-label="Eigenes Emoji"
-          placeholder="oder eigenes Emoji…"
+          aria-label={t('stamp.customEmojiAria')}
+          placeholder={t('stamp.customEmojiPlaceholder')}
           onChange={(e) => setEmoji(e.target.value)}
         />
 
-        <label className="mini-label">Hintergrund</label>
+        <label className="mini-label">{t('stamp.background')}</label>
         <div className="color-grid">
           {STAMP_COLORS.map((c) => (
             <button
@@ -72,7 +74,7 @@ export function StampMaker({ initial, onApply, onClose }: Props) {
               type="button"
               className={`color-pick ${bg === c ? 'sel' : ''}`}
               style={{ background: c }}
-              aria-label={`Farbe ${c}`}
+              aria-label={t('stamp.colorAria', { color: c })}
               onClick={() => setBg(c)}
             />
           ))}
@@ -80,10 +82,10 @@ export function StampMaker({ initial, onApply, onClose }: Props) {
 
         <div className="invite-actions">
           <button className="btn primary" onClick={() => onApply(preview)}>
-            Übernehmen
+            {t('stamp.apply')}
           </button>
           <button className="btn ghost" onClick={onClose}>
-            Abbrechen
+            {t('common.cancel')}
           </button>
         </div>
       </div>

@@ -1,0 +1,373 @@
+{
+  "language": {
+    "label": "Langue"
+  },
+  "common": {
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "ok": "OK",
+    "loading": "Chargement…",
+    "details": "Détails",
+    "delete": "Supprimer",
+    "undo": "Annuler",
+    "createAccount": "Créer un compte"
+  },
+  "errors": {
+    "generic": "Quelque chose s'est mal passé."
+  },
+  "app": {
+    "invite": "Inviter",
+    "inviteTitle": "Inviter des amis",
+    "createAccountTitle": "Créer un compte gratuit",
+    "profileTitle": "{{name}} · Profil",
+    "resetData": "Réinitialiser les données"
+  },
+  "profile": {
+    "logoutConfirmTitle": "Se déconnecter ?",
+    "logoutConfirmMessage": "Tu vas être déconnecté de ton compte.",
+    "logout": "Se déconnecter",
+    "yourProfile": "Ton profil",
+    "whatsYourName": "Comment tu t'appelles ?",
+    "nameSubtitle": "Ton nom apparaît comme expéditeur sur les cartes.",
+    "nameAria": "Ton nom",
+    "nameRequired": "Merci d'indiquer un nom."
+  },
+  "nav": {
+    "create": "Créer",
+    "mailbox": "Boîte aux lettres",
+    "world": "Vue du monde",
+    "pinboard": "Tableau",
+    "friends": "Amis"
+  },
+  "create": {
+    "title": "Nouvelle carte postale",
+    "subtitle": "Choisis une photo, personnalise ta carte et envoie-la. ✉️",
+    "photoPlaceholder": "Choisir une photo 📷",
+    "step1": "1 · Photo",
+    "otherPhoto": "Autre photo",
+    "choosePhoto": "Choisir / prendre une photo",
+    "decorate": "Décorer",
+    "searchingLocation": "Recherche du lieu…",
+    "fromPhotoSuffix": " (depuis la photo)",
+    "addLocation": "Ajouter le lieu de la prise",
+    "orientation": "Orientation",
+    "landscape": "Paysage",
+    "portrait": "Portrait",
+    "cropHint": "🔍 Pour recadrer, zoome directement dans l'aperçu – avec deux doigts, la molette de la souris ou un double tap. Ensuite, fais glisser pour déplacer le cadrage.",
+    "step2": "2 · Modèle",
+    "step3": "3 · Filtre",
+    "step4": "4 · Texte",
+    "messagePlaceholder": "Bisous de vacances…",
+    "step5": "5 · Timbre 🏷️",
+    "customStampTitle": "Timbre personnalisé (double tap pour modifier)",
+    "makeStampTitle": "Créer ton propre timbre",
+    "step6": "6 · Destinataire",
+    "selectedCount": "{{count}} sélectionné(s)",
+    "recipientDefault": "Ami·e",
+    "recipientsMany": "{{count}} ami·e·s",
+    "noFriends": "Tu n'as encore aucun·e ami·e connecté·e. Invite quelqu'un en haut via « 💌 Inviter » — dès qu'il rejoint, il apparaîtra ici.",
+    "guestBanner": "En mode invité, ta carte reste uniquement sur cet appareil. Pour envoyer pour de vrai à tes ami·e·s, crée un compte gratuit.",
+    "sending": "Envoi en cours…",
+    "sendToMany": "Envoyer à {{count}} ami·e·s",
+    "sendToOne": "Envoyer à {{name}}",
+    "previewFlipHint": "Aperçu · ⟳ pour retourner",
+    "previewHint": "Voici à quoi ressemblera ta carte",
+    "tapToChoosePhoto": "📷 Touche pour choisir une photo",
+    "flyingTo": "En route vers {{name}}… ✈️",
+    "errPhotoLoad": "Erreur lors du chargement de la photo : {{error}}",
+    "errGeoUnsupported": "La localisation n'est pas prise en charge par ce navigateur.",
+    "errGeoFailed": "Impossible de déterminer le lieu.",
+    "errNeedPhoto": "Choisis d'abord une photo. 📷",
+    "errNeedRecipient": "Choisis au moins un·e destinataire.",
+    "errNoRecipient": "Cette personne n'est pas encore là. Invite-la en haut via « 💌 Inviter ».",
+    "errSendFailed": "Échec de l'envoi : {{error}}"
+  },
+  "templates": {
+    "classic": "Classique",
+    "sunset": "Coucher de soleil",
+    "ocean": "Bleu océan",
+    "polaroid": "Polaroïd",
+    "forest": "Vert forêt",
+    "night": "Bleu nuit",
+    "rose": "Rosé",
+    "mint": "Menthe",
+    "kraft": "Papier kraft"
+  },
+  "filters": {
+    "none": "Original",
+    "warm": "Chaud",
+    "cool": "Froid",
+    "vintage": "Vintage",
+    "bw": "N/B",
+    "vivid": "Éclatant"
+  },
+  "stamps": {
+    "heart": "Cœur",
+    "globe": "Monde",
+    "mountain": "Montagnes",
+    "forest": "Forêt",
+    "palm": "Plage",
+    "city": "Ville",
+    "star": "Étoile",
+    "custom": "Personnalisé"
+  },
+  "card": {
+    "flipTitle": "Cliquer pour retourner",
+    "alt": "Motif de la carte postale",
+    "resetZoom": "Réinitialiser le zoom",
+    "panHint": "Fais glisser pour déplacer · double tap pour réinitialiser",
+    "zoomHint": "Double tap ou 2 doigts pour zoomer",
+    "defaultMessage": "Bisous !",
+    "to": "À",
+    "from": "De",
+    "locExif": "D'après les données de la photo",
+    "locManual": "Lieu ajouté",
+    "toFront": "Vers le recto",
+    "flip": "Retourner la carte"
+  },
+  "mailbox": {
+    "title": "Boîte aux lettres",
+    "subtitle": "Tes cartes postales reçues et envoyées.",
+    "deleted": "Carte postale supprimée.",
+    "sentToast": "✅ Carte postale envoyée ! Elle est maintenant dans tes envois.",
+    "guestBanner": "Pour recevoir de vraies cartes postales de tes ami·e·s, il te faut un compte gratuit.",
+    "inboxTab": "Reçues ({{count}})",
+    "outboxTab": "Envoyées ({{count}})",
+    "likesReceived_one": "❤️ {{count}} like reçu",
+    "likesReceived_other": "❤️ {{count}} likes reçus",
+    "emptyInbox": "Aucune carte postale reçue pour l'instant.",
+    "emptyOutbox": "Tu n'as encore rien envoyé. Crée ta première carte !",
+    "newFlag": "NOUVEAU",
+    "liked": "Tu aimes",
+    "like": "J'aime",
+    "replyTitle": "Renvoyer une carte à {{name}}",
+    "reply": "Répondre",
+    "fromLabel": "de {{name}}",
+    "toLabel": "à {{name}}",
+    "recipientLiked": "Le·la destinataire aime",
+    "unpinTitle": "Retirer du tableau",
+    "pinTitle": "Sur le tableau"
+  },
+  "world": {
+    "title": "Vue du monde",
+    "subtitle": "Chaque carte postale est plantée là où sa photo a été prise. 🌍",
+    "fromLabel": "de {{name}}",
+    "empty": "Aucune carte postale localisée pour l'instant — ajoute un lieu de prise lors de la création.",
+    "lastTapped": "Dernière touchée :"
+  },
+  "pinboard": {
+    "title": "Tableau",
+    "subtitle": "Accroche tes cartes préférées et place-les comme tu veux.",
+    "emptyTitle": "Ton tableau est encore vide",
+    "emptyBodyBefore": "Ouvre une carte dans la ",
+    "emptyBodyLink": "boîte aux lettres",
+    "emptyBodyAfter": " et touche « Épingler » — elle apparaîtra alors ici pour être accrochée et déplacée.",
+    "unpinTitle": "Retirer du tableau",
+    "tip": "Astuce : tu peux déplacer les cartes librement — fais-les simplement glisser sur le tableau. Touche une carte ou le symbole ⟳ pour voir le verso."
+  },
+  "friends": {
+    "title": "Mes amis",
+    "connectedCount_one": "{{count}} personne connectée.",
+    "connectedCount_other": "{{count}} personnes connectées.",
+    "subtitleDemo": "Avec qui tu échanges des cartes postales.",
+    "guestBanner": "Connecte-toi avec de vrais ami·e·s en créant un compte gratuit et en partageant ton lien d'invitation.",
+    "inviteBtn": "Inviter un·e ami·e",
+    "empty": "Aucun·e ami·e pour l'instant. Partage ton lien d'invitation pour commencer !",
+    "introduceTitle": "Présenter {{name}} à d'autres",
+    "introduce": "Présenter",
+    "introduceModalAria": "Présenter {{name}}",
+    "introduceHeading": "Présenter {{name}} 🤝",
+    "introduceBody": "Choisis qui {{name}} devrait rencontrer. Les deux seront connectés et pourront s'envoyer des cartes postales.",
+    "needMore": "Il te faut encore plus d'ami·e·s pour présenter quelqu'un.",
+    "introduced": "{{name}} est maintenant connecté·e avec {{names}} 🤝",
+    "connecting": "Connexion…",
+    "connect": "Connecter"
+  },
+  "auth": {
+    "feature1Title": "Écrire des cartes postales",
+    "feature1Desc": "Crée des cartes personnelles avec du texte et choisis le lieu d'expéditeur parfait.",
+    "feature2Title": "Boîte aux lettres",
+    "feature2Desc": "Reçois des cartes d'amis du monde entier directement dans ta boîte.",
+    "feature3Title": "Carte du monde",
+    "feature3Desc": "Vois sur une carte interactive d'où tes cartes postales ont voyagé.",
+    "feature4Title": "Tableau d'affichage",
+    "feature4Desc": "Épingle tes plus belles cartes et montre-les fièrement à ton monde.",
+    "tagline": "La carte postale réinventée — numérique, personnelle, mondiale.",
+    "freeBadge": "100 % gratuit · sans publicité",
+    "inviteRegister": "Tu as été invité·e ! Crée un compte pour recevoir des cartes postales.",
+    "inviteLogin": "Tu as été invité·e ! Connecte-toi — vous serez automatiquement connectés.",
+    "welcomeBack": "Bon retour.",
+    "createYourAccount": "Crée ton compte.",
+    "name": "Nom",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "login": "Se connecter",
+    "register": "Créer un compte",
+    "switchToRegister": "Pas encore de compte ? S'inscrire",
+    "switchToLogin": "Déjà inscrit·e ? Se connecter",
+    "or": "ou",
+    "tryGuest": "Essayer d'abord sans compte →"
+  },
+  "welcome": {
+    "aria": "Bienvenue sur Wanderpost",
+    "title": "Bienvenue sur Wanderpost !",
+    "intro": "Envoie à tes amis des salutations virtuelles du monde entier. Voici comment ça marche :",
+    "skip": "Passer",
+    "start": "C'est parti ! 🎉",
+    "next": "Suivant",
+    "step1Title": "Créer une carte postale",
+    "step1Text": "Choisis ou prends une photo, décore-la, ajoute texte et timbre, puis envoie-la.",
+    "step2Title": "Boîte aux lettres",
+    "step2Text": "C'est ici qu'arrivent les cartes de tes amis – et tes envois dans les cartes envoyées.",
+    "step3Title": "Vue du monde",
+    "step3Text": "Chaque carte est plantée sur la carte exactement là où sa photo a été prise.",
+    "step4Title": "Tableau",
+    "step4Text": "Accroche tes cartes préférées sur le tableau en liège et place-les comme tu veux."
+  },
+  "invite": {
+    "shareText": "Je t'envoie des cartes postales via Wanderpost ! Rejoins-moi avec ce lien :",
+    "aria": "Inviter des amis",
+    "heading": "Inviter des amis 💌",
+    "creating": "Création du lien…",
+    "body": "Partage ce lien pour que tes ami·e·s puissent te rejoindre et recevoir tes cartes postales.",
+    "qrAlt": "QR code pour rejoindre",
+    "qrHint": "Scanne-le simplement pour rejoindre 📷",
+    "share": "Partager",
+    "copied": "Copié",
+    "copyLink": "Copier le lien"
+  },
+  "stamp": {
+    "aria": "Créer ton propre timbre",
+    "heading": "Timbre personnalisé 🏷️",
+    "motif": "Motif",
+    "customEmojiAria": "Emoji personnalisé",
+    "customEmojiPlaceholder": "ou ton propre emoji…",
+    "background": "Arrière-plan",
+    "colorAria": "Couleur {{color}}",
+    "apply": "Appliquer"
+  },
+  "decorator": {
+    "aria": "Décorer la photo",
+    "heading": "Décorer la photo 🎨",
+    "sticker": "Sticker",
+    "draw": "Dessiner",
+    "stickerHint": "Touche pour placer · fais glisser pour déplacer · double tap pour retirer",
+    "drawHint": "Dessine avec le doigt / la souris",
+    "undo": "Annuler",
+    "clear": "Tout effacer",
+    "done": "Terminé"
+  },
+  "detail": {
+    "aria": "Voir la carte postale",
+    "zoomOut": "Dézoomer",
+    "reset": "Réinitialiser la vue",
+    "zoomIn": "Zoomer",
+    "zoomGroup": "Zoom"
+  },
+  "notif": {
+    "blocked": "Les notifications sont bloquées dans le navigateur",
+    "on": "Notifications activées — touche pour désactiver",
+    "enable": "Activer les notifications"
+  },
+  "guest": {
+    "createAccount": "Créer un compte"
+  },
+  "feedback": {
+    "hintsAria": "Conseils"
+  },
+  "install": {
+    "buttonTitle": "Installer Wanderpost en tant qu'application",
+    "button": "Installer"
+  },
+  "pwa": {
+    "newVersion": "✨ Nouvelle version disponible",
+    "update": "Mettre à jour",
+    "later": "Plus tard",
+    "installTitle": "Installer Wanderpost en tant qu'application",
+    "installPromptBody": "Ouvre-la directement depuis l'écran d'accueil — plus rapide, en plein écran, avec les notifications.",
+    "install": "Installer",
+    "how": "Comment faire ?",
+    "installGuideBody": "Sur ton écran en quelques étapes — on te montre exactement comment.",
+    "showHow": "Voici comment"
+  },
+  "guide": {
+    "aria": "Installer Wanderpost",
+    "heading": "Installer Wanderpost",
+    "subtitle": "Comme ça, tes cartes postales sont toujours à portée d'un seul toucher.",
+    "benefit1": "Ouvrir directement depuis l'écran d'accueil – sans chercher longtemps",
+    "benefit2": "En plein écran, sans barre d'adresse",
+    "benefit3": "Un rappel dès qu'un nouveau courrier arrive pour toi",
+    "oneClick": "Installer maintenant en un clic",
+    "installing": "Installation en cours…",
+    "howToOn": "Voici comment faire sur {{device}} :",
+    "detectedSuffix": " (détecté)",
+    "intro": "Voici comment faire",
+    "deviceSwitch": "Un autre appareil ? Changer de guide",
+    "done": "Compris",
+    "devices": {
+      "ios": "iPhone / iPad · Safari",
+      "ios-chrome": "iPhone / iPad · Chrome",
+      "android": "Téléphone Android",
+      "desktop-chromium": "Ordinateur (Chrome / Edge)",
+      "desktop-safari": "Mac (Safari)",
+      "desktop-firefox": "Firefox",
+      "other": "ton appareil"
+    },
+    "choices": {
+      "ios": "iPhone · Safari",
+      "ios-chrome": "iPhone · Chrome",
+      "android": "Android",
+      "desktop-chromium": "Chrome / Edge",
+      "desktop-safari": "Mac · Safari",
+      "desktop-firefox": "Firefox"
+    },
+    "ios": {
+      "intro": "Ça se passe dans le navigateur Safari. Si tu as une autre application ouverte, ouvre brièvement cette page dans Safari.",
+      "step1": "Touche l'icône de partage en bas de la barre – le carré avec la flèche vers le haut.",
+      "step2": "Fais défiler un peu le menu vers le bas et touche « Sur l'écran d'accueil ».",
+      "step3": "Touche « Ajouter » en haut à droite. Terminé – l'icône Wanderpost est maintenant sur ton écran d'accueil."
+    },
+    "ios-chrome": {
+      "intro": "Dans Chrome sur l'iPhone, l'icône de partage se trouve en haut, pas en bas.",
+      "step1": "Touche l'icône de partage en haut à droite (carré avec flèche vers le haut). Si tu ne la vois pas, ouvre d'abord le menu avec les trois points ⋯.",
+      "step2": "Choisis « Sur l'écran d'accueil » dans le menu.",
+      "step3": "Touche « Ajouter ». Terminé – l'icône Wanderpost est maintenant sur ton écran d'accueil.",
+      "note": "Astuce : dans Safari, ça marche pareil – là, tu trouves l'icône de partage en bas de la barre."
+    },
+    "android": {
+      "step1": "Touche le menu en haut à droite – les trois points superposés.",
+      "step2": "Choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ».",
+      "step3": "Confirme avec « Installer ». Terminé – Wanderpost apparaît parmi tes applications."
+    },
+    "desktop-chromium": {
+      "step1": "Regarde tout en haut dans la barre d'adresse. À droite apparaît une petite icône – un écran avec une flèche vers le bas.",
+      "step2": "Clique dessus, puis sur « Installer ».",
+      "step3": "Wanderpost s'ouvre dans sa propre fenêtre et se retrouve ensuite dans le menu Démarrer ou dans le Dock.",
+      "note": "Aucune icône visible ? Clique en haut à droite sur le menu (trois points), puis sur « Installer l'application »."
+    },
+    "desktop-safari": {
+      "step1": "Clique en haut à droite dans Safari sur l'icône de partage – le carré avec la flèche vers le haut.",
+      "step2": "Choisis « Ajouter au Dock ».",
+      "step3": "Confirme avec « Ajouter ». Wanderpost est maintenant dans ton Dock.",
+      "note": "Tu ne trouves pas « Ajouter au Dock » ? Alors ton macOS est un peu ancien – le plus simple est d'installer Wanderpost avec Chrome ou Microsoft Edge."
+    },
+    "desktop-firefox": {
+      "intro": "Firefox ne peut malheureusement pas enregistrer les applications web comme une application à part sur l'ordinateur.",
+      "step1": "Le plus simple : ouvre cette page une fois dans Google Chrome ou Microsoft Edge – là, Wanderpost s'installe en un clic.",
+      "step2": "Tu veux rester sur Firefox ? Ajoute la page à tes favoris avec Ctrl + D, comme ça elle est toujours rapidement accessible."
+    },
+    "other": {
+      "step1": "Ouvre le menu de ton navigateur (souvent trois points ou trois traits en haut à droite).",
+      "step2": "Cherche « Installer l'application » ou « Ajouter à l'écran d'accueil » et touche dessus.",
+      "step3": "Confirme – ensuite, tu ouvres Wanderpost directement via l'icône de l'application."
+    }
+  },
+  "legal": {
+    "home": "Vers la page d'accueil",
+    "back": "← Retour",
+    "imprint": "Mentions légales",
+    "privacy": "Confidentialité"
+  }
+}

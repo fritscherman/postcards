@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { Logo } from './Logo';
 import { useInstall } from './InstallContext';
@@ -17,6 +18,7 @@ function snooze(): void {
 }
 
 export function PWAPrompt() {
+  const { t } = useTranslation();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
@@ -42,13 +44,13 @@ export function PWAPrompt() {
   if (needRefresh) {
     return (
       <div className="pwa-banner">
-        <span>✨ Neue Version verfügbar</span>
+        <span>{t('pwa.newVersion')}</span>
         <div className="pwa-actions">
           <button className="btn primary" onClick={() => updateServiceWorker(true)}>
-            Aktualisieren
+            {t('pwa.update')}
           </button>
           <button className="btn link" onClick={() => setNeedRefresh(false)}>
-            Später
+            {t('pwa.later')}
           </button>
         </div>
       </div>
@@ -70,18 +72,18 @@ export function PWAPrompt() {
       <div className="pwa-banner install-card">
         <span className="install-icon"><Logo size={44} /></span>
         <div className="install-text">
-          <strong>Wanderpost als App installieren</strong>
-          <small>Direkt vom Home-Bildschirm öffnen — schneller, im Vollbild, mit Benachrichtigungen.</small>
+          <strong>{t('pwa.installTitle')}</strong>
+          <small>{t('pwa.installPromptBody')}</small>
         </div>
         <div className="pwa-actions">
           <button className="btn primary" onClick={install}>
-            Installieren
+            {t('pwa.install')}
           </button>
           <button className="btn link" onClick={() => setShowGuide(true)}>
-            Wie geht das?
+            {t('pwa.how')}
           </button>
           <button className="btn link" onClick={dismiss}>
-            Später
+            {t('pwa.later')}
           </button>
         </div>
       </div>
@@ -95,15 +97,15 @@ export function PWAPrompt() {
     <div className="pwa-banner install-card">
       <span className="install-icon"><Logo size={44} /></span>
       <div className="install-text">
-        <strong>Wanderpost als App installieren</strong>
-        <small>In wenigen Schritten auf deinem Bildschirm — wir zeigen dir genau, wie.</small>
+        <strong>{t('pwa.installTitle')}</strong>
+        <small>{t('pwa.installGuideBody')}</small>
       </div>
       <div className="pwa-actions">
         <button className="btn primary" onClick={() => setShowGuide(true)}>
-          So geht's
+          {t('pwa.showHow')}
         </button>
         <button className="btn link" onClick={dismiss}>
-          Später
+          {t('pwa.later')}
         </button>
       </div>
     </div>

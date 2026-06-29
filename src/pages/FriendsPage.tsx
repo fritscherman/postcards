@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Handshake, UserPlus } from 'lucide-react';
 import { apiIntroduceFriends, apiListFriends, isOnline, type AuthUser } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
@@ -8,6 +9,7 @@ import { useDialog } from '../hooks/useDialog';
 import { initials } from '../utils/initials';
 
 export function FriendsPage({ onInvite }: { onInvite: () => void }) {
+  const { t } = useTranslation();
   const { guest, user } = useAuth();
   const isAccount = isOnline && !guest && !!user;
 
@@ -35,28 +37,28 @@ export function FriendsPage({ onInvite }: { onInvite: () => void }) {
   return (
     <div className="page friends-page">
       <header className="page-head">
-        <h1>Meine Freunde</h1>
+        <h1>{t('friends.title')}</h1>
         <p>
           {isAccount
-            ? `${friends.length} ${friends.length === 1 ? 'Person' : 'Personen'} verbunden.`
-            : 'Mit wem du Postkarten austauschst.'}
+            ? t('friends.connectedCount', { count: friends.length })
+            : t('friends.subtitleDemo')}
         </p>
       </header>
 
-      <GuestBanner message="Verbinde dich mit echten Freund:innen, indem du ein kostenloses Konto erstellst und deinen Einladungslink teilst." />
+      <GuestBanner message={t('friends.guestBanner')} />
 
       {isAccount && (
         <button className="btn primary" onClick={onInvite}>
-          <UserPlus size={17} /> Freund:in einladen
+          <UserPlus size={17} /> {t('friends.inviteBtn')}
         </button>
       )}
 
       {loading ? (
-        <p className="field-hint">Lädt…</p>
+        <p className="field-hint">{t('common.loading')}</p>
       ) : list.length === 0 ? (
         <div className="empty">
           <span className="empty-emoji">🧑‍🤝‍🧑</span>
-          <p>Noch keine Freund:innen. Teile deinen Einladungslink, um loszulegen!</p>
+          <p>{t('friends.empty')}</p>
         </div>
       ) : (
         <ul className="friend-list">
@@ -71,9 +73,9 @@ export function FriendsPage({ onInvite }: { onInvite: () => void }) {
                 <button
                   className="btn ghost small friend-action"
                   onClick={() => setIntroducing(f)}
-                  title={`${f.name} mit anderen bekannt machen`}
+                  title={t('friends.introduceTitle', { name: f.name })}
                 >
-                  <Handshake size={16} /> Vorstellen
+                  <Handshake size={16} /> {t('friends.introduce')}
                 </button>
               )}
             </li>
@@ -101,6 +103,7 @@ function IntroduceModal({
   others: AuthUser[];
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
@@ -125,7 +128,7 @@ function IntroduceModal({
         .filter((f) => selected.has(f.id))
         .map((f) => f.name)
         .join(', ');
-      setNote(`${friend.name} ist jetzt mit ${names} verbunden 🤝`);
+      setNote(t('friends.introduced', { name: friend.name, names }));
       setSelected(new Set());
     } catch (err) {
       setNote((err as Error).message);
@@ -141,15 +144,15 @@ function IntroduceModal({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label={`${friend.name} vorstellen`}
+        aria-label={t('friends.introduceModalAria', { name: friend.name })}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>{friend.name} vorstellen 🤝</h3>
-        <p>Wähle aus, wen {friend.name} kennenlernen soll. Beide werden verbunden und können sich Postkarten schicken.</p>
+        <h3>{t('friends.introduceHeading', { name: friend.name })}</h3>
+        <p>{t('friends.introduceBody', { name: friend.name })}</p>
 
         {others.length === 0 ? (
-          <p className="field-hint">Du brauchst noch mehr Freund:innen, um jemanden vorzustellen.</p>
+          <p className="field-hint">{t('friends.needMore')}</p>
         ) : (
           <ul className="friend-list pick-list">
             {others.map((f) => (
@@ -178,10 +181,10 @@ function IntroduceModal({
           onClick={confirmIntroduce}
           disabled={busy || selected.size === 0}
         >
-          {busy ? 'Verbindet…' : 'Verbinden'}
+          {busy ? t('friends.connecting') : t('friends.connect')}
         </button>
         <button className="btn link" onClick={onClose}>
-          Schließen
+          {t('common.close')}
         </button>
       </div>
     </div>

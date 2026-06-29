@@ -1,0 +1,373 @@
+{
+  "language": {
+    "label": "Language"
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "ok": "OK",
+    "loading": "Loading…",
+    "details": "Details",
+    "delete": "Delete",
+    "undo": "Undo",
+    "createAccount": "Create account"
+  },
+  "errors": {
+    "generic": "Something went wrong."
+  },
+  "app": {
+    "invite": "Invite",
+    "inviteTitle": "Invite friends",
+    "createAccountTitle": "Create a free account",
+    "profileTitle": "{{name}} · Profile",
+    "resetData": "Reset data"
+  },
+  "profile": {
+    "logoutConfirmTitle": "Log out?",
+    "logoutConfirmMessage": "You'll be logged out of your account.",
+    "logout": "Log out",
+    "yourProfile": "Your profile",
+    "whatsYourName": "What's your name?",
+    "nameSubtitle": "Your name shows up as the sender on your cards.",
+    "nameAria": "Your name",
+    "nameRequired": "Please enter a name."
+  },
+  "nav": {
+    "create": "Create",
+    "mailbox": "Mailbox",
+    "world": "World view",
+    "pinboard": "Pinboard",
+    "friends": "Friends"
+  },
+  "create": {
+    "title": "New postcard",
+    "subtitle": "Pick a photo, design your card and send it off. ✉️",
+    "photoPlaceholder": "Choose photo 📷",
+    "step1": "1 · Photo",
+    "otherPhoto": "Different photo",
+    "choosePhoto": "Choose / take a photo",
+    "decorate": "Decorate",
+    "searchingLocation": "Finding location…",
+    "fromPhotoSuffix": " (from photo)",
+    "addLocation": "Add a location",
+    "orientation": "Orientation",
+    "landscape": "Landscape",
+    "portrait": "Portrait",
+    "cropHint": "🔍 To crop, just zoom right in the preview — with two fingers, the mouse wheel or a double tap. Then drag to reposition the shot.",
+    "step2": "2 · Template",
+    "step3": "3 · Filter",
+    "step4": "4 · Text",
+    "messagePlaceholder": "Greetings from my holiday…",
+    "step5": "5 · Stamp 🏷️",
+    "customStampTitle": "Your own stamp (double tap to change)",
+    "makeStampTitle": "Design your own stamp",
+    "step6": "6 · Recipient",
+    "selectedCount": "{{count}} selected",
+    "recipientDefault": "Friend",
+    "recipientsMany": "{{count}} friends",
+    "noFriends": "You haven't connected with any friends yet. Invite someone via \"💌 Invite\" above — once they join, they'll show up here.",
+    "guestBanner": "In guest mode your card only stays on this device. To really send cards to friends, create a free account.",
+    "sending": "Sending…",
+    "sendToMany": "Send to {{count}} friends",
+    "sendToOne": "Send to {{name}}",
+    "previewFlipHint": "Preview · ⟳ to flip",
+    "previewHint": "Here's how your card will look",
+    "tapToChoosePhoto": "📷 Tap to choose a photo",
+    "flyingTo": "On its way to {{name}}… ✈️",
+    "errPhotoLoad": "Error loading the photo: {{error}}",
+    "errGeoUnsupported": "Location isn't supported by this browser.",
+    "errGeoFailed": "Couldn't determine your location.",
+    "errNeedPhoto": "Please choose a photo first. 📷",
+    "errNeedRecipient": "Please choose at least one recipient.",
+    "errNoRecipient": "This person hasn't joined yet. Invite them via \"💌 Invite\" above.",
+    "errSendFailed": "Sending failed: {{error}}"
+  },
+  "templates": {
+    "classic": "Classic",
+    "sunset": "Sunset",
+    "ocean": "Ocean blue",
+    "polaroid": "Polaroid",
+    "forest": "Forest green",
+    "night": "Midnight blue",
+    "rose": "Rosé",
+    "mint": "Mint",
+    "kraft": "Kraft paper"
+  },
+  "filters": {
+    "none": "Original",
+    "warm": "Warm",
+    "cool": "Cool",
+    "vintage": "Vintage",
+    "bw": "B/W",
+    "vivid": "Vivid"
+  },
+  "stamps": {
+    "heart": "Heart",
+    "globe": "Globe",
+    "mountain": "Mountains",
+    "forest": "Forest",
+    "palm": "Beach",
+    "city": "City",
+    "star": "Star",
+    "custom": "Custom"
+  },
+  "card": {
+    "flipTitle": "Click to flip",
+    "alt": "Postcard motif",
+    "resetZoom": "Reset zoom",
+    "panHint": "Drag to move · double tap to reset",
+    "zoomHint": "Double tap or use 2 fingers to zoom",
+    "defaultMessage": "Greetings!",
+    "to": "To",
+    "from": "From",
+    "locExif": "From the photo data",
+    "locManual": "Added location",
+    "toFront": "To the front",
+    "flip": "Flip card"
+  },
+  "mailbox": {
+    "title": "Mailbox",
+    "subtitle": "The postcards you've received and sent.",
+    "deleted": "Postcard deleted.",
+    "sentToast": "✅ Postcard sent! It's in your outbox now.",
+    "guestBanner": "To receive real postcards from friends, you'll need a free account.",
+    "inboxTab": "Inbox ({{count}})",
+    "outboxTab": "Outbox ({{count}})",
+    "likesReceived_one": "❤️ {{count}} like received",
+    "likesReceived_other": "❤️ {{count}} likes received",
+    "emptyInbox": "No postcards received yet.",
+    "emptyOutbox": "You haven't sent anything yet. Create your first card!",
+    "newFlag": "NEW",
+    "liked": "You liked it",
+    "like": "Like",
+    "replyTitle": "Send {{name}} a card back",
+    "reply": "Reply",
+    "fromLabel": "from {{name}}",
+    "toLabel": "to {{name}}",
+    "recipientLiked": "The recipient liked it",
+    "unpinTitle": "Take off the pinboard",
+    "pinTitle": "Pin to the board"
+  },
+  "world": {
+    "title": "World view",
+    "subtitle": "Every postcard sits right where its photo was taken. 🌍",
+    "fromLabel": "from {{name}}",
+    "empty": "No located postcards yet — add a location when you create one.",
+    "lastTapped": "Last tapped:"
+  },
+  "pinboard": {
+    "title": "Pinboard",
+    "subtitle": "Pin up your favorite cards and arrange them just so.",
+    "emptyTitle": "Your pinboard is still empty",
+    "emptyBodyBefore": "Open a card in your ",
+    "emptyBodyLink": "Mailbox",
+    "emptyBodyAfter": " and tap \"Pin\" — it'll show up here, ready to hang and move around.",
+    "unpinTitle": "Take off the pinboard",
+    "tip": "Tip: cards can be moved freely — just drag them across the board. Tap a card or the ⟳ icon to see the back."
+  },
+  "friends": {
+    "title": "My friends",
+    "connectedCount_one": "{{count}} person connected.",
+    "connectedCount_other": "{{count}} people connected.",
+    "subtitleDemo": "Who you swap postcards with.",
+    "guestBanner": "Connect with real friends by creating a free account and sharing your invite link.",
+    "inviteBtn": "Invite a friend",
+    "empty": "No friends yet. Share your invite link to get started!",
+    "introduceTitle": "Introduce {{name}} to others",
+    "introduce": "Introduce",
+    "introduceModalAria": "Introduce {{name}}",
+    "introduceHeading": "Introduce {{name}} 🤝",
+    "introduceBody": "Choose who {{name}} should meet. Both will be connected and can send each other postcards.",
+    "needMore": "You need more friends before you can introduce someone.",
+    "introduced": "{{name}} is now connected with {{names}} 🤝",
+    "connecting": "Connecting…",
+    "connect": "Connect"
+  },
+  "auth": {
+    "feature1Title": "Write postcards",
+    "feature1Desc": "Design personal cards with text and pick the perfect sender location.",
+    "feature2Title": "Mailbox",
+    "feature2Desc": "Receive cards from friends all over the world right in your inbox.",
+    "feature3Title": "World map",
+    "feature3Desc": "See on an interactive map where your postcards have traveled from.",
+    "feature4Title": "Pinboard",
+    "feature4Desc": "Pin up your prettiest cards and proudly show them to your world.",
+    "tagline": "Postcards rediscovered — digital, personal, worldwide.",
+    "freeBadge": "100% free · no ads",
+    "inviteRegister": "You've been invited! Create an account to receive postcards.",
+    "inviteLogin": "You've been invited! Log in — you'll be connected automatically.",
+    "welcomeBack": "Welcome back.",
+    "createYourAccount": "Create your account.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "login": "Log in",
+    "register": "Create account",
+    "switchToRegister": "No account yet? Sign up",
+    "switchToLogin": "Already here? Log in",
+    "or": "or",
+    "tryGuest": "Just try it without an account first →"
+  },
+  "welcome": {
+    "aria": "Welcome to Wanderpost",
+    "title": "Welcome to Wanderpost!",
+    "intro": "Send your friends virtual greetings from all over the world. Here's how it works:",
+    "skip": "Skip",
+    "start": "Let's go! 🎉",
+    "next": "Next",
+    "step1Title": "Create a postcard",
+    "step1Text": "Choose or take a photo, decorate it, add text & a stamp, and send it off.",
+    "step2Title": "Mailbox",
+    "step2Text": "This is where cards from friends land — and your sent ones go in the outbox.",
+    "step3Title": "World view",
+    "step3Text": "Every card sits on the map exactly where its photo was taken.",
+    "step4Title": "Pinboard",
+    "step4Text": "Pin your favorite cards to the corkboard and arrange them just so."
+  },
+  "invite": {
+    "shareText": "I'm sending you postcards on Wanderpost! Join with this link:",
+    "aria": "Invite friends",
+    "heading": "Invite friends 💌",
+    "creating": "Creating link…",
+    "body": "Share this link so friends can join and receive your postcards.",
+    "qrAlt": "QR code to join",
+    "qrHint": "Just scan to join 📷",
+    "share": "Share",
+    "copied": "Copied",
+    "copyLink": "Copy link"
+  },
+  "stamp": {
+    "aria": "Design your own stamp",
+    "heading": "Your own stamp 🏷️",
+    "motif": "Motif",
+    "customEmojiAria": "Custom emoji",
+    "customEmojiPlaceholder": "or your own emoji…",
+    "background": "Background",
+    "colorAria": "Color {{color}}",
+    "apply": "Apply"
+  },
+  "decorator": {
+    "aria": "Decorate photo",
+    "heading": "Decorate photo 🎨",
+    "sticker": "Sticker",
+    "draw": "Draw",
+    "stickerHint": "Tap to place · drag to move · double tap to remove",
+    "drawHint": "Draw with your finger / mouse",
+    "undo": "Undo",
+    "clear": "Clear all",
+    "done": "Done"
+  },
+  "detail": {
+    "aria": "View postcard",
+    "zoomOut": "Zoom out",
+    "reset": "Reset view",
+    "zoomIn": "Zoom in",
+    "zoomGroup": "Zoom"
+  },
+  "notif": {
+    "blocked": "Notifications are blocked in your browser",
+    "on": "Notifications on — tap to turn off",
+    "enable": "Turn on notifications"
+  },
+  "guest": {
+    "createAccount": "Create account"
+  },
+  "feedback": {
+    "hintsAria": "Hints"
+  },
+  "install": {
+    "buttonTitle": "Install Wanderpost as an app",
+    "button": "Install"
+  },
+  "pwa": {
+    "newVersion": "✨ New version available",
+    "update": "Update",
+    "later": "Later",
+    "installTitle": "Install Wanderpost as an app",
+    "installPromptBody": "Open it right from your home screen — faster, full-screen, with notifications.",
+    "install": "Install",
+    "how": "How do I do that?",
+    "installGuideBody": "On your screen in just a few steps — we'll show you exactly how.",
+    "showHow": "Show me how"
+  },
+  "guide": {
+    "aria": "Install Wanderpost",
+    "heading": "Install Wanderpost",
+    "subtitle": "So your postcards are always just one tap away.",
+    "benefit1": "Open right from your home screen — no more searching",
+    "benefit2": "Full-screen, with no address bar at all",
+    "benefit3": "A reminder as soon as new mail arrives for you",
+    "oneClick": "Install now with one click",
+    "installing": "Installing…",
+    "howToOn": "Here's how on {{device}}:",
+    "detectedSuffix": " (detected)",
+    "intro": "Here's how",
+    "deviceSwitch": "Different device? Switch the guide",
+    "done": "Got it",
+    "devices": {
+      "ios": "iPhone / iPad · Safari",
+      "ios-chrome": "iPhone / iPad · Chrome",
+      "android": "Android phone",
+      "desktop-chromium": "Computer (Chrome / Edge)",
+      "desktop-safari": "Mac (Safari)",
+      "desktop-firefox": "Firefox",
+      "other": "your device"
+    },
+    "choices": {
+      "ios": "iPhone · Safari",
+      "ios-chrome": "iPhone · Chrome",
+      "android": "Android",
+      "desktop-chromium": "Chrome / Edge",
+      "desktop-safari": "Mac · Safari",
+      "desktop-firefox": "Firefox"
+    },
+    "ios": {
+      "intro": "This works in the Safari browser. If you have another app open, just open this page in Safari for a moment.",
+      "step1": "Tap the share icon in the bottom bar — the square with the arrow pointing up.",
+      "step2": "Swipe down a little in the menu and tap \"Add to Home Screen\".",
+      "step3": "Tap \"Add\" in the top right. Done — the Wanderpost icon is now on your home screen."
+    },
+    "ios-chrome": {
+      "intro": "In Chrome on the iPhone, the share icon is at the top, not the bottom.",
+      "step1": "Tap the share icon in the top right (a square with an arrow pointing up). Don't see it? Open the three-dots menu ⋯ first.",
+      "step2": "Choose \"Add to Home Screen\" in the menu.",
+      "step3": "Tap \"Add\". Done — the Wanderpost icon is now on your home screen.",
+      "note": "Tip: it works the same way in Safari — there you'll find the share icon in the bottom bar."
+    },
+    "android": {
+      "step1": "Tap the menu in the top right — the three stacked dots.",
+      "step2": "Choose \"Install app\" or \"Add to Home screen\".",
+      "step3": "Confirm with \"Install\". Done — Wanderpost shows up with your apps."
+    },
+    "desktop-chromium": {
+      "step1": "Look at the address bar right at the top. On the right you'll see a little icon — a screen with an arrow pointing down.",
+      "step2": "Click it and then click \"Install\".",
+      "step3": "Wanderpost opens in its own window and lands in your Start menu or the Dock.",
+      "note": "No icon to be seen? Click the menu in the top right (three dots) and then \"Install app\"."
+    },
+    "desktop-safari": {
+      "step1": "In the top right of Safari, click the share icon — the square with the arrow pointing up.",
+      "step2": "Choose \"Add to Dock\".",
+      "step3": "Confirm with \"Add\". Wanderpost is now in your Dock.",
+      "note": "Can't find \"Add to Dock\"? Then your macOS is a bit older — the easiest way is to install Wanderpost with Chrome or Microsoft Edge."
+    },
+    "desktop-firefox": {
+      "intro": "Unfortunately, Firefox can't save web apps as their own app on the computer.",
+      "step1": "Easiest option: open this page once in Google Chrome or Microsoft Edge — there you can install Wanderpost with one click.",
+      "step2": "Want to stick with Firefox? Bookmark the page with Ctrl + D, then it's always close at hand."
+    },
+    "other": {
+      "step1": "Open your browser's menu (often three dots or three lines in the top right).",
+      "step2": "Look for \"Install app\" or \"Add to Home screen\" and tap it.",
+      "step3": "Confirm — after that you open Wanderpost straight from the app icon."
+    }
+  },
+  "legal": {
+    "home": "To the home page",
+    "back": "← Back",
+    "imprint": "Imprint",
+    "privacy": "Privacy"
+  }
+}

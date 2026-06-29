@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, BellOff } from 'lucide-react';
 import { disablePush, enablePush, pushState, type PushState } from '../push';
 
@@ -7,6 +8,7 @@ import { disablePush, enablePush, pushState, type PushState } from '../push';
  * and the browser can do it — so a non-functional control never shows up.
  */
 export function NotificationToggle() {
+  const { t } = useTranslation();
   const [state, setState] = useState<PushState | 'loading'>('loading');
   const [busy, setBusy] = useState(false);
 
@@ -38,10 +40,10 @@ export function NotificationToggle() {
   const on = state === 'on';
   const title =
     state === 'denied'
-      ? 'Benachrichtigungen sind im Browser blockiert'
+      ? t('notif.blocked')
       : on
-        ? 'Benachrichtigungen an — tippen zum Ausschalten'
-        : 'Benachrichtigungen einschalten';
+        ? t('notif.on')
+        : t('notif.enable');
 
   return (
     <button

@@ -1,13 +1,14 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDialog } from '../hooks/useDialog';
 
 const SEEN_KEY = 'postcards.welcomed.v1';
 
 const STEPS = [
-  { icon: '✏️', title: 'Postkarte erstellen', text: 'Foto wählen oder aufnehmen, verzieren, Text & Briefmarke ergänzen und abschicken.' },
-  { icon: '📬', title: 'Briefkasten', text: 'Hier landen Karten von Freunden – und deine versendeten im Ausgang.' },
-  { icon: '🌍', title: 'Weltansicht', text: 'Jede Karte steckt auf der Karte genau dort, wo ihr Foto entstanden ist.' },
-  { icon: '📌', title: 'Pinwand', text: 'Häng deine Lieblingskarten ans Korkbrett und zieh sie zurecht.' },
+  { icon: '✏️', titleKey: 'welcome.step1Title', textKey: 'welcome.step1Text' },
+  { icon: '📬', titleKey: 'welcome.step2Title', textKey: 'welcome.step2Text' },
+  { icon: '🌍', titleKey: 'welcome.step3Title', textKey: 'welcome.step3Text' },
+  { icon: '📌', titleKey: 'welcome.step4Title', textKey: 'welcome.step4Text' },
 ];
 
 export function Welcome() {
@@ -23,6 +24,7 @@ export function Welcome() {
 }
 
 function WelcomeTour({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const ref = useDialog<HTMLDivElement>(onClose);
   const [step, setStep] = useState(0);
   const last = step === STEPS.length - 1;
@@ -35,13 +37,13 @@ function WelcomeTour({ onClose }: { onClose: () => void }) {
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label="Willkommen bei Wanderpost"
+        aria-label={t('welcome.aria')}
         tabIndex={-1}
       >
         <span className="welcome-icon">{s.icon}</span>
-        <h2>{step === 0 ? 'Willkommen bei Wanderpost!' : s.title}</h2>
-        <p>{step === 0 ? 'Sende deinen Freunden virtuelle Grüße aus aller Welt. So funktioniert’s:' : s.text}</p>
-        {step === 0 && <p className="welcome-sub">{s.title}: {s.text}</p>}
+        <h2>{step === 0 ? t('welcome.title') : t(s.titleKey)}</h2>
+        <p>{step === 0 ? t('welcome.intro') : t(s.textKey)}</p>
+        {step === 0 && <p className="welcome-sub">{t(s.titleKey)}: {t(s.textKey)}</p>}
 
         <div className="welcome-dots">
           {STEPS.map((_, i) => (
@@ -50,12 +52,12 @@ function WelcomeTour({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="welcome-actions">
-          <button className="btn link" onClick={onClose}>Überspringen</button>
+          <button className="btn link" onClick={onClose}>{t('welcome.skip')}</button>
           <button
             className="btn primary"
             onClick={() => (last ? onClose() : setStep((x) => x + 1))}
           >
-            {last ? 'Los geht’s! 🎉' : 'Weiter'}
+            {last ? t('welcome.start') : t('welcome.next')}
           </button>
         </div>
       </div>

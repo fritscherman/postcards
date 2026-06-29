@@ -1,0 +1,373 @@
+{
+  "language": {
+    "label": "Dil"
+  },
+  "common": {
+    "close": "Kapat",
+    "cancel": "Vazgeç",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor…",
+    "ok": "Tamam",
+    "loading": "Yükleniyor…",
+    "details": "Ayrıntılar",
+    "delete": "Sil",
+    "undo": "Geri al",
+    "createAccount": "Hesap oluştur"
+  },
+  "errors": {
+    "generic": "Bir şeyler ters gitti."
+  },
+  "app": {
+    "invite": "Davet et",
+    "inviteTitle": "Arkadaşlarını davet et",
+    "createAccountTitle": "Ücretsiz hesap oluştur",
+    "profileTitle": "{{name}} · Profil",
+    "resetData": "Verileri sıfırla"
+  },
+  "profile": {
+    "logoutConfirmTitle": "Çıkış yapılsın mı?",
+    "logoutConfirmMessage": "Hesabından çıkış yapılacak.",
+    "logout": "Çıkış yap",
+    "yourProfile": "Profilin",
+    "whatsYourName": "Adın ne?",
+    "nameSubtitle": "Adın, kartların gönderen kısmında görünür.",
+    "nameAria": "Adın",
+    "nameRequired": "Lütfen bir ad gir."
+  },
+  "nav": {
+    "create": "Oluştur",
+    "mailbox": "Posta kutusu",
+    "world": "Dünya görünümü",
+    "pinboard": "Pano",
+    "friends": "Arkadaşlar"
+  },
+  "create": {
+    "title": "Yeni kartpostal",
+    "subtitle": "Bir fotoğraf seç, kartını tasarla ve gönder. ✉️",
+    "photoPlaceholder": "Fotoğraf seç 📷",
+    "step1": "1 · Fotoğraf",
+    "otherPhoto": "Başka fotoğraf",
+    "choosePhoto": "Fotoğraf seç / çek",
+    "decorate": "Süsle",
+    "searchingLocation": "Konum aranıyor…",
+    "fromPhotoSuffix": " (fotoğraftan)",
+    "addLocation": "Çekim yeri ekle",
+    "orientation": "Yön",
+    "landscape": "Yatay",
+    "portrait": "Dikey",
+    "cropHint": "🔍 Kırpmak için doğrudan önizlemede yakınlaştır – iki parmakla, fare tekerleğiyle ya da çift dokunuşla. Sonra sürükleyerek kesiti kaydır.",
+    "step2": "2 · Şablon",
+    "step3": "3 · Filtre",
+    "step4": "4 · Metin",
+    "messagePlaceholder": "Tatilden sevgi dolu selamlar…",
+    "step5": "5 · Pul 🏷️",
+    "customStampTitle": "Kendi pulun (değiştirmek için çift dokun)",
+    "makeStampTitle": "Kendi pulunu tasarla",
+    "step6": "6 · Alıcı",
+    "selectedCount": "{{count}} seçildi",
+    "recipientDefault": "Arkadaş",
+    "recipientsMany": "{{count}} arkadaş",
+    "noFriends": "Henüz hiç arkadaşın yok. Yukarıdaki \"💌 Davet et\" ile birini davet et — katıldığı an burada görünecek.",
+    "guestBanner": "Misafir modunda kartın yalnızca bu cihazda kalır. Arkadaşlarına gerçekten gönderebilmek için ücretsiz bir hesap oluştur.",
+    "sending": "Gönderiliyor…",
+    "sendToMany": "{{count}} arkadaşa gönder",
+    "sendToOne": "{{name}} kişisine gönder",
+    "previewFlipHint": "Önizleme · çevirmek için ⟳",
+    "previewHint": "Kartın böyle görünecek",
+    "tapToChoosePhoto": "📷 Fotoğraf seçmek için dokun",
+    "flyingTo": "{{name}} kişisine doğru yola çıktı… ✈️",
+    "errPhotoLoad": "Fotoğraf yüklenirken hata: {{error}}",
+    "errGeoUnsupported": "Bu tarayıcı konumu desteklemiyor.",
+    "errGeoFailed": "Konum belirlenemedi.",
+    "errNeedPhoto": "Lütfen önce bir fotoğraf seç. 📷",
+    "errNeedRecipient": "Lütfen en az bir alıcı seç.",
+    "errNoRecipient": "Bu kişi henüz aramızda değil. Yukarıdaki \"💌 Davet et\" ile onu davet et.",
+    "errSendFailed": "Gönderme başarısız: {{error}}"
+  },
+  "templates": {
+    "classic": "Klasik",
+    "sunset": "Gün batımı",
+    "ocean": "Deniz mavisi",
+    "polaroid": "Polaroid",
+    "forest": "Orman yeşili",
+    "night": "Gece mavisi",
+    "rose": "Pembe",
+    "mint": "Nane",
+    "kraft": "Kraft kâğıt"
+  },
+  "filters": {
+    "none": "Orijinal",
+    "warm": "Sıcak",
+    "cool": "Soğuk",
+    "vintage": "Retro",
+    "bw": "S/B",
+    "vivid": "Canlı"
+  },
+  "stamps": {
+    "heart": "Kalp",
+    "globe": "Dünya",
+    "mountain": "Dağlar",
+    "forest": "Orman",
+    "palm": "Plaj",
+    "city": "Şehir",
+    "star": "Yıldız",
+    "custom": "Özel"
+  },
+  "card": {
+    "flipTitle": "Çevirmek için tıkla",
+    "alt": "Kartpostal görseli",
+    "resetZoom": "Yakınlaştırmayı sıfırla",
+    "panHint": "Kaydırmak için sürükle · sıfırlamak için çift dokun",
+    "zoomHint": "Yakınlaştırmak için çift dokun ya da 2 parmak kullan",
+    "defaultMessage": "Sevgiler!",
+    "to": "Kime",
+    "from": "Kimden",
+    "locExif": "Fotoğraf verilerinden",
+    "locManual": "Eklenen yer",
+    "toFront": "Ön yüze",
+    "flip": "Kartı çevir"
+  },
+  "mailbox": {
+    "title": "Posta kutusu",
+    "subtitle": "Aldığın ve gönderdiğin kartpostallar.",
+    "deleted": "Kartpostal silindi.",
+    "sentToast": "✅ Kartpostal gönderildi! Şimdi giden kutusunda.",
+    "guestBanner": "Arkadaşlarından gerçek kartpostal alabilmek için ücretsiz bir hesaba ihtiyacın var.",
+    "inboxTab": "Gelen ({{count}})",
+    "outboxTab": "Giden ({{count}})",
+    "likesReceived_one": "❤️ {{count}} beğeni aldın",
+    "likesReceived_other": "❤️ {{count}} beğeni aldın",
+    "emptyInbox": "Henüz kartpostal almadın.",
+    "emptyOutbox": "Henüz hiçbir şey göndermedin. İlk kartını oluştur!",
+    "newFlag": "YENİ",
+    "liked": "Beğendin",
+    "like": "Beğen",
+    "replyTitle": "{{name}} kişisine kart geri gönder",
+    "reply": "Yanıtla",
+    "fromLabel": "{{name}} kişisinden",
+    "toLabel": "{{name}} kişisine",
+    "recipientLiked": "Alıcı beğendi",
+    "unpinTitle": "Panodan kaldır",
+    "pinTitle": "Panoya as"
+  },
+  "world": {
+    "title": "Dünya görünümü",
+    "subtitle": "Her kartpostal, fotoğrafının çekildiği yere iliştirilir. 🌍",
+    "fromLabel": "{{name}} kişisinden",
+    "empty": "Henüz konumlu kartpostal yok — oluştururken bir çekim yeri ekle.",
+    "lastTapped": "Son dokunulan:"
+  },
+  "pinboard": {
+    "title": "Pano",
+    "subtitle": "En sevdiğin kartları as ve istediğin gibi yerleştir.",
+    "emptyTitle": "Panon henüz boş",
+    "emptyBodyBefore": "Şuradan aç: ",
+    "emptyBodyLink": "Posta kutusu",
+    "emptyBodyAfter": " bir kart açıp \"Panoya as\"a dokun — sonra burada görünür, asıp kaydırabilirsin.",
+    "unpinTitle": "Panodan kaldır",
+    "tip": "İpucu: Kartları serbestçe kaydırabilirsin — panonun üzerinde sürüklemen yeterli. Arka yüzü görmek için bir karta ya da ⟳ simgesine dokun."
+  },
+  "friends": {
+    "title": "Arkadaşlarım",
+    "connectedCount_one": "{{count}} kişi bağlı.",
+    "connectedCount_other": "{{count}} kişi bağlı.",
+    "subtitleDemo": "Kiminle kartpostal alışverişi yaptığın.",
+    "guestBanner": "Ücretsiz bir hesap oluşturup davet bağlantını paylaşarak gerçek arkadaşlarınla bağlan.",
+    "inviteBtn": "Arkadaş davet et",
+    "empty": "Henüz hiç arkadaşın yok. Başlamak için davet bağlantını paylaş!",
+    "introduceTitle": "{{name}} kişisini başkalarıyla tanıştır",
+    "introduce": "Tanıştır",
+    "introduceModalAria": "{{name}} kişisini tanıştır",
+    "introduceHeading": "{{name}} kişisini tanıştır 🤝",
+    "introduceBody": "{{name}} kişisinin kiminle tanışacağını seç. İkisi de bağlanır ve birbirine kartpostal gönderebilir.",
+    "needMore": "Birini tanıştırmak için biraz daha arkadaşa ihtiyacın var.",
+    "introduced": "{{name}} artık {{names}} ile bağlı 🤝",
+    "connecting": "Bağlanıyor…",
+    "connect": "Bağlan"
+  },
+  "auth": {
+    "feature1Title": "Kartpostal yaz",
+    "feature1Desc": "Metinle kişisel kartlar tasarla ve gönderen için en uygun yeri seç.",
+    "feature2Title": "Posta kutusu",
+    "feature2Desc": "Dünyanın her yerinden arkadaşlarının kartlarını doğrudan posta kutunda al.",
+    "feature3Title": "Dünya haritası",
+    "feature3Desc": "Kartpostallarının nereden geldiğini interaktif bir haritada gör.",
+    "feature4Title": "Pano",
+    "feature4Desc": "En güzel kartlarını as ve gururla herkese göster.",
+    "tagline": "Kartpostal yeniden keşfedildi — dijital, kişisel, dünya çapında.",
+    "freeBadge": "%100 ücretsiz · reklamsız",
+    "inviteRegister": "Davet edildin! Kartpostal almak için bir hesap oluştur.",
+    "inviteLogin": "Davet edildin! Giriş yap — otomatik olarak bağlanacaksınız.",
+    "welcomeBack": "Tekrar hoş geldin.",
+    "createYourAccount": "Hesabını oluştur.",
+    "name": "Ad",
+    "email": "E-posta",
+    "password": "Parola",
+    "login": "Giriş yap",
+    "register": "Hesap oluştur",
+    "switchToRegister": "Hesabın yok mu? Kaydol",
+    "switchToLogin": "Zaten üye misin? Giriş yap",
+    "or": "veya",
+    "tryGuest": "Önce hesapsız dene →"
+  },
+  "welcome": {
+    "aria": "Wanderpost'a hoş geldin",
+    "title": "Wanderpost'a hoş geldin!",
+    "intro": "Arkadaşlarına dünyanın her yerinden sanal selamlar gönder. İşte nasıl çalışıyor:",
+    "skip": "Atla",
+    "start": "Hadi başlayalım! 🎉",
+    "next": "İleri",
+    "step1Title": "Kartpostal oluştur",
+    "step1Text": "Fotoğraf seç ya da çek, süsle, metin ve pul ekle, gönder.",
+    "step2Title": "Posta kutusu",
+    "step2Text": "Arkadaşların kartları burada toplanır – gönderdiklerin de giden kutusunda.",
+    "step3Title": "Dünya görünümü",
+    "step3Text": "Her kart, fotoğrafının çekildiği yere harita üzerinde iliştirilir.",
+    "step4Title": "Pano",
+    "step4Text": "En sevdiğin kartları mantar panoya as ve istediğin gibi yerleştir."
+  },
+  "invite": {
+    "shareText": "Sana Wanderpost ile kartpostal gönderiyorum! Bu bağlantıyla katıl:",
+    "aria": "Arkadaşlarını davet et",
+    "heading": "Arkadaşlarını davet et 💌",
+    "creating": "Bağlantı oluşturuluyor…",
+    "body": "Arkadaşların katılıp kartpostallarını alabilsin diye bu bağlantıyı paylaş.",
+    "qrAlt": "Katılmak için QR kodu",
+    "qrHint": "Katılmak için tarayıp geç 📷",
+    "share": "Paylaş",
+    "copied": "Kopyalandı",
+    "copyLink": "Bağlantıyı kopyala"
+  },
+  "stamp": {
+    "aria": "Kendi pulunu tasarla",
+    "heading": "Kendi pulun 🏷️",
+    "motif": "Motif",
+    "customEmojiAria": "Kendi emojin",
+    "customEmojiPlaceholder": "ya da kendi emojin…",
+    "background": "Arka plan",
+    "colorAria": "{{color}} rengi",
+    "apply": "Uygula"
+  },
+  "decorator": {
+    "aria": "Fotoğrafı süsle",
+    "heading": "Fotoğrafı süsle 🎨",
+    "sticker": "Çıkartma",
+    "draw": "Çiz",
+    "stickerHint": "Yerleştirmek için dokun · taşımak için sürükle · çift dokun siler",
+    "drawHint": "Parmağınla / fareyle çiz",
+    "undo": "Geri al",
+    "clear": "Hepsini sil",
+    "done": "Bitti"
+  },
+  "detail": {
+    "aria": "Kartpostalı görüntüle",
+    "zoomOut": "Uzaklaştır",
+    "reset": "Görünümü sıfırla",
+    "zoomIn": "Yakınlaştır",
+    "zoomGroup": "Yakınlaştırma"
+  },
+  "notif": {
+    "blocked": "Bildirimler tarayıcıda engellenmiş",
+    "on": "Bildirimler açık — kapatmak için dokun",
+    "enable": "Bildirimleri aç"
+  },
+  "guest": {
+    "createAccount": "Hesap oluştur"
+  },
+  "feedback": {
+    "hintsAria": "İpuçları"
+  },
+  "install": {
+    "buttonTitle": "Wanderpost'u uygulama olarak yükle",
+    "button": "Yükle"
+  },
+  "pwa": {
+    "newVersion": "✨ Yeni sürüm mevcut",
+    "update": "Güncelle",
+    "later": "Sonra",
+    "installTitle": "Wanderpost'u uygulama olarak yükle",
+    "installPromptBody": "Doğrudan ana ekrandan aç — daha hızlı, tam ekran, bildirimlerle.",
+    "install": "Yükle",
+    "how": "Bu nasıl olur?",
+    "installGuideBody": "Birkaç adımda ekranında — tam olarak nasıl yapılacağını gösteriyoruz.",
+    "showHow": "Nasıl yapılır"
+  },
+  "guide": {
+    "aria": "Wanderpost'u yükle",
+    "heading": "Wanderpost'u yükle",
+    "subtitle": "Böylece kartpostalların hep tek dokunuşla yanında olur.",
+    "benefit1": "Doğrudan ana ekrandan aç – uzun uzun aramadan",
+    "benefit2": "Tam ekran, adres çubuğu olmadan",
+    "benefit3": "Sana yeni posta geldiğinde bir hatırlatma",
+    "oneClick": "Şimdi tek tıkla yükle",
+    "installing": "Yükleniyor…",
+    "howToOn": "{{device}} cihazında nasıl yapılır:",
+    "detectedSuffix": " (algılandı)",
+    "intro": "Nasıl yapılır",
+    "deviceSwitch": "Başka bir cihaz mı? Kılavuzu değiştir",
+    "done": "Tamamdır",
+    "devices": {
+      "ios": "iPhone / iPad · Safari",
+      "ios-chrome": "iPhone / iPad · Chrome",
+      "android": "Android telefon",
+      "desktop-chromium": "Bilgisayar (Chrome / Edge)",
+      "desktop-safari": "Mac (Safari)",
+      "desktop-firefox": "Firefox",
+      "other": "cihazın"
+    },
+    "choices": {
+      "ios": "iPhone · Safari",
+      "ios-chrome": "iPhone · Chrome",
+      "android": "Android",
+      "desktop-chromium": "Chrome / Edge",
+      "desktop-safari": "Mac · Safari",
+      "desktop-firefox": "Firefox"
+    },
+    "ios": {
+      "intro": "Bu, Safari tarayıcısında yapılır. Başka bir uygulaman açıksa, bu sayfayı kısaca Safari'de aç.",
+      "step1": "Alttaki çubukta paylaş simgesine dokun – yukarı oklu kare.",
+      "step2": "Menüde biraz aşağı kaydır ve \"Ana Ekrana Ekle\"ye dokun.",
+      "step3": "Sağ üstte \"Ekle\"ye dokun. Bitti – Wanderpost simgesi artık ana ekranında."
+    },
+    "ios-chrome": {
+      "intro": "iPhone'daki Chrome'da paylaş simgesi altta değil, üstte yer alır.",
+      "step1": "Sağ üstte paylaş simgesine dokun (yukarı oklu kare). Görmüyorsan, önce üç noktalı menüyü ⋯ aç.",
+      "step2": "Menüde \"Ana Ekrana Ekle\"yi seç.",
+      "step3": "\"Ekle\"ye dokun. Bitti – Wanderpost simgesi artık ana ekranında.",
+      "note": "İpucu: Safari'de de aynı şekilde olur – orada paylaş simgesini alttaki çubukta bulursun."
+    },
+    "android": {
+      "step1": "Sağ üstte menüye dokun – üst üste üç nokta.",
+      "step2": "\"Uygulamayı yükle\" ya da \"Ana ekrana ekle\"yi seç.",
+      "step3": "\"Yükle\" ile onayla. Bitti – Wanderpost uygulamalarının arasında görünür."
+    },
+    "desktop-chromium": {
+      "step1": "En üstteki adres çubuğuna bak. Sağda küçük bir simge belirir – aşağı oklu bir ekran.",
+      "step2": "Üzerine tıkla, ardından \"Yükle\"ye tıkla.",
+      "step3": "Wanderpost kendi penceresinde açılır ve sonra başlat menüsünde ya da Dock'ta yer alır.",
+      "note": "Simgeyi göremiyor musun? Sağ üstte menüye (üç nokta) ardından \"Uygulamayı yükle\"ye tıkla."
+    },
+    "desktop-safari": {
+      "step1": "Safari'de sağ üstte paylaş simgesine tıkla – yukarı oklu kare.",
+      "step2": "\"Dock'a Ekle\"yi seç.",
+      "step3": "\"Ekle\" ile onayla. Wanderpost artık Dock'unda.",
+      "note": "\"Dock'a Ekle\"yi bulamıyor musun? O zaman macOS'un biraz eskidir – Wanderpost'u en kolay Chrome ya da Microsoft Edge ile yükleyebilirsin."
+    },
+    "desktop-firefox": {
+      "intro": "Firefox, bilgisayarda web uygulamalarını maalesef kendi uygulaması olarak kaydedemiyor.",
+      "step1": "En kolayı: Bu sayfayı bir kez Google Chrome ya da Microsoft Edge'de aç – orada Wanderpost tek tıkla yüklenebilir.",
+      "step2": "Firefox'ta kalmak mı istiyorsun? Sayfayı Ctrl + D ile yer imine ekle, böylece hep hızlıca elinin altında olur."
+    },
+    "other": {
+      "step1": "Tarayıcının menüsünü aç (genelde sağ üstte üç nokta ya da üç çizgi).",
+      "step2": "\"Uygulamayı yükle\" ya da \"Ana ekrana ekle\"yi bul ve üzerine dokun.",
+      "step3": "Onayla – sonra Wanderpost'u doğrudan uygulama simgesinden açabilirsin."
+    }
+  },
+  "legal": {
+    "home": "Ana sayfaya",
+    "back": "← Geri",
+    "imprint": "Künye",
+    "privacy": "Gizlilik"
+  }
+}

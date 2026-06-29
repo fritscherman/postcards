@@ -1,10 +1,12 @@
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Pin, PinOff } from 'lucide-react';
 import { usePostcards } from '../store/PostcardStore';
 import { PostcardCard } from '../components/PostcardCard';
 
 export function PinboardPage() {
+  const { t } = useTranslation();
   const { pinnedCards, movePin, togglePin } = usePostcards();
   const boardRef = useRef<HTMLDivElement>(null);
   const dragId = useRef<string | null>(null);
@@ -48,17 +50,18 @@ export function PinboardPage() {
   return (
     <div className="page pinboard-page">
       <header className="page-head">
-        <h1>Pinwand</h1>
-        <p>Häng deine Lieblingskarten auf und zieh sie zurecht.</p>
+        <h1>{t('pinboard.title')}</h1>
+        <p>{t('pinboard.subtitle')}</p>
       </header>
 
       {pinnedCards.length === 0 ? (
         <div className="board-empty-state">
           <Pin size={40} strokeWidth={1.5} />
-          <h2>Deine Pinwand ist noch leer</h2>
+          <h2>{t('pinboard.emptyTitle')}</h2>
           <p>
-            Öffne im <Link to="/mailbox">Briefkasten</Link> eine Karte und tippe auf
-            „Anpinnen“ — sie erscheint dann hier zum Aufhängen und Verschieben.
+            {t('pinboard.emptyBodyBefore')}
+            <Link to="/mailbox">{t('pinboard.emptyBodyLink')}</Link>
+            {t('pinboard.emptyBodyAfter')}
           </p>
         </div>
       ) : (
@@ -86,8 +89,8 @@ export function PinboardPage() {
                 <button
                   type="button"
                   className="unpin-btn"
-                  title="Von der Pinwand nehmen"
-                  aria-label="Von der Pinwand nehmen"
+                  title={t('pinboard.unpinTitle')}
+                  aria-label={t('pinboard.unpinTitle')}
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={() => togglePin(card.id)}
                 >
@@ -99,7 +102,7 @@ export function PinboardPage() {
               </div>
             ))}
           </div>
-          <p className="board-tip">Tipp: Karten lassen sich frei verschieben — ziehe sie einfach übers Brett. Tippe auf eine Karte oder das ⟳-Symbol, um die Rückseite zu sehen.</p>
+          <p className="board-tip">{t('pinboard.tip')}</p>
         </>
       )}
     </div>

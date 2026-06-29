@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Search } from 'lucide-react';
 import L from 'leaflet';
@@ -19,6 +20,7 @@ function makeIcon(emoji: string) {
 }
 
 export function WorldPage() {
+  const { t } = useTranslation();
   const { postcards } = usePostcards();
   const [active, setActive] = useState<Postcard | null>(null);
   const [detail, setDetail] = useState<Postcard | null>(null);
@@ -28,8 +30,8 @@ export function WorldPage() {
   return (
     <div className="page world-page">
       <header className="page-head">
-        <h1>Weltansicht</h1>
-        <p>Jede Postkarte steckt dort, wo ihr Foto entstanden ist. 🌍</p>
+        <h1>{t('world.title')}</h1>
+        <p>{t('world.subtitle')}</p>
       </header>
 
       <div className="map-shell">
@@ -49,8 +51,8 @@ export function WorldPage() {
                 <div className="map-popup">
                   <img src={card.image} alt="" />
                   <strong>{card.location!.label}</strong>
-                  <span>von {card.from}</span>
-                  <button className="btn link" onClick={() => setDetail(card)}><Search size={15} /> Details</button>
+                  <span>{t('world.fromLabel', { name: card.from })}</span>
+                  <button className="btn link" onClick={() => setDetail(card)}><Search size={15} /> {t('common.details')}</button>
                 </div>
               </Popup>
             </Marker>
@@ -58,13 +60,13 @@ export function WorldPage() {
         </MapContainer>
 
         {located.length === 0 && (
-          <div className="map-empty">Noch keine verorteten Postkarten — füge beim Erstellen einen Aufnahmeort hinzu.</div>
+          <div className="map-empty">{t('world.empty')}</div>
         )}
       </div>
 
       {active && (
         <p className="world-hint">
-          Zuletzt angetippt: <strong>{active.location?.label}</strong> · {active.message || '…'}
+          {t('world.lastTapped')} <strong>{active.location?.label}</strong> · {active.message || '…'}
         </p>
       )}
 

@@ -2,6 +2,8 @@
 // runs in local demo mode and this client is unused.
 //   VITE_API_URL=/                  -> same origin (Node serves API + app), relative calls
 //   VITE_API_URL=https://api.host   -> separate backend host
+import i18n from '../i18n';
+
 const raw = (import.meta.env.VITE_API_URL ?? '').trim();
 
 /** True when a backend is configured — switches the app from demo to online mode. */
@@ -44,7 +46,7 @@ async function api<T>(path: string, method: 'GET' | 'POST' = 'GET', body?: unkno
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(data.error ?? 'Etwas ist schiefgelaufen.', res.status, data.code);
+  if (!res.ok) throw new ApiError(data.error ?? i18n.t('errors.generic'), res.status, data.code);
   return data as T;
 }
 
