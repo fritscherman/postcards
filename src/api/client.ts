@@ -88,6 +88,13 @@ export const apiSetLike = (id: string, liked: boolean) =>
 export const apiCreateInvite = (b: { email?: string }) =>
   api<{ token: string; link: string; emailed: boolean }>('/api/invites', 'POST', b);
 
+/** Connect to an inviter via their link while already signed in. */
+export const apiAcceptInvite = (token: string) =>
+  api<{ ok: boolean; created: boolean; self: boolean; from: string | null }>(
+    `/api/invites/${token}/accept`,
+    'POST',
+  );
+
 /** A postcard payload as carried by a public share link. */
 export interface SharedCard {
   image: string;

@@ -33,7 +33,8 @@
     "ONLY_OWN_FRIENDS": "You can only introduce your own friends.",
     "NOT_FOUND": "Not found.",
     "SERVER_ERROR": "A server error occurred.",
-    "SHARE_NOT_FOUND": "This card is no longer available."
+    "SHARE_NOT_FOUND": "This card is no longer available.",
+    "INVITE_NOT_FOUND": "This invite link is no longer valid."
   },
   "app": {
     "invite": "Invite",
@@ -268,7 +269,9 @@
     "qrHint": "Just scan to join 📷",
     "share": "Share",
     "copied": "Copied",
-    "copyLink": "Copy link"
+    "copyLink": "Copy link",
+    "connecting": "Connecting…",
+    "connected": "You're now connected with {{name}} 💌"
   },
   "stamp": {
     "aria": "Design your own stamp",

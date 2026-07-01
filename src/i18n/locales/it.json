@@ -33,7 +33,8 @@
     "ONLY_OWN_FRIENDS": "Puoi presentare solo i tuoi amici.",
     "NOT_FOUND": "Non trovato.",
     "SERVER_ERROR": "Si è verificato un errore del server.",
-    "SHARE_NOT_FOUND": "Questa cartolina non è più disponibile."
+    "SHARE_NOT_FOUND": "Questa cartolina non è più disponibile.",
+    "INVITE_NOT_FOUND": "Questo link d'invito non è più valido."
   },
   "app": {
     "invite": "Invita",
@@ -268,7 +269,9 @@
     "qrHint": "Scansiona per unirti 📷",
     "share": "Condividi",
     "copied": "Copiato",
-    "copyLink": "Copia link"
+    "copyLink": "Copia link",
+    "connecting": "Collegamento…",
+    "connected": "Ora sei in contatto con {{name}} 💌"
   },
   "stamp": {
     "aria": "Crea un francobollo personalizzato",

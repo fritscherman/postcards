@@ -94,27 +94,33 @@ function boardOwner(boardId: string): string | undefined {
 }
 
 // Redeem an invite link: connect the inviter and `userId` as friends.
-// Reusable — many people can redeem the same token. No-op for empty/unknown
-// tokens or self-invites.
-function acceptInvite(token: string, userId: string): void {
-  if (!token) return;
+// Reusable — many people can redeem the same token. Returns the inviter id and
+// whether a fresh connection was made, or null for empty/unknown tokens.
+function acceptInvite(
+  token: string,
+  userId: string,
+): { inviterId: string; created: boolean } | null {
+  if (!token) return null;
   const inv = db.prepare('SELECT inviter_id FROM invites WHERE token = ?').get(token) as
     | { inviter_id: string }
     | undefined;
-  if (!inv) return;
+  if (!inv) return null;
   const created = addFriendship(inv.inviter_id, userId);
-  // Only ping the inviter on a fresh connection (not on re-follows of the link).
-  if (!created || inv.inviter_id === userId) return;
-  const joiner = db.prepare('SELECT name FROM users WHERE id = ?').get(userId) as
-    | { name: string }
-    | undefined;
-  if (!joiner) return;
-  const iLang = userLang(inv.inviter_id);
-  void notifyUser(inv.inviter_id, {
-    title: tr(iLang, 'push.connected.title'),
-    body: tr(iLang, 'push.connected.body', { name: joiner.name }),
-    url: '/friends',
-  });
+  // Only ping the inviter on a fresh connection (not on re-follows or self-invites).
+  if (created && inv.inviter_id !== userId) {
+    const joiner = db.prepare('SELECT name FROM users WHERE id = ?').get(userId) as
+      | { name: string }
+      | undefined;
+    if (joiner) {
+      const iLang = userLang(inv.inviter_id);
+      void notifyUser(inv.inviter_id, {
+        title: tr(iLang, 'push.connected.title'),
+        body: tr(iLang, 'push.connected.body', { name: joiner.name }),
+        url: '/friends',
+      });
+    }
+  }
+  return { inviterId: inv.inviter_id, created };
 }
 
 // Normalise an untrusted postcard payload down to the fields we store, so the
@@ -272,6 +278,10 @@ app.post('/api/postcards', requireAuth, (req, res) => {
 
   const payload = buildPayload(req.body.payload ?? {});
 
+  // Sending a card connects the two people — so the sender always turns up in the
+  // recipient's contacts (and vice versa), even if they hadn't been linked yet.
+  addFriendship(me.id, recipient.id);
+
   const id = randomUUID();
   db.prepare('INSERT INTO postcards (id, sender_id, recipient_id, payload, read, created_at) VALUES (?,?,?,?,0,?)')
     .run(id, me.id, recipient.id, payload, Date.now());
@@ -365,6 +375,28 @@ app.post('/api/invites', requireAuth, async (req, res) => {
   const link = `${APP_URL}/invite/${token}`;
   const emailed = email ? await sendInviteEmail(email, me.name, link, userLang(me.id)) : false;
   res.status(201).json({ token, link, emailed });
+});
+
+// --- Accept an invite link while already signed in ---
+// New registrations/logins redeem the invite as part of auth, but a user who is
+// already logged in (the common PWA case) taps the link with an active session.
+// Without this they'd just land on the app with no connection made. Idempotent:
+// safe to re-open the same link.
+app.post('/api/invites/:token/accept', requireAuth, (req, res) => {
+  const me = currentUser(res);
+  const result = acceptInvite(req.params.token, me.id);
+  if (!result) {
+    return res.status(404).json({ error: 'Dieser Einladungslink ist ungültig.', code: 'INVITE_NOT_FOUND' });
+  }
+  const inviter = db.prepare('SELECT name FROM users WHERE id = ?').get(result.inviterId) as
+    | { name: string }
+    | undefined;
+  res.json({
+    ok: true,
+    created: result.created,
+    self: result.inviterId === me.id,
+    from: inviter?.name ?? null,
+  });
 });
 
 // --- Share a postcard by public link ---
