@@ -33,7 +33,8 @@
     "ONLY_OWN_FRIENDS": "Du kannst nur eigene Freund:innen miteinander bekannt machen.",
     "NOT_FOUND": "Nicht gefunden.",
     "SERVER_ERROR": "Es ist ein Serverfehler aufgetreten.",
-    "SHARE_NOT_FOUND": "Diese Karte gibt es nicht mehr."
+    "SHARE_NOT_FOUND": "Diese Karte gibt es nicht mehr.",
+    "INVITE_NOT_FOUND": "Dieser Einladungslink ist ungültig."
   },
   "app": {
     "invite": "Einladen",
@@ -313,7 +314,9 @@
     "qrHint": "Zum Beitreten einfach scannen 📷",
     "share": "Teilen",
     "copied": "Kopiert",
-    "copyLink": "Link kopieren"
+    "copyLink": "Link kopieren",
+    "connecting": "Verbinde…",
+    "connected": "Du bist jetzt mit {{name}} verbunden 💌"
   },
   "stamp": {
     "aria": "Eigene Briefmarke gestalten",

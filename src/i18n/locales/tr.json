@@ -33,7 +33,8 @@
     "ONLY_OWN_FRIENDS": "Yalnızca kendi arkadaşlarını tanıştırabilirsin.",
     "NOT_FOUND": "Bulunamadı.",
     "SERVER_ERROR": "Bir sunucu hatası oluştu.",
-    "SHARE_NOT_FOUND": "Bu kart artık mevcut değil."
+    "SHARE_NOT_FOUND": "Bu kart artık mevcut değil.",
+    "INVITE_NOT_FOUND": "Bu davet bağlantısı artık geçerli değil."
   },
   "app": {
     "invite": "Davet et",
@@ -268,7 +269,9 @@
     "qrHint": "Katılmak için tarayıp geç 📷",
     "share": "Paylaş",
     "copied": "Kopyalandı",
-    "copyLink": "Bağlantıyı kopyala"
+    "copyLink": "Bağlantıyı kopyala",
+    "connecting": "Bağlanılıyor…",
+    "connected": "Artık {{name}} ile bağlantılısın 💌"
   },
   "stamp": {
     "aria": "Kendi pulunu tasarla",

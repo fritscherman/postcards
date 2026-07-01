@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { RotateCcw, Sparkles, UserPlus } from 'lucide-react';
 import { NavBar } from './components/NavBar';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
@@ -23,11 +23,49 @@ import { usePostcards } from './store/PostcardStore';
 import { useAuth } from './auth/AuthContext';
 import { useFeedback } from './components/Feedback';
 import { useDialog } from './hooks/useDialog';
-import { isOnline } from './api/client';
+import { apiAcceptInvite, isOnline } from './api/client';
 
 function InviteAuth({ onGuest }: { onGuest: () => void }) {
   const { token } = useParams();
   return <AuthPage inviteToken={token} onGuest={onGuest} />;
+}
+
+// An already-signed-in user tapped a friend's invite link. Redeem it against
+// their session so the inviter lands in their contacts, then show the result.
+function AcceptInvite() {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { notify } = useFeedback();
+  const done = useRef(false);
+
+  useEffect(() => {
+    if (done.current) return;
+    done.current = true;
+    if (!token) {
+      navigate('/create', { replace: true });
+      return;
+    }
+    apiAcceptInvite(token)
+      .then((r) => {
+        if (r.self) {
+          navigate('/create', { replace: true });
+          return;
+        }
+        if (r.from) notify(t('invite.connected', { name: r.from }), { type: 'success' });
+        navigate('/friends', { replace: true });
+      })
+      .catch((err) => {
+        notify((err as Error).message, { type: 'error' });
+        navigate('/create', { replace: true });
+      });
+  }, [token, navigate, notify, t]);
+
+  return (
+    <div className="page">
+      <p className="field-hint">{t('invite.connecting')}</p>
+    </div>
+  );
 }
 
 export default function App() {
@@ -101,7 +139,7 @@ export default function App() {
           <Route path="/friends" element={<FriendsPage onInvite={() => setInviting(true)} />} />
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
-          <Route path="/invite/:token" element={<Navigate to="/create" replace />} />
+          <Route path="/invite/:token" element={<AcceptInvite />} />
           <Route path="/card/:token" element={<SharedCardPage />} />
           <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>

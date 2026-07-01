@@ -33,7 +33,8 @@
     "ONLY_OWN_FRIENDS": "Tu ne peux présenter que tes propres ami(e)s.",
     "NOT_FOUND": "Introuvable.",
     "SERVER_ERROR": "Une erreur de serveur s’est produite.",
-    "SHARE_NOT_FOUND": "Cette carte n'est plus disponible."
+    "SHARE_NOT_FOUND": "Cette carte n'est plus disponible.",
+    "INVITE_NOT_FOUND": "Ce lien d'invitation n'est plus valide."
   },
   "app": {
     "invite": "Inviter",
@@ -268,7 +269,9 @@
     "qrHint": "Scanne-le simplement pour rejoindre 📷",
     "share": "Partager",
     "copied": "Copié",
-    "copyLink": "Copier le lien"
+    "copyLink": "Copier le lien",
+    "connecting": "Connexion…",
+    "connected": "Tu es maintenant connecté·e avec {{name}} 💌"
   },
   "stamp": {
     "aria": "Créer ton propre timbre",
